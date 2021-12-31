@@ -1,11 +1,13 @@
+import { useSelector } from "react-redux";
 import { Navigate, useLocation } from "react-router-dom";
+import { RootState } from "./redux/app";
 
 interface Props {
   children: JSX.Element;
 }
 
 const PrivateRoute = ({ children }: Props) => {
-  const accessToken = "cool";
+  const { accessToken } = useSelector((state: RootState) => state.auth);
 
   const location = useLocation();
 
