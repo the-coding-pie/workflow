@@ -39,3 +39,7 @@ jspm_packages
 
 # .env
 .env
+
+dist
+dist-ssr
+*.local
