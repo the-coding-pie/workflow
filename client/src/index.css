@@ -1,3 +1,39 @@
+@import url("https://fonts.googleapis.com/css2?family=Ubuntu&display=swap");
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+
+:root {
+  /* fonts */
+  --ubuntu: "Ubuntu", sans-serif;
+}
+
+* {
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box !important;
+}
+
+::after,
+::before {
+  box-sizing: border-box;
+}
+
+html {
+  font-size: 16px;
+}
+
+body {
+  width: 100vw;
+  height: 100vh;
+  max-width: 100vw !important;
+  overflow-x: hidden;
+  font-size: 1rem;
+  font-weight: 400;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  word-wrap: break-word !important;
+  @apply bg-stone-100 text-gray-800;
+}

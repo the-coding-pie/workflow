@@ -8,7 +8,7 @@ const DefaultLayout = () => {
       <div className="left">
         <Sidebar />
       </div>
-      <div className="right">
+      <div className="right w-full">
         <Header />
         <main>
           <Outlet />

@@ -4,6 +4,7 @@ import AuthLayout from "./components/layouts/AuthLayout";
 import DefaultLayout from "./components/layouts/DefaultLayout";
 import Login from "./pages/auth/Login";
 import Register from "./pages/auth/Register";
+import Notifications from "./pages/Notifications";
 
 import PrivateRoute from "./PrivateRoute";
 
@@ -34,6 +35,7 @@ const App = () => {
             }
           >
             <Route index element={<Home />} />
+            <Route path="/notifications" element={<Notifications />} />
             <Route path="/settings" element={<Settings />} />
 
             <Route path="*" element={<Error404 />} />
