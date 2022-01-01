@@ -21,8 +21,7 @@ interface AuthState {
 const initialState: AuthState = {
   accessToken: "adf",
   // accessToken: getTokens().accessToken,
-  // refreshToken: getTokens().refreshToken,
-  refreshToken: "dasdf",
+  refreshToken: getTokens().refreshToken,
   user: null,
 };
 
