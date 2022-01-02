@@ -4,7 +4,7 @@ import { ProjectObj } from "../../types";
 import ProjectItem from "./ProjectItem";
 
 const ProjectList = () => {
-  const [currentActive, setCurrentActive] = useState();
+  const [currentActive, setCurrentActive] = useState<null | string>();
 
   return (
     <ul className="project-list">
@@ -12,6 +12,7 @@ const ProjectList = () => {
         projects.map((project: ProjectObj) => {
           return (
             <ProjectItem
+              currentActive={currentActive}
               setCurrentActive={setCurrentActive}
               key={project._id}
               project={project}

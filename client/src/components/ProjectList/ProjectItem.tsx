@@ -11,13 +11,13 @@ import BoardList from "./BoardList";
 import { NavLink } from "react-router-dom";
 
 interface Props {
-  setCurrentActive: React.Dispatch<React.SetStateAction<undefined | boolean>>;
   project: ProjectObj;
+  currentActive: string | null;
+  setCurrentActive: React.Dispatch<React.SetStateAction<string | null>>;
 }
 
-const ProjectItem = ({ project, setCurrentActive }: Props) => {
+const ProjectItem = ({ project, setCurrentActive, currentActive }: Props) => {
   const [showIcons, setShowIcons] = useState(false);
-  const [showBoards, setShowBoards] = useState(false);
 
   const [isCurrentProject, setIsCurrentProject] = useState(false);
 
@@ -31,14 +31,21 @@ const ProjectItem = ({ project, setCurrentActive }: Props) => {
         className={`project px-2 relative py-2 w-full flex items-center justify-between cursor-pointer ${
           isCurrentProject ? "bg-violet-200" : "hover:bg-stone-200"
         }`}
-        onClick={() => setShowBoards((prevValue) => !prevValue)}
+        onClick={() => {
+          setCurrentActive((prevValue) => {
+            if (prevValue === project._id) {
+              return null;
+            }
+            return project._id;
+          });
+        }}
       >
         {isCurrentProject && (
           <span className="absolute inset-y-0 left-0 w-1 bg-violet-500 rounded-tr-xl rounded-br-xl"></span>
         )}
         <div className="left flex items-center">
           <div className="down-icon mr-1 text-gray-600">
-            {showBoards ? (
+            {currentActive === project._id ? (
               <HiChevronDown size={16} />
             ) : (
               <HiChevronRight size={16} />
@@ -64,7 +71,7 @@ const ProjectItem = ({ project, setCurrentActive }: Props) => {
             {project.name.length > 10 ? (
               <NavLink
                 end
-                to={`/projects/${project._id}`}
+                to={`/p/${project._id}`}
                 className={({ isActive }) => {
                   setIsCurrentProject(isActive);
 
@@ -76,7 +83,7 @@ const ProjectItem = ({ project, setCurrentActive }: Props) => {
             ) : (
               <NavLink
                 end
-                to={`/projects/${project._id}`}
+                to={`/p/${project._id}`}
                 className={({ isActive }) => {
                   setIsCurrentProject(isActive);
 
@@ -99,7 +106,7 @@ const ProjectItem = ({ project, setCurrentActive }: Props) => {
           </div>
         )}
       </div>
-      {showBoards && (
+      {currentActive === project._id && (
         <BoardList projectId={project._id} boards={project.boards} />
       )}
     </li>

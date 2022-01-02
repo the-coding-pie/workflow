@@ -17,7 +17,7 @@ const BoardItem = ({ board, projectId }: Props) => {
     <li className="board-item">
       <NavLink
         end
-        to={`projects/${projectId}/boards/${board._id}`}
+        to={`p/${projectId}/b/${board._id}`}
         className={({ isActive }) => {
           setIsCurrentBoard(isActive);
 
