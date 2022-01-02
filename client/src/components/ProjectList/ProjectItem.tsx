@@ -70,7 +70,6 @@ const ProjectItem = ({ project, setCurrentActive, currentActive }: Props) => {
             )}
             {project.name.length > 10 ? (
               <NavLink
-                end
                 to={`/p/${project._id}`}
                 className={({ isActive }) => {
                   setIsCurrentProject(isActive);
@@ -82,7 +81,6 @@ const ProjectItem = ({ project, setCurrentActive, currentActive }: Props) => {
               </NavLink>
             ) : (
               <NavLink
-                end
                 to={`/p/${project._id}`}
                 className={({ isActive }) => {
                   setIsCurrentProject(isActive);
