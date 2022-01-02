@@ -1,41 +1,108 @@
-import React from "react";
+import React, { useState } from "react";
 import { ProjectObj } from "../../types";
-import { BiCaretRight } from "react-icons/bi";
 import Avatar from "react-avatar";
+import {
+  HiChevronRight,
+  HiChevronDown,
+  HiOutlineDotsHorizontal,
+  HiOutlinePlus,
+} from "react-icons/hi";
+import BoardList from "./BoardList";
+import { NavLink } from "react-router-dom";
 
 interface Props {
+  setCurrentActive: React.Dispatch<React.SetStateAction<undefined | boolean>>;
   project: ProjectObj;
 }
 
-const ProjectItem = ({ project }: Props) => {
+const ProjectItem = ({ project, setCurrentActive }: Props) => {
+  const [showIcons, setShowIcons] = useState(false);
+  const [showBoards, setShowBoards] = useState(false);
+
+  const [isCurrentProject, setIsCurrentProject] = useState(false);
+
   return (
-    <div className="project px-4 py-2 w-full flex items-center justify-between cursor-pointer">
-      <div className="left flex items-center">
-        <div className="down-icon mr-1 text-gray-600">
-          <BiCaretRight />
+    <li
+      className="project-item noselect "
+      onMouseEnter={() => setShowIcons(true)}
+      onMouseLeave={() => setShowIcons(false)}
+    >
+      <div
+        className={`project px-2 relative py-2 w-full flex items-center justify-between cursor-pointer ${
+          isCurrentProject ? "bg-violet-200" : "hover:bg-stone-200"
+        }`}
+        onClick={() => setShowBoards((prevValue) => !prevValue)}
+      >
+        {isCurrentProject && (
+          <span className="absolute inset-y-0 left-0 w-1 bg-violet-500 rounded-tr-xl rounded-br-xl"></span>
+        )}
+        <div className="left flex items-center">
+          <div className="down-icon mr-1 text-gray-600">
+            {showBoards ? (
+              <HiChevronDown size={16} />
+            ) : (
+              <HiChevronRight size={16} />
+            )}
+          </div>
+          <div className="name">
+            {project.icon ? (
+              <Avatar
+                src={project.icon}
+                alt="project icon"
+                className="rounded mr-1.5"
+                size="18"
+                textSizeRatio={1.75}
+              />
+            ) : (
+              <Avatar
+                name={project.name}
+                className="rounded mr-1.5"
+                size="18"
+                textSizeRatio={1.75}
+              />
+            )}
+            {project.name.length > 10 ? (
+              <NavLink
+                end
+                to={`/projects/${project._id}`}
+                className={({ isActive }) => {
+                  setIsCurrentProject(isActive);
+
+                  return `text-sm hover:underline decoration-dashed outline-violet-500 underline-offset-4`;
+                }}
+              >
+                {project.name.slice(0, 10) + "..."}
+              </NavLink>
+            ) : (
+              <NavLink
+                end
+                to={`/projects/${project._id}`}
+                className={({ isActive }) => {
+                  setIsCurrentProject(isActive);
+
+                  return `text-sm hover:underline decoration-dashed outline-violet-500 underline-offset-4`;
+                }}
+              >
+                {project.name}
+              </NavLink>
+            )}
+          </div>
         </div>
-        <div className="name">
-          {project.icon ? (
-            <Avatar
-              src={project.icon}
-              alt="project icon"
-              className="rounded mr-1.5"
-              size="18"
-              textSizeRatio={1.75}
-            />
-          ) : (
-            <Avatar
-              name={project.name}
-              className="rounded mr-1.5"
-              size="18"
-              textSizeRatio={1.75}
-            />
-          )}
-          {project.name.length > 10 ? <span className="text-sm">{project.name.slice(0, 10) + "..."}</span> : <span className="text-sm">{project.name}</span>}
-        </div>
+        {showIcons && (
+          <div className="right text-gray-600 flex items-center">
+            <button className="mr-1">
+              <HiOutlineDotsHorizontal size={16} />
+            </button>
+            <button>
+              <HiOutlinePlus size={16} />
+            </button>
+          </div>
+        )}
       </div>
-      <div className="right"></div>
-    </div>
+      {showBoards && (
+        <BoardList projectId={project._id} boards={project.boards} />
+      )}
+    </li>
   );
 };
 

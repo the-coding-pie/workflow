@@ -1,19 +1,27 @@
-import React from "react";
+import React, { useState } from "react";
 import projects from "../../data/projects.ts";
 import { ProjectObj } from "../../types";
 import ProjectItem from "./ProjectItem";
 
 const ProjectList = () => {
+  const [currentActive, setCurrentActive] = useState();
+
   return (
-    <div className="project-list">
+    <ul className="project-list">
       {projects.length > 0 ? (
         projects.map((project: ProjectObj) => {
-          return <ProjectItem key={project._id} project={project} />;
+          return (
+            <ProjectItem
+              setCurrentActive={setCurrentActive}
+              key={project._id}
+              project={project}
+            />
+          );
         })
       ) : (
-        <div>No Projects</div>
+        <li>No Projects</li>
       )}
-    </div>
+    </ul>
   );
 };
 
