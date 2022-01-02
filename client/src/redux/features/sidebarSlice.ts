@@ -16,7 +16,7 @@ const sidebarSlice = createSlice({
       state.show = true;
     },
     hideSidebar: (state) => {
-      state.show = true;
+      state.show = false;
     },
   },
 });

@@ -29,7 +29,7 @@ const ProjectItem = ({ project, setCurrentActive, currentActive }: Props) => {
     >
       <div
         className={`project px-2 relative py-2 w-full flex items-center justify-between cursor-pointer ${
-          isCurrentProject ? "bg-violet-200" : "hover:bg-stone-100"
+          isCurrentProject ? "primary-color-light" : "secondary-color-hover"
         }`}
         onClick={() => {
           setCurrentActive((prevValue) => {

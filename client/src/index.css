@@ -46,3 +46,21 @@ body {
   user-select: none; /* Non-prefixed version, currently
                                   supported by Chrome, Edge, Opera and Firefox */
 }
+
+@layer utilities {
+  .secondary-color {
+    @apply bg-stone-100;
+  }
+
+  .secondary-color-hover {
+    @apply hover:bg-stone-100;
+  }
+
+  .primary-color {
+    @apply bg-violet-500;
+  }
+
+  .primary-color-light {
+    @apply bg-violet-200;
+  }
+}

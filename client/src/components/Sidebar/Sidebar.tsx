@@ -6,14 +6,21 @@ import { IoNotificationsOutline } from "react-icons/io5";
 import { HiOutlinePlus } from "react-icons/hi";
 import SidebarLink from "./SidebarLink";
 import ProjectList from "../ProjectList/ProjectList";
+import { useDispatch } from "react-redux";
+import { hideSidebar } from "../../redux/features/sidebarSlice";
 
 const Sidebar = () => {
+  const dispatch = useDispatch();
+
   return (
-    <aside className={`sidebar w-52 bg-white h-screen flex flex-col`}>
+    <aside className={`sidebar w-52 bg-white h-screen flex flex-col transition ease-in-out delay-75`}>
       <header className="h-14 flex justify-between items-center px-4 mb-3">
         <Logo />
 
-        <button className="text-violet-600">
+        <button
+          onClick={() => dispatch(hideSidebar())}
+          className="text-violet-500"
+        >
           <HiOutlineChevronDoubleLeft size={19} />
         </button>
       </header>

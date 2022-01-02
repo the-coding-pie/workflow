@@ -22,14 +22,14 @@ const BoardItem = ({ board, projectId }: Props) => {
           setIsCurrentBoard(isActive);
 
           return `flex items-center justify-between pl-8 pr-4 py-1 cursor-pointer relative  ${
-            isActive ? "bg-violet-200" : "hover:bg-stone-100"
+            isActive ? "primary-color-light" : "secondary-color-hover"
           }`;
         }}
         onMouseEnter={() => setShowIcons(true)}
         onMouseLeave={() => setShowIcons(false)}
       >
         {isCurrentBoard && (
-          <span className="absolute inset-y-0 left-0 w-1 bg-violet-500 rounded-tr-xl rounded-br-xl"></span>
+          <span className="absolute inset-y-0 left-0 w-1 primary-color rounded-tr-xl rounded-br-xl"></span>
         )}
         <div className="left flex items-center">
           <div
