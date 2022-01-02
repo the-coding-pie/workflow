@@ -4,7 +4,7 @@ import { ProjectObj } from "../../types";
 import ProjectItem from "./ProjectItem";
 
 const ProjectList = () => {
-  const [currentActive, setCurrentActive] = useState<null | string>();
+  const [currentActive, setCurrentActive] = useState<null | string>(null);
 
   return (
     <ul className="project-list">
@@ -20,7 +20,12 @@ const ProjectList = () => {
           );
         })
       ) : (
-        <li>No Projects</li>
+        <li className="px-6 text-sm py-1">
+          Start a 
+          <button className="ml-1 underline text-violet-500 decoration-dashed outline-violet-500 underline-offset-4">
+            new project
+          </button>
+        </li>
       )}
     </ul>
   );
