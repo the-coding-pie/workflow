@@ -70,12 +70,7 @@ const ProjectItem = ({ project, setCurrentActive, currentActive }: Props) => {
             )}
             {project.name.length > 10 ? (
               <NavLink
-                inlist={[
-                  `/p/${project._id}/boards`,
-                  `/p/${project._id}/members`,
-                  `/p/${project._id}/settings`,
-                ]}
-                to={`/p/${project._id}/boards`}
+                to={`/p/${project._id}`}
                 className={({ isActive }) => {
                   setIsCurrentProject(isActive);
 
@@ -86,12 +81,7 @@ const ProjectItem = ({ project, setCurrentActive, currentActive }: Props) => {
               </NavLink>
             ) : (
               <NavLink
-                inlist={[
-                  `/p/${project._id}/boards`,
-                  `/p/${project._id}/members`,
-                  `/p/${project._id}/settings`,
-                ]}
-                to={`/p/${project._id}/boards`}
+                to={`/p/${project._id}`}
                 className={({ isActive }) => {
                   setIsCurrentProject(isActive);
 
