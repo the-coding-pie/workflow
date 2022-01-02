@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { IconType } from "react-icons";
 import { NavLink } from "react-router-dom";
 import { Link } from "react-router-dom";
@@ -10,15 +10,24 @@ interface Props {
 }
 
 const SidebarLink = ({ to, Icon, text }: Props) => {
+  const [currentActive, setCurrentActive] = useState(false);
+
   return (
     <NavLink
+      end
       to={to}
-      className={({ isActive }) =>
-        `flex items-center px-4 py-2 hover:bg-stone-200 text-sm ${
-          isActive ? "bg-stone-200 hover:bg-none" : ""
-        }`
-      }
+      className={({ isActive }) => {
+        setCurrentActive(isActive);
+
+        return `relative flex items-center px-4 py-2 hover:bg-stone-200 text-sm ${
+          isActive ? "bg-violet-200 hover:bg-none" : ""
+        }`;
+      }}
     >
+      {currentActive && (
+        <span className="absolute inset-y-0 left-0 w-1 bg-violet-500 rounded-tr-xl rounded-br-xl"></span>
+      )}
+
       <div className="mr-2">
         <Icon size={20} />
       </div>
