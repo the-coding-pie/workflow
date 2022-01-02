@@ -22,7 +22,7 @@ const BoardItem = ({ board, projectId }: Props) => {
           setIsCurrentBoard(isActive);
 
           return `flex items-center justify-between pl-8 pr-4 py-1 cursor-pointer relative  ${
-            isActive ? "bg-violet-200" : "hover:bg-stone-200"
+            isActive ? "bg-violet-200" : "hover:bg-stone-100"
           }`;
         }}
         onMouseEnter={() => setShowIcons(true)}

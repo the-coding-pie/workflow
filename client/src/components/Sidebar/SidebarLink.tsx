@@ -19,8 +19,8 @@ const SidebarLink = ({ to, Icon, text }: Props) => {
       className={({ isActive }) => {
         setCurrentActive(isActive);
 
-        return `relative flex items-center px-4 py-2 hover:bg-stone-200 text-sm ${
-          isActive ? "bg-violet-200 hover:bg-none" : ""
+        return `relative flex items-center px-4 py-2  text-sm ${
+          isActive ? "bg-violet-200 hover:bg-none" : "hover:bg-stone-100"
         }`;
       }}
     >

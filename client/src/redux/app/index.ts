@@ -1,8 +1,10 @@
 import { combineReducers, configureStore } from "@reduxjs/toolkit";
 import authReducer from "../features/authSlice";
+import sidebarReducer from "../features/sidebarSlice";
 
 const combinedReducer = combineReducers({
   auth: authReducer,
+  sidebar: sidebarReducer,
 });
 
 // empty store when logout
