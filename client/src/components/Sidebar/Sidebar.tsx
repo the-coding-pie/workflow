@@ -1,10 +1,11 @@
 import React from "react";
-import Logo from "./Logo";
+import Logo from "../Logo/Logo";
 import { HiOutlineChevronDoubleLeft } from "react-icons/hi";
 import { VscHome } from "react-icons/vsc";
 import { IoNotificationsOutline } from "react-icons/io5";
 import { HiOutlinePlus } from "react-icons/hi";
 import SidebarLink from "./SidebarLink";
+import ProjectList from "../ProjectList/ProjectList";
 
 const Sidebar = () => {
   return (
@@ -33,7 +34,8 @@ const Sidebar = () => {
             <HiOutlinePlus size={16} />
           </button>
         </div>
-        <div>Project 1</div>
+
+        <ProjectList />
       </div>
     </aside>
   );
