@@ -60,6 +60,15 @@ body {
     @apply bg-violet-500;
   }
 
+  .primary-color-text {
+    @apply text-violet-500;
+  }
+
+
+  .primary-color-border {
+    @apply border-violet-500;
+  }
+
   .primary-color-light {
     @apply bg-violet-200;
   }

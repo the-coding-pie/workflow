@@ -2,6 +2,12 @@ import React from "react";
 import { Navigate, NavLink } from "react-router-dom";
 import { Outlet, useParams } from "react-router-dom";
 import projects from "../../data/projects";
+import Avatar from "react-avatar";
+import {
+  HiOutlineLockClosed,
+  HiOutlinePencil,
+  HiOutlinePencilAlt,
+} from "react-icons/hi";
 
 const ProjectLayout = () => {
   const { id } = useParams();
@@ -14,20 +20,82 @@ const ProjectLayout = () => {
 
   return (
     <div className="project-detail">
-      <header className="top w-full bg-white px-4 pt-4">
-        <div className="info mb-2">
-          <h3>{id}</h3>
+      <header className="top w-full bg-white px-8 pt-4">
+        <div className="info flex items-start mb-8">
+          <div className="icon mr-4">
+            {project.icon ? (
+              <Avatar
+                src={project.icon}
+                alt="project icon"
+                className="rounded"
+                size="48"
+                textSizeRatio={1.75}
+              />
+            ) : (
+              <Avatar
+                name={project.name}
+                className="rounded"
+                size="48"
+                textSizeRatio={1.75}
+              />
+            )}
+          </div>
+          <div className="right mr-4">
+            <h3 className="text-xl font-medium mb-0.5">{project.name}</h3>
+            <p className="flex items-center text-sm">
+              <div className="mr-1">
+                <HiOutlineLockClosed />
+              </div>
+              <span>Private</span>
+            </p>
+          </div>
+          <button className="bg-violet-200 px-1 py-0.5 rounded text-sm">
+            <HiOutlinePencil size={18} />
+          </button>
         </div>
 
-        <ul className="flex">
-          <li>
-            <NavLink to={`/p/${id}/boards`}>Boards</NavLink>
+        <ul className="flex pb-2">
+          <li className="w-18">
+            <NavLink
+              to={`/p/${id}/boards`}
+              className={({ isActive }) => {
+                return `text-base mr-6 font-medium text-gray-500 ${
+                  isActive
+                    ? "border-b-4 pb-2 primary-color-text primary-color-border"
+                    : ""
+                }`;
+              }}
+            >
+              Boards
+            </NavLink>
           </li>
-          <li>
-            <NavLink to={`/p/${id}/members`}>Members</NavLink>
+          <li className="w-18">
+            <NavLink
+              to={`/p/${id}/members`}
+              className={({ isActive }) => {
+                return `text-base mr-6 font-medium text-gray-500 ${
+                  isActive
+                    ? "border-b-4 pb-2 primary-color-text primary-color-border"
+                    : ""
+                }`;
+              }}
+            >
+              Members
+            </NavLink>
           </li>
-          <li>
-            <NavLink to={`/p/${id}/settings`}>Settings</NavLink>
+          <li className="w-18">
+            <NavLink
+              to={`/p/${id}/settings`}
+              className={({ isActive }) => {
+                return `text-base mr-6 font-medium text-gray-500 ${
+                  isActive
+                    ? "border-b-4 pb-2 primary-color-text primary-color-border"
+                    : ""
+                }`;
+              }}
+            >
+              Settings
+            </NavLink>
           </li>
         </ul>
       </header>
