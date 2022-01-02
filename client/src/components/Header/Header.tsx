@@ -11,7 +11,7 @@ const Header = () => {
   const { show } = useSelector((state: RootState) => state.sidebar);
 
   return (
-    <header className="header h-14 bg-white flex items-center justify-between px-4">
+    <header className="header h-14 border-b bg-white flex items-center justify-between px-4">
       <div className="left flex items-center justify-start">
         {!show && (
           <button className="hover:text-violet-500" onClick={() => dispatch(showSidebar())}>

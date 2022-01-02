@@ -13,7 +13,7 @@ const Sidebar = () => {
   const dispatch = useDispatch();
 
   return (
-    <aside className={`sidebar w-52 bg-white h-screen flex flex-col transition ease-in-out delay-75`}>
+    <aside className={`sidebar border-r w-52 bg-white h-screen flex flex-col transition ease-in-out delay-75`}>
       <header className="h-14 flex justify-between items-center px-4 mb-3">
         <Logo />
 

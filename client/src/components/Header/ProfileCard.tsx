@@ -38,7 +38,7 @@ const ProfileCard = () => {
           >
             <span className="text-sm">Profile</span>
             <div className="text-gray-500">
-              <CgProfile size={24} />
+              <CgProfile size={21} />
             </div>
           </Link>
           <button
@@ -50,7 +50,7 @@ const ProfileCard = () => {
           >
             <span className="text-sm">Log Out</span>
             <div className="text-gray-500">
-              <HiOutlineLogout size={24} />
+              <HiOutlineLogout size={21} />
             </div>
           </button>
         </div>
