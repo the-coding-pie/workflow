@@ -9,6 +9,7 @@ import {
 } from "react-icons/hi";
 import BoardList from "./BoardList";
 import { NavLink } from "react-router-dom";
+import CustomNavLink from "../CustomNavLink/CustomNavLink";
 
 interface Props {
   project: ProjectObj;
@@ -69,27 +70,29 @@ const ProjectItem = ({ project, setCurrentActive, currentActive }: Props) => {
               />
             )}
             {project.name.length > 10 ? (
-              <NavLink
+              <CustomNavLink
                 to={`/p/${project._id}`}
-                className={({ isActive }) => {
-                  setIsCurrentProject(isActive);
-
-                  return `text-sm hover:underline decoration-dashed outline-violet-500 underline-offset-4`;
-                }}
+                fn={setIsCurrentProject}
+                list={[
+                  `/p/${project._id}/boards`,
+                  `/p/${project._id}/members`,
+                  `/p/${project._id}/settings`,
+                ]}
               >
                 {project.name.slice(0, 10) + "..."}
-              </NavLink>
+              </CustomNavLink>
             ) : (
-              <NavLink
-                to={`/p/${project._id}`}
-                className={({ isActive }) => {
-                  setIsCurrentProject(isActive);
-
-                  return `text-sm hover:underline decoration-dashed outline-violet-500 underline-offset-4`;
-                }}
-              >
-                {project.name}
-              </NavLink>
+              <CustomNavLink
+              to={`/p/${project._id}`}
+              fn={setIsCurrentProject}
+              list={[
+                `/p/${project._id}/boards`,
+                `/p/${project._id}/members`,
+                `/p/${project._id}/settings`,
+              ]}
+            >
+              {project.name}
+            </CustomNavLink>
             )}
           </div>
         </div>
