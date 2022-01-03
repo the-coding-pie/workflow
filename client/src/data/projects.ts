@@ -17,6 +17,21 @@ const projects: ProjectObj[] = [
         name: "Board 2",
         color: "#5DBF48",
       },
+      {
+        _id: "3",
+        name: "Board 2",
+        color: "#5DBF48",
+      },
+      {
+        _id: "4",
+        name: "Board 2",
+        color: "#5DBF48",
+      },
+      {
+        _id: "5",
+        name: "Board 2",
+        color: "#5DBF48",
+      },
     ],
   },
   {
