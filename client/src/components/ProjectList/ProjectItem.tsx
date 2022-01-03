@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import { ProjectObj } from "../../types";
 import Avatar from "react-avatar";
 import {
@@ -8,7 +8,7 @@ import {
   HiOutlinePlus,
 } from "react-icons/hi";
 import BoardList from "./BoardList";
-import { NavLink } from "react-router-dom";
+import { NavLink, useLocation } from "react-router-dom";
 import CustomNavLink from "../CustomNavLink/CustomNavLink";
 
 interface Props {
@@ -20,7 +20,11 @@ interface Props {
 const ProjectItem = ({ project, setCurrentActive, currentActive }: Props) => {
   const [showIcons, setShowIcons] = useState(false);
 
+  const { pathname } = useLocation();
+
   const [isCurrentProject, setIsCurrentProject] = useState(false);
+
+  const ref = useRef<any>(null);
 
   return (
     <li
@@ -32,13 +36,31 @@ const ProjectItem = ({ project, setCurrentActive, currentActive }: Props) => {
         className={`project px-2 relative py-2 w-full flex items-center justify-between cursor-pointer ${
           isCurrentProject ? "primary-color-light" : "secondary-color-hover"
         }`}
-        onClick={() => {
-          setCurrentActive((prevValue) => {
-            if (prevValue === project._id) {
-              return null;
+        onClick={(e) => {
+          // when click, if it is in link, open it for the first time
+          // no toggle
+          // if it is not on link
+          if (ref.current && !ref.current.contains(e.target)) {
+            // toggling
+            setCurrentActive((prevValue) => {
+              if (prevValue === project._id) {
+                return null;
+              }
+              return project._id;
+            });
+          } else {
+            // if it is on link, open it only once, no toggling
+            // if links are not same
+            if (
+              ![
+                `/p/${project._id}/boards`,
+                `/p/${project._id}/members`,
+                `/p/${project._id}/settings`,
+              ].includes(pathname)
+            ) {
+              setCurrentActive(project._id);
             }
-            return project._id;
-          });
+          }
         }}
       >
         {isCurrentProject && (
@@ -52,7 +74,7 @@ const ProjectItem = ({ project, setCurrentActive, currentActive }: Props) => {
               <HiChevronRight size={16} />
             )}
           </div>
-          <div className="name">
+          <div className="name flex items-center">
             {project.icon ? (
               <Avatar
                 src={project.icon}
@@ -69,31 +91,33 @@ const ProjectItem = ({ project, setCurrentActive, currentActive }: Props) => {
                 textSizeRatio={1.75}
               />
             )}
-            {project.name.length > 10 ? (
-              <CustomNavLink
-                to={`/p/${project._id}`}
-                fn={setIsCurrentProject}
-                list={[
-                  `/p/${project._id}/boards`,
-                  `/p/${project._id}/members`,
-                  `/p/${project._id}/settings`,
-                ]}
-              >
-                {project.name.slice(0, 10) + "..."}
-              </CustomNavLink>
-            ) : (
-              <CustomNavLink
-              to={`/p/${project._id}`}
-              fn={setIsCurrentProject}
-              list={[
-                `/p/${project._id}/boards`,
-                `/p/${project._id}/members`,
-                `/p/${project._id}/settings`,
-              ]}
-            >
-              {project.name}
-            </CustomNavLink>
-            )}
+            <div ref={ref}>
+              {project.name.length > 10 ? (
+                <CustomNavLink
+                  to={`/p/${project._id}/boards`}
+                  fn={setIsCurrentProject}
+                  list={[
+                    `/p/${project._id}/boards`,
+                    `/p/${project._id}/members`,
+                    `/p/${project._id}/settings`,
+                  ]}
+                >
+                  {project.name.slice(0, 10) + "..."}
+                </CustomNavLink>
+              ) : (
+                <CustomNavLink
+                  to={`/p/${project._id}/boards`}
+                  fn={setIsCurrentProject}
+                  list={[
+                    `/p/${project._id}/boards`,
+                    `/p/${project._id}/members`,
+                    `/p/${project._id}/settings`,
+                  ]}
+                >
+                  {project.name}
+                </CustomNavLink>
+              )}
+            </div>
           </div>
         </div>
         {showIcons && (

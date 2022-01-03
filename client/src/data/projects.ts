@@ -10,6 +10,7 @@ const projects: ProjectObj[] = [
         _id: "1",
         name: "Board 1",
         color: "#00C2E2",
+        img: "https://images.unsplash.com/photo-1640661060277-7c6d52cbf823?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=774&q=80"
       },
       {
         _id: "2",

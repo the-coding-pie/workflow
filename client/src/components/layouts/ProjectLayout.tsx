@@ -43,9 +43,9 @@ const ProjectLayout = () => {
           <div className="right mr-4">
             <h3 className="text-xl font-medium mb-0.5">{project.name}</h3>
             <p className="flex items-center text-sm">
-              <div className="mr-1">
+              <span className="mr-1">
                 <HiOutlineLockClosed />
-              </div>
+              </span>
               <span>Private</span>
             </p>
           </div>

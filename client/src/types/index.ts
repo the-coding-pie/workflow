@@ -16,4 +16,5 @@ export interface BoardObj {
   _id: string;
   name: string;
   color: string;
+  img?: string;
 }
