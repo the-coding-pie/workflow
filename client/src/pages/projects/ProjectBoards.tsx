@@ -10,11 +10,11 @@ const ProjectBoards = () => {
 
   return (
     <div className="project-boards px-8 py-6">
-      <div className="mt-6 flex items-center justify-between flex-wrap">
+      <div className="mt-6 flex items-center justify-start flex-wrap gap-x-6 gap-y-6">
         {project?.boards &&
           project?.boards.length > 0 &&
           project?.boards.map((b) => (
-            <Board projectId={project._id} board={b} />
+            <Board board={b} />
           ))}
       </div>
     </div>

@@ -54,8 +54,8 @@ const App = () => {
               <Route path="settings" element={<ProjectSettings />} />
             </Route>
 
-            {/* /p/:id/b/:id/* */}
-            <Route path="/p/:id/b/:boardId" element={<BoardDetail />} />
+            {/* /b/:id/* */}
+            <Route path="/b/:boardId" element={<BoardDetail />} />
 
             {/* /404 */}
             <Route path="/404" element={<Error404 />} />

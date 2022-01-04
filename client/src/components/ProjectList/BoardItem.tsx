@@ -5,10 +5,9 @@ import { NavLink } from "react-router-dom";
 
 interface Props {
   board: BoardObj;
-  projectId: string;
 }
 
-const BoardItem = ({ board, projectId }: Props) => {
+const BoardItem = ({ board }: Props) => {
   const [showIcons, setShowIcons] = useState(false);
 
   const [isCurrentBoard, setIsCurrentBoard] = useState(false);
@@ -17,7 +16,7 @@ const BoardItem = ({ board, projectId }: Props) => {
     <li className="board-item">
       <NavLink
         end
-        to={`p/${projectId}/b/${board._id}`}
+        to={`/b/${board._id}`}
         className={({ isActive }) => {
           setIsCurrentBoard(isActive);
 

@@ -4,17 +4,16 @@ import { BoardObj } from "../types";
 
 interface Props {
   board: BoardObj;
-  projectId: string;
 }
 
-const Board = ({ board, projectId }: Props) => {
+const Board = ({ board }: Props) => {
   const [isIn, setIsIn] = useState(false);
 
   return (
     <Link
       onMouseEnter={() => setIsIn(true)}
       onMouseLeave={() => setIsIn(false)}
-      to={`/p/${projectId}/b/${board._id}`}
+      to={`/b/${board._id}`}
       className="board relative h-28 rounded cursor-pointer text-white font-semibold  hover:bg-gradient-to-r from-slate-500 to-slate-500 bg-blend-darken"
       style={{
         background: board.img ? `url(${board.img})` : board.color,
