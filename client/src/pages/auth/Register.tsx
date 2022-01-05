@@ -6,6 +6,8 @@ import SubmitBtn from "../../components/FormikComponents/SubmitBtn";
 import ErrorBox from "../../components/FormikComponents/ErrorBox";
 import Input from "../../components/FormikComponents/Input";
 import { Form, Formik } from "formik";
+import axios, { AxiosError } from "axios";
+import { loginUser } from "../../redux/features/authSlice";
 
 interface UserObj {
   username: string;
@@ -39,7 +41,54 @@ const Register = () => {
   });
 
   // register user
-  const handleSubmit = useCallback((user: UserObj) => {}, []);
+  const handleSubmit = useCallback((user: UserObj) => {
+    setIsSubmitting(true);
+
+    axios
+      .post(`/auth/register`, user, {
+        headers: {
+          ContentType: "application/json",
+        },
+      })
+      .then((response) => {
+        const { data } = response.data;
+
+        setCommonError("");
+
+        dispatch(
+          loginUser({
+            accessToken: data.accessToken,
+            refreshToken: data.refreshToken,
+          })
+        );
+
+        setIsSubmitting(false);
+      })
+      .catch((error: AxiosError) => {
+        setIsSubmitting(false);
+
+        if (error.response) {
+          const response = error.response;
+          const { message } = response.data;
+
+          switch (response.status) {
+            // bad request or invalid format or unauthorized
+            case 400:
+            case 409:
+            case 500:
+              setCommonError(message);
+              break;
+            default:
+              setCommonError("Oops, something went wrong");
+              break;
+          }
+        } else if (error.request) {
+          setCommonError("Oops, something went wrong");
+        } else {
+          setCommonError(`Error ${error.message}`);
+        }
+      });
+  }, []);
 
   return (
     <Formik

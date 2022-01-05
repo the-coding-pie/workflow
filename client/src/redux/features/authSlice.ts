@@ -19,8 +19,7 @@ interface AuthState {
 }
 
 const initialState: AuthState = {
-  accessToken: "adf",
-  // accessToken: getTokens().accessToken,
+  accessToken: getTokens().accessToken,
   refreshToken: getTokens().refreshToken,
   user: null,
 };
