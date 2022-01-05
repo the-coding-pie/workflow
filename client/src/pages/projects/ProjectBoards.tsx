@@ -1,6 +1,6 @@
 import React from "react";
 import { useParams } from "react-router-dom";
-import Board from "../../Board/Board";
+import Board from "../../components/Board/Board";
 import projects from "../../data/projects";
 
 const ProjectBoards = () => {

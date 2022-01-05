@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import { BoardObj } from "../types";
+import { BoardObj } from "../../types";
 
 interface Props {
   board: BoardObj;

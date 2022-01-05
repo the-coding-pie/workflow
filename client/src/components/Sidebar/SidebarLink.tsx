@@ -20,14 +20,12 @@ const SidebarLink = ({ to, Icon, text }: Props) => {
         setCurrentActive(isActive);
 
         return `relative flex items-center px-4 py-2  text-sm ${
-          isActive
-            ? "primary-color-light hover:bg-none"
-            : "secondary-color-hover"
+          isActive ? "bg-primary_light hover:bg-none" : "hover:bg-secondary"
         }`;
       }}
     >
       {currentActive && (
-        <span className="absolute inset-y-0 left-0 w-1 primary-color rounded-tr-xl rounded-br-xl"></span>
+        <span className="absolute inset-y-0 left-0 w-1 bg-primary rounded-tr-xl rounded-br-xl"></span>
       )}
 
       <div className="mr-2">

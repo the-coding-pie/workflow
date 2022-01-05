@@ -5,6 +5,11 @@
 @tailwind utilities;
 
 :root {
+  /* colors */
+  --primary: #8b5cf6;
+  --primary-light: #ddd6fe;
+  --secondary: #f5f5f4;
+
   /* fonts */
   --ubuntu: "Ubuntu", sans-serif;
 }
@@ -47,29 +52,30 @@ body {
                                   supported by Chrome, Edge, Opera and Firefox */
 }
 
+@layer components {
+  .form-group {
+    @apply w-full text-sm mb-1.5;
+  }
+
+  .form-group label {
+    @apply block mb-1;
+  }
+
+  .form-group input {
+    @apply outline-none rounded px-2 py-1.5 mb-1.5 bg-slate-100 border border-slate-200 w-full;
+  }
+}
+
 @layer utilities {
-  .secondary-color {
-    @apply bg-stone-100;
+  .text-link {
+    @apply text-blue-500;
   }
 
-  .secondary-color-hover {
-    @apply hover:bg-stone-100;
+  .btn-primary {
+    @apply bg-primary py-2 px-5 text-white rounded font-bold;
   }
 
-  .primary-color {
-    @apply bg-violet-500;
-  }
-
-  .primary-color-text {
-    @apply text-violet-500;
-  }
-
-
-  .primary-color-border {
-    @apply border-violet-500;
-  }
-
-  .primary-color-light {
-    @apply bg-violet-200;
+  .btn-primary-rounded {
+    @apply bg-primary rounded-full p-1 text-white;
   }
 }

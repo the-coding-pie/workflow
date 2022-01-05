@@ -60,9 +60,7 @@ const ProjectLayout = () => {
               to={`/p/${id}/boards`}
               className={({ isActive }) => {
                 return `text-base mr-6 font-medium text-gray-500 ${
-                  isActive
-                    ? "border-b-4 pb-2 primary-color-text primary-color-border"
-                    : ""
+                  isActive ? "border-b-4 pb-2 text-primary border-primary" : ""
                 }`;
               }}
             >
@@ -74,9 +72,7 @@ const ProjectLayout = () => {
               to={`/p/${id}/members`}
               className={({ isActive }) => {
                 return `text-base mr-6 font-medium text-gray-500 ${
-                  isActive
-                    ? "border-b-4 pb-2 primary-color-text primary-color-border"
-                    : ""
+                  isActive ? "border-b-4 pb-2 text-primary border-primary" : ""
                 }`;
               }}
             >
@@ -88,9 +84,7 @@ const ProjectLayout = () => {
               to={`/p/${id}/settings`}
               className={({ isActive }) => {
                 return `text-base mr-6 font-medium text-gray-500 ${
-                  isActive
-                    ? "border-b-4 pb-2 primary-color-text primary-color-border"
-                    : ""
+                  isActive ? "border-b-4 pb-2 text-primary border-primary" : ""
                 }`;
               }}
             >
