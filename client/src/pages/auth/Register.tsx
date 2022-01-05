@@ -27,6 +27,7 @@ const Register = () => {
 
   const validationSchema = Yup.object({
     username: Yup.string()
+      .min(2, "Username should be at least 2 chars long")
       .matches(
         /^[A-Za-z0-9_-]*$/,
         "Username must only contain letters, numbers, underscores and dashes"
