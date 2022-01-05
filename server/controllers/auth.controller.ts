@@ -13,7 +13,7 @@ export const refreshToken = async (req: Request, res: Response) => {
       return res.status(401).send({
         success: false,
         data: {},
-        message: "Invalid refresh token",
+        message: "refreshToken is required",
         statusCode: 401,
       });
     }
@@ -93,7 +93,7 @@ export const registerUser = async (req: Request, res: Response) => {
         message: "Email is required",
         statusCode: 400,
       });
-    } else if (validator.isEmail(email)) {
+    } else if (!validator.isEmail(email)) {
       return res.status(400).send({
         success: false,
         data: {},
@@ -186,7 +186,7 @@ export const loginUser = async (req: Request, res: Response) => {
         message: "Email is required",
         statusCode: 400,
       });
-    } else if (validator.isEmail(email)) {
+    } else if (!validator.isEmail(email)) {
       // match - true, false
       return res.status(400).send({
         success: false,

@@ -1,7 +1,6 @@
 import jwt from "jsonwebtoken";
 import { NextFunction, Response } from "express";
 import { UserTokenObj } from "../types";
-import User from "../models/user.model";
 
 export const authMiddleware = async (
   req: any,
@@ -27,16 +26,6 @@ export const authMiddleware = async (
       token,
       process.env.ACCESS_TOKEN_SECRET!
     ) as UserTokenObj;
-
-    // if no such user exists (bcz user has been deleted or invalid user _id)
-    if (!user) {
-      return res.status(401).send({
-        success: false,
-        data: {},
-        message: "Invalid user",
-        statusCode: 401,
-      });
-    }
 
     req.user = user;
 
