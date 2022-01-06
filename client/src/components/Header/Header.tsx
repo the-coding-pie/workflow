@@ -12,7 +12,7 @@ import { BASE_URL } from "../../config";
 
 const Header = () => {
   const dispatch = useDispatch();
-  
+
   const { show } = useSelector((state: RootState) => state.sidebar);
   const { user } = useSelector((state: RootState) => state.auth);
 
@@ -46,10 +46,7 @@ const Header = () => {
       </div>
       <div className="right">
         {user ? (
-          <ProfileCard
-            img={`${BASE_URL}${user.profile}`}
-            alt={`${user.username} profile`}
-          />
+          <ProfileCard img={user.profile} alt={`${user.username} profile`} />
         ) : (
           <ProfileCard img={undefined} alt={undefined} />
         )}

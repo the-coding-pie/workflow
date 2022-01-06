@@ -9,5 +9,7 @@ authRouter.post("/login", authController.loginUser);
 authRouter.post("/register", authController.registerUser);
 // POST /auth/refresh -> get new accessToken
 authRouter.post("/refresh", authController.refreshToken);
+// POST /auth/google -> google oauth
+authRouter.post("/google", authController.googleAuth);
 
 export default authRouter;

@@ -1,5 +1,9 @@
 import { Response } from "express";
-import { PROFILE_PICS_DIR_NAME, STATIC_PATH } from "../config";
+import {
+  BASE_PATH_COMPLETE,
+  PROFILE_PICS_DIR_NAME,
+  STATIC_PATH,
+} from "../config";
 import User from "../models/user.model";
 import path from "path";
 
@@ -8,7 +12,9 @@ export const getCurrentUser = async (req: any, res: Response) => {
   try {
     const { _id } = req.user;
 
-    const user = await User.findById(_id).select("_id username profile");
+    const user = await User.findById(_id).select(
+      "_id username profile isOAuth"
+    );
 
     // if no such user exists (bcz user has been deleted or invalid user _id)
     if (!user) {
@@ -25,7 +31,10 @@ export const getCurrentUser = async (req: any, res: Response) => {
       data: {
         _id: user._id,
         username: user.username,
-        profile: path.join(STATIC_PATH, PROFILE_PICS_DIR_NAME, user.profile),
+        profile: user.isOAuth
+          ? user.profile
+          : BASE_PATH_COMPLETE +
+            path.join(STATIC_PATH, PROFILE_PICS_DIR_NAME, user.profile),
       },
       message: "",
       statusCode: 200,

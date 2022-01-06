@@ -9,7 +9,6 @@ const userSchema = new mongoose.Schema(
     username: {
       type: String,
       required: true,
-      unique: true,
       minlength: 2,
       validate: {
         validator: function (value: string) {
@@ -36,9 +35,16 @@ const userSchema = new mongoose.Schema(
       type: String,
       default: "default.jpg",
     },
+    isOAuth: {
+      type: Boolean,
+      default: false,
+      required: true,
+    },
     password: {
       type: String,
-      required: true,
+      required: function () {
+        return !this.isOAuth;
+      },
       minlength: 8,
       validate: {
         validator: function (value: string) {

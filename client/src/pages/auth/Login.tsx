@@ -24,6 +24,7 @@ const Login = () => {
     password: "",
   };
   const [commonError, setCommonError] = useState("");
+  const [googleAuthError, setGoogleAuthError] = useState("");
 
   const validationSchema = Yup.object({
     email: Yup.string().email("Invalid Email").required("Email is required"),
@@ -115,7 +116,16 @@ const Login = () => {
           </Link>
         </p>
 
-        <GoogleAuthBtn />
+        <GoogleAuthBtn
+          setGoogleAuthError={setGoogleAuthError}
+          setCommonError={setCommonError}
+          setIsSubmitting={setIsSubmitting}
+        />
+        {googleAuthError && (
+          <div className="google-error mt-3 text-center">
+            <ErrorBox msg={googleAuthError} />
+          </div>
+        )}
       </Form>
     </Formik>
   );

@@ -25,6 +25,7 @@ const Register = () => {
     password: "",
   };
   const [commonError, setCommonError] = useState("");
+  const [googleAuthError, setGoogleAuthError] = useState("");
 
   const validationSchema = Yup.object({
     username: Yup.string()
@@ -125,7 +126,11 @@ const Register = () => {
           </Link>{" "}
         </p>
 
-        <GoogleAuthBtn />
+        <GoogleAuthBtn
+          setGoogleAuthError={setGoogleAuthError}
+          setCommonError={setCommonError}
+          setIsSubmitting={setIsSubmitting}
+        />
       </Form>
     </Formik>
   );

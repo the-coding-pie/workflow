@@ -1,8 +1,11 @@
 import { Request, Response } from "express";
+import { OAuth2Client } from "google-auth-library";
 import jwt from "jsonwebtoken";
+import { uniqueNamesGenerator } from "unique-names-generator";
 import validator from "validator";
 import User from "../models/user.model";
 import { generateAccessToken, generateRefreshToken } from "../utils/token";
+import { generateUsername } from "../utils/uniqueUsernameGen";
 
 export const refreshToken = async (req: Request, res: Response) => {
   try {
@@ -126,16 +129,14 @@ export const registerUser = async (req: Request, res: Response) => {
       });
     }
 
-    // check if user with same username/email already exists or not
-    const userExists = await User.findOne({
-      $or: [{ username: username }, { email: email }],
-    });
+    // check if user with same email already exists or not
+    const userExists = await User.findOne({ email: email });
 
     if (userExists) {
       return res.status(409).send({
         success: false,
         data: {},
-        message: "User with that username or email already exists",
+        message: "User with that email already exists",
         statusCode: 409,
       });
     }
@@ -164,7 +165,7 @@ export const registerUser = async (req: Request, res: Response) => {
       message: "Your account has been created successfully!",
       statusCode: 201,
     });
-  } catch {
+  } catch (err) {
     res.status(500).send({
       success: false,
       data: {},
@@ -233,6 +234,92 @@ export const loginUser = async (req: Request, res: Response) => {
         refreshToken,
       },
       message: "",
+      statusCode: 200,
+    });
+  } catch {
+    res.status(500).send({
+      success: false,
+      data: {},
+      message: "Oops, something went wrong",
+      statusCode: 500,
+    });
+  }
+};
+
+// google OAuth
+export const googleAuth = async (req: Request, res: Response) => {
+  try {
+    let ticket;
+    const { tokenId } = req.body;
+
+    const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+
+    // validate tokenId
+    try {
+      ticket = await client.verifyIdToken({
+        idToken: tokenId,
+        audience: process.env.GOOGLE_CLIENT_ID,
+      });
+    } catch {
+      return res.status(400).send({
+        success: false,
+        data: {},
+        message: "Google OAuth failed",
+        statusCode: 400,
+      });
+    }
+
+    // valid token
+    const payload = ticket.getPayload()!;
+
+    // register or login
+    // send tokens
+
+    // if user doesn't exists with this email, create the user
+    const userExists = await User.findOne({ email: payload.email }).select(
+      "_id"
+    );
+
+    let accessToken;
+    let refreshToken;
+
+    if (!userExists) {
+      // create valid username
+      const username = generateUsername();
+
+      const user = await new User({
+        username: username!.trim(),
+        email: payload.email!.trim(),
+        profile: payload.picture!,
+        isOAuth: true,
+      });
+
+      const genUser = await user.save();
+
+      // generate tokens
+      accessToken = await generateAccessToken({
+        _id: genUser._id,
+      });
+      refreshToken = await generateRefreshToken({
+        _id: genUser._id,
+      });
+    } else {
+      // generate tokens
+      accessToken = await generateAccessToken({
+        _id: userExists._id,
+      });
+      refreshToken = await generateRefreshToken({
+        _id: userExists._id,
+      });
+    }
+
+    return res.status(200).send({
+      success: true,
+      data: {
+        accessToken,
+        refreshToken,
+      },
+      message: "Google OAuth successfull",
       statusCode: 200,
     });
   } catch {
