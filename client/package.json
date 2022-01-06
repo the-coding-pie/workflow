@@ -17,6 +17,7 @@
     "react-query": "^3.34.7",
     "react-redux": "^7.2.6",
     "react-router-dom": "^6.2.1",
+    "react-toastify": "^8.1.0",
     "yup": "^0.32.11"
   },
   "devDependencies": {
@@ -26,6 +27,7 @@
     "@types/react-dom": "^17.0.10",
     "@types/react-query": "^1.2.9",
     "@types/react-router-dom": "^5.3.2",
+    "@types/react-toastify": "^4.1.0",
     "@types/yup": "^0.29.13",
     "@vitejs/plugin-react": "^1.0.7",
     "autoprefixer": "^10.4.1",
