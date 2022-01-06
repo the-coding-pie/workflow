@@ -98,7 +98,12 @@ const Register = () => {
       validationSchema={validationSchema}
       onSubmit={(values) => handleSubmit(values)}
     >
-      <Form className="w-80 max-w-sm flex flex-col justify-center items-center bg-white px-6 py-5 shadow">
+      <Form
+        className="max-w-sm flex flex-col justify-center items-center bg-white px-6 py-5 shadow"
+        style={{
+          minWidth: "360px",
+        }}
+      >
         {commonError && (
           <div className="common-error mt-2 mb-3 text-center">
             <ErrorBox msg={commonError} />
