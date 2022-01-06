@@ -9,23 +9,18 @@ import { BASE_URL } from "../../config";
 import { loginUser } from "../../redux/features/authSlice";
 
 interface Props {
-  setGoogleAuthError: React.Dispatch<React.SetStateAction<string>>;
   setCommonError: React.Dispatch<React.SetStateAction<string>>;
   setIsSubmitting: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-const GoogleAuthBtn = ({
-  setGoogleAuthError,
-  setCommonError,
-  setIsSubmitting,
-}: Props) => {
+const GoogleAuthBtn = ({ setCommonError, setIsSubmitting }: Props) => {
   const dispatch = useDispatch();
 
   const googleSuccess = async (response: any) => {
     const tokenId = response?.tokenId;
 
     if (!tokenId) {
-      setGoogleAuthError("Oops, something went wrong");
+      setCommonError("Oops, something went wrong");
     } else {
       axios
         .post(`${BASE_URL}/auth/google`, {
@@ -35,7 +30,6 @@ const GoogleAuthBtn = ({
           const { data } = response.data;
 
           setCommonError("");
-          setGoogleAuthError("");
 
           dispatch(
             loginUser({
@@ -55,26 +49,25 @@ const GoogleAuthBtn = ({
             const { message } = response.data;
 
             switch (response.status) {
-              // bad request or invalid format or unauthorized
               case 400:
               case 500:
-                setGoogleAuthError(message);
+                setCommonError(message);
                 break;
               default:
-                setGoogleAuthError("Oops, something went wrong");
+                setCommonError("Oops, something went wrong");
                 break;
             }
           } else if (error.request) {
-            setGoogleAuthError("Oops, something went wrong");
+            setCommonError("Oops, something went wrong");
           } else {
-            setGoogleAuthError(`Error: ${error.message}`);
+            setCommonError(`Error: ${error.message}`);
           }
         });
     }
   };
 
   const googleFailure = (error: any) => {
-    setGoogleAuthError(error);
+    setCommonError("Unable to get profile information from Google");
   };
 
   return (

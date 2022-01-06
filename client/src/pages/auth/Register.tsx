@@ -25,7 +25,6 @@ const Register = () => {
     password: "",
   };
   const [commonError, setCommonError] = useState("");
-  const [googleAuthError, setGoogleAuthError] = useState("");
 
   const validationSchema = Yup.object({
     username: Yup.string()
@@ -99,17 +98,21 @@ const Register = () => {
       validationSchema={validationSchema}
       onSubmit={(values) => handleSubmit(values)}
     >
-      <Form className="w-80 max-w-sm flex flex-col justify-center items-center bg-white px-6 py-4 shadow">
-        <h3 className="font-semibold text-2xl mb-4">Register</h3>
-        <Input label="Username" id="username" name="username" type="text" />
-        <Input label="Email" id="email" name="email" type="email" />
-        <Input label="Password" id="password" name="password" type="password" />
-
+      <Form className="w-80 max-w-sm flex flex-col justify-center items-center bg-white px-6 py-5 shadow">
         {commonError && (
-          <div className="common-error mt-3 text-center">
+          <div className="common-error mt-2 mb-3 text-center">
             <ErrorBox msg={commonError} />
           </div>
         )}
+        <GoogleAuthBtn
+          setCommonError={setCommonError}
+          setIsSubmitting={setIsSubmitting}
+        />
+        <div className="my-5 text-sm font-bold text-gray-400">OR</div>
+
+        <Input label="Username" id="username" name="username" type="text" />
+        <Input label="Email" id="email" name="email" type="email" />
+        <Input label="Password" id="password" name="password" type="password" />
 
         <div className="buttons flex items-center w-full justify-center my-4 mb-6">
           <SubmitBtn
@@ -119,18 +122,12 @@ const Register = () => {
           />
         </div>
 
-        <p className="text-gray-500 text-sm mb-8">
+        <p className="text-gray-500 text-sm">
           Already have an account?{" "}
           <Link to="/auth/login" className="text-primary">
             Login
           </Link>{" "}
         </p>
-
-        <GoogleAuthBtn
-          setGoogleAuthError={setGoogleAuthError}
-          setCommonError={setCommonError}
-          setIsSubmitting={setIsSubmitting}
-        />
       </Form>
     </Formik>
   );
