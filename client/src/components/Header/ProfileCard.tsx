@@ -7,8 +7,14 @@ import { CgProfile } from "react-icons/cg";
 import Profile from "../../assets/img/default.jpg";
 import useClose from "../../hooks/useClose";
 import { logoutUser } from "../../redux/features/authSlice";
+import Avatar from "react-avatar";
 
-const ProfileCard = () => {
+interface Props {
+  img: string | undefined;
+  alt: string | undefined;
+}
+
+const ProfileCard = ({ img, alt }: Props) => {
   const [show, setShow] = useState(false);
   const ref = useClose(() => setShow(false));
 
@@ -20,11 +26,13 @@ const ProfileCard = () => {
 
   return (
     <div className="relative profile-card" ref={ref}>
-      <img
+      <Avatar
         onClick={() => setShow(!show)}
-        src={Profile}
-        alt="profile"
-        className="w-8 h-8 rounded-full cursor-pointer"
+        src={img}
+        alt={alt}
+        size="32"
+        round={true}
+        className="cursor-pointer"
       />
 
       {show && (
