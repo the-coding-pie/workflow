@@ -14,7 +14,7 @@ const ProjectBoards = () => {
         {project?.boards &&
           project?.boards.length > 0 &&
           project?.boards.map((b) => (
-            <Board board={b} />
+            <Board key={b._id} board={b} />
           ))}
       </div>
     </div>

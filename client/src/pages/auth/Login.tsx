@@ -77,7 +77,7 @@ const Login = () => {
         } else if (error.request) {
           setCommonError("Oops, something went wrong");
         } else {
-          setCommonError(`Error ${error.message}`);
+          setCommonError(`Error: ${error.message}`);
         }
       });
   }, []);
@@ -109,7 +109,7 @@ const Login = () => {
 
         <p className="text-gray-500 text-sm mb-4">
           Don't have an account?{" "}
-          <Link to="/auth/register" className="text-link">
+          <Link to="/auth/register" className="text-primary">
             Register
           </Link>
         </p>

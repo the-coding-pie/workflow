@@ -12,7 +12,7 @@ const SubmitBtn = ({ text, isSubmitting, classes }: Props) => {
 
   return isSubmitting === true ? (
     <button
-      className="btn-blue w-full disabled:opacity-100 cursor-default flex items-center justify-center"
+      className="btn-primary w-full disabled:opacity-100 cursor-default flex items-center justify-center"
       disabled
     >
       <svg

@@ -86,7 +86,7 @@ const Register = () => {
         } else if (error.request) {
           setCommonError("Oops, something went wrong");
         } else {
-          setCommonError(`Error ${error.message}`);
+          setCommonError(`Error: ${error.message}`);
         }
       });
   }, []);
@@ -119,7 +119,7 @@ const Register = () => {
 
         <p className="text-gray-500 text-sm mb-4">
           Already have an account?{" "}
-          <Link to="/auth/login" className="text-link">
+          <Link to="/auth/login" className="text-primary">
             Login
           </Link>{" "}
         </p>

@@ -8,6 +8,7 @@ import Profile from "../../assets/img/default.jpg";
 import useClose from "../../hooks/useClose";
 import { logoutUser } from "../../redux/features/authSlice";
 import Avatar from "react-avatar";
+import { useQueryClient } from "react-query";
 
 interface Props {
   img: string | undefined;
@@ -20,7 +21,12 @@ const ProfileCard = ({ img, alt }: Props) => {
 
   const dispatch = useDispatch();
 
+  const queryClient = useQueryClient();
+
   const handleLogout = () => {
+    // remove all query caches
+    queryClient.removeQueries();
+    
     dispatch(logoutUser());
   };
 
