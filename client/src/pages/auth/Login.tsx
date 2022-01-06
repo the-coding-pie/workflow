@@ -8,6 +8,7 @@ import { Link } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import axios, { AxiosError } from "axios";
 import { loginUser } from "../../redux/features/authSlice";
+import GoogleAuthBtn from "../../components/GoogleAuth/GoogleAuthBtn";
 
 interface UserObj {
   email: string;
@@ -107,12 +108,14 @@ const Login = () => {
           />
         </div>
 
-        <p className="text-gray-500 text-sm mb-4">
+        <p className="text-gray-500 text-sm mb-8">
           Don't have an account?{" "}
           <Link to="/auth/register" className="text-primary">
             Register
           </Link>
         </p>
+
+        <GoogleAuthBtn />
       </Form>
     </Formik>
   );

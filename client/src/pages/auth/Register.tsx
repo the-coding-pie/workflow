@@ -8,6 +8,7 @@ import Input from "../../components/FormikComponents/Input";
 import { Form, Formik } from "formik";
 import axios, { AxiosError } from "axios";
 import { loginUser } from "../../redux/features/authSlice";
+import GoogleAuthBtn from "../../components/GoogleAuth/GoogleAuthBtn";
 
 interface UserObj {
   username: string;
@@ -117,12 +118,14 @@ const Register = () => {
           />
         </div>
 
-        <p className="text-gray-500 text-sm mb-4">
+        <p className="text-gray-500 text-sm mb-8">
           Already have an account?{" "}
           <Link to="/auth/login" className="text-primary">
             Login
           </Link>{" "}
         </p>
+
+        <GoogleAuthBtn />
       </Form>
     </Formik>
   );
