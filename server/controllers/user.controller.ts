@@ -13,7 +13,7 @@ export const getCurrentUser = async (req: any, res: Response) => {
     const { _id } = req.user;
 
     const user = await User.findById(_id).select(
-      "_id username profile email isOAuth"
+      "_id username profile email emailVerified isOAuth"
     );
 
     // if no such user exists (bcz user has been deleted or invalid user _id)
@@ -32,6 +32,7 @@ export const getCurrentUser = async (req: any, res: Response) => {
         _id: user._id,
         username: user.username,
         email: user.email,
+        emailVerified: user.emailVerified,
         profile: user.isOAuth
           ? user.profile
           : BASE_PATH_COMPLETE +

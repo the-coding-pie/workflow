@@ -7,7 +7,7 @@ import ErrorBox from "../../components/FormikComponents/ErrorBox";
 import Input from "../../components/FormikComponents/Input";
 import { Form, Formik } from "formik";
 import axios, { AxiosError } from "axios";
-import { loginUser } from "../../redux/features/authSlice";
+import { loginUser, setEmailVerified } from "../../redux/features/authSlice";
 import GoogleAuthBtn from "../../components/GoogleAuth/GoogleAuthBtn";
 
 interface UserObj {
@@ -63,6 +63,7 @@ const Register = () => {
             refreshToken: data.refreshToken,
           })
         );
+        dispatch(setEmailVerified(data.emailVerified));
 
         setIsSubmitting(false);
       })

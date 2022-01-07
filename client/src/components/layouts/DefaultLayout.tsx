@@ -1,11 +1,18 @@
 import { useSelector } from "react-redux";
-import { Outlet } from "react-router-dom";
+import { Navigate, Outlet } from "react-router-dom";
 import { RootState } from "../../redux/app";
 import Header from "../Header/Header";
 import Sidebar from "../Sidebar/Sidebar";
 
 const DefaultLayout = () => {
   const { show } = useSelector((state: RootState) => state.sidebar);
+  const { emailVerified } = useSelector((state: RootState) => state.auth);
+
+  if (emailVerified === false) {
+    return (
+      <Navigate replace to="/email/notverified" state={{ from: location }} />
+    );
+  }
 
   return (
     <div className="flex">

@@ -5,7 +5,10 @@ import { useDispatch, useSelector } from "react-redux";
 import { showSidebar } from "../../redux/features/sidebarSlice";
 import { RootState } from "../../redux/app";
 import axios from "axios";
-import { setCurrentUser } from "../../redux/features/authSlice";
+import {
+  setCurrentUser,
+  setEmailVerified,
+} from "../../redux/features/authSlice";
 import { useQuery } from "react-query";
 import { UserObj } from "../../types";
 import { BASE_URL } from "../../config";
@@ -21,7 +24,15 @@ const Header = () => {
     axios.get(`/users/getCurrentUser`).then((response) => {
       const { data } = response.data;
 
-      dispatch(setCurrentUser(data));
+      dispatch(
+        setCurrentUser({
+          _id: data._id,
+          username: data.username,
+          email: data.email,
+          profile: data.profile,
+        })
+      );
+      dispatch(setEmailVerified(data.emailVerified));
       return data;
     });
 

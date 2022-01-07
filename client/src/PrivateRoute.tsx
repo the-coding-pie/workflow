@@ -7,7 +7,7 @@ interface Props {
 }
 
 const PrivateRoute = ({ children }: Props) => {
-  const { accessToken, emailVerified } = useSelector(
+  const { accessToken } = useSelector(
     (state: RootState) => state.auth
   );
 
@@ -15,12 +15,6 @@ const PrivateRoute = ({ children }: Props) => {
 
   if (!accessToken) {
     return <Navigate replace to="/auth/login" state={{ from: location }} />;
-  }
-
-  if (!emailVerified) {
-    return (
-      <Navigate replace to="/email/notverified" state={{ from: location }} />
-    );
   }
 
   return children;

@@ -7,7 +7,7 @@ import SubmitBtn from "../../components/FormikComponents/SubmitBtn";
 import { Link } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import axios, { AxiosError } from "axios";
-import { loginUser } from "../../redux/features/authSlice";
+import { loginUser, setEmailVerified } from "../../redux/features/authSlice";
 import GoogleAuthBtn from "../../components/GoogleAuth/GoogleAuthBtn";
 
 interface UserObj {
@@ -54,6 +54,7 @@ const Login = () => {
             refreshToken: data.refreshToken,
           })
         );
+        dispatch(setEmailVerified(data.emailVerified));
 
         setIsSubmitting(false);
       })
@@ -89,9 +90,12 @@ const Login = () => {
       validationSchema={validationSchema}
       onSubmit={(values) => handleSubmit(values)}
     >
-      <Form className="max-w-sm flex flex-col justify-center items-center bg-white px-6 py-5 shadow" style={{
-        minWidth: "360px"
-      }}>
+      <Form
+        className="max-w-sm flex flex-col justify-center items-center bg-white px-6 py-5 shadow"
+        style={{
+          minWidth: "360px",
+        }}
+      >
         {commonError && (
           <div className="common-error mt-2 mb-3 text-center">
             <ErrorBox msg={commonError} />

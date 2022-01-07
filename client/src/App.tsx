@@ -151,7 +151,7 @@ const App = () => {
             }
           >
             {/* /email/notverified */}
-            <Route element={<EmailNotVerified />} path="/email/notverified" />
+            <Route path="/email/notverified" element={<EmailNotVerified />} />
 
             <Route index element={<Home />} />
             <Route path="/notifications" element={<Notifications />} />
