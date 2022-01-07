@@ -45,11 +45,7 @@ const Header = () => {
         )}
       </div>
       <div className="right">
-        {user ? (
-          <ProfileCard img={user.profile} alt={`${user.username} profile`} />
-        ) : (
-          <ProfileCard img={undefined} alt={undefined} />
-        )}
+        {user ? <ProfileCard user={user} /> : <ProfileCard user={null} />}
       </div>
     </header>
   );

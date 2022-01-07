@@ -9,13 +9,14 @@ import useClose from "../../hooks/useClose";
 import { logoutUser } from "../../redux/features/authSlice";
 import Avatar from "react-avatar";
 import { useQueryClient } from "react-query";
+import { UserObj } from "../../types";
+import { chopChars } from "../../utils/helpers";
 
 interface Props {
-  img: string | undefined;
-  alt: string | undefined;
+  user: UserObj | null;
 }
 
-const ProfileCard = ({ img, alt }: Props) => {
+const ProfileCard = ({ user }: Props) => {
   const [show, setShow] = useState(false);
   const ref = useClose(() => setShow(false));
 
@@ -26,29 +27,74 @@ const ProfileCard = ({ img, alt }: Props) => {
   const handleLogout = () => {
     // remove all query caches
     queryClient.removeQueries();
-    
+
     dispatch(logoutUser());
   };
 
   return (
     <div className="relative profile-card" ref={ref}>
-      <Avatar
-        onClick={() => setShow(!show)}
-        src={img}
-        alt={alt}
-        size="32"
-        round={true}
-        className="cursor-pointer"
-      />
+      {user ? (
+        <Avatar
+          onClick={() => setShow(!show)}
+          src={user.profile}
+          alt={`${user.username} profile`}
+          size="32"
+          round={true}
+          className="cursor-pointer"
+        />
+      ) : (
+        <Avatar
+          onClick={() => setShow(!show)}
+          src={undefined}
+          alt={"no profile"}
+          size="32"
+          round={true}
+          className="cursor-pointer"
+        />
+      )}
 
       {show && (
-        <div className="absolute right-0 z-30 flex flex-col w-40 bg-white rounded-md shadow-lg extra-options arrow top-12">
+        <div
+          className="absolute right-0 z-30 flex flex-col bg-white rounded-md shadow-lg extra-options arrow top-12"
+          style={{
+            minWidth: "160px",
+          }}
+        >
+          <div className="user-details flex items-center p-3 border-b">
+            <div className="left mr-3">
+              {user ? (
+                <Avatar
+                  onClick={() => setShow(!show)}
+                  src={user.profile}
+                  alt={`${user.username} profile`}
+                  size="32"
+                  round={true}
+                  className="cursor-pointer"
+                />
+              ) : (
+                <Avatar
+                  onClick={() => setShow(!show)}
+                  src={undefined}
+                  alt={"no profile"}
+                  size="32"
+                  round={true}
+                  className="cursor-pointer"
+                />
+              )}
+            </div>
+            <div className="right text-sm">
+              <h3 className="font-semibold mb-0.5">
+                {user ? chopChars(24, user.username) : "Unknown"}
+              </h3>
+              <span className="email text-gray-600">{user ? chopChars(24, user.email) : "unknown"}</span>
+            </div>
+          </div>
           <Link
             to="/profile"
             onClick={() => {
               setShow(false);
             }}
-            className="flex items-center justify-between w-full p-3 text-gray-600 rounded-md rounded-b-none hover:bg-gray-200  "
+            className="flex items-center justify-between w-full p-3 text-gray-600 hover:bg-gray-200  "
           >
             <span className="text-sm">Profile</span>
             <div className="text-gray-500">

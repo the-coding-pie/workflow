@@ -1,9 +1,11 @@
 import axios from "axios";
 import React, { lazy, Suspense } from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { ToastContainer } from "react-toastify";
 import AuthLayout from "./components/layouts/AuthLayout";
 import DefaultLayout from "./components/layouts/DefaultLayout";
 import ProjectLayout from "./components/layouts/ProjectLayout";
+import Toasts from "./components/Toasts/Toasts";
 import { BASE_URL } from "./config";
 import Login from "./pages/auth/Login";
 import Register from "./pages/auth/Register";
@@ -12,6 +14,8 @@ import BoardDetail from "./pages/projects/boards/BoardDetail";
 import ProjectBoards from "./pages/projects/ProjectBoards";
 import ProjectMembers from "./pages/projects/ProjectMembers";
 import ProjectSettings from "./pages/projects/ProjectSettings";
+
+import "react-toastify/dist/ReactToastify.css";
 
 import PrivateRoute from "./PrivateRoute";
 import { store } from "./redux/app";
@@ -123,6 +127,9 @@ axios.interceptors.response.use(
 const App = () => {
   return (
     <div>
+      <Toasts />
+      <ToastContainer position="top-right" />
+
       <BrowserRouter>
         <Routes>
           {/* /auth */}

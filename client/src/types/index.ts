@@ -1,7 +1,10 @@
+import { DEFAULT, ERROR, INFO, SUCCESS, WARNING } from "./constants";
+
 export interface UserObj {
   _id: string;
   username: string;
   profile: string;
+  email: string;
 }
 
 export interface ProjectObj {
@@ -16,4 +19,14 @@ export interface BoardObj {
   name: string;
   color: string;
   img?: string;
+}
+
+export interface ToastObj {
+  kind:
+    | typeof ERROR
+    | typeof SUCCESS
+    | typeof INFO
+    | typeof WARNING
+    | typeof DEFAULT;
+  msg: string;
 }

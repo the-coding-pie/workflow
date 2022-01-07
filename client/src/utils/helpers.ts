@@ -72,3 +72,8 @@ export const removeTokens = (): void => {
   localStorage.removeItem("accessToken");
   localStorage.removeItem("refreshToken");
 };
+
+// slice chars
+export const chopChars = (maxLength: number, text: string) => {
+  return text.length > maxLength ? text.slice(0, maxLength) + "..." : text;
+};
