@@ -16,12 +16,14 @@ interface AuthState {
   accessToken: string | null;
   refreshToken: string | null;
   user: UserObj | null;
+  emailVerified: boolean | null;
 }
 
 const initialState: AuthState = {
   accessToken: getTokens().accessToken,
   refreshToken: getTokens().refreshToken,
   user: null,
+  emailVerified: null,
 };
 
 const authSlice = createSlice({

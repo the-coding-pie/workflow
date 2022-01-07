@@ -209,6 +209,16 @@ export const loginUser = async (req: Request, res: Response) => {
     // check if user exists or not
     const user = await User.findOne({ email });
 
+    // if open authentication
+    if (user.isOAuth) {
+      return res.status(401).send({
+        success: false,
+        data: {},
+        message: "This account can only be logged into with Google",
+        statusCode: 401,
+      });
+    }
+
     // if no user / passwords doesn't match
     if (!user || !(await user.comparePassword(password))) {
       return res.status(401).send({

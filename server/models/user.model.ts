@@ -35,6 +35,11 @@ const userSchema = new mongoose.Schema(
       type: String,
       default: "default.jpg",
     },
+    emailVerified: {
+      type: Boolean,
+      required: true,
+      default: false,
+    },
     isOAuth: {
       type: Boolean,
       default: false,

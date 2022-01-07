@@ -20,6 +20,7 @@ import "react-toastify/dist/ReactToastify.css";
 import PrivateRoute from "./PrivateRoute";
 import { store } from "./redux/app";
 import { logoutUser, setAccessToken } from "./redux/features/authSlice";
+import EmailNotVerified from "./pages/EmailNotVerified";
 
 const Home = lazy(() => import("./pages/Home"));
 const Settings = lazy(() => import("./pages/Settings"));
@@ -149,6 +150,9 @@ const App = () => {
               </PrivateRoute>
             }
           >
+            {/* /email/notverified */}
+            <Route element={<EmailNotVerified />} path="/email/notverified" />
+
             <Route index element={<Home />} />
             <Route path="/notifications" element={<Notifications />} />
             <Route path="/settings" element={<Settings />} />
