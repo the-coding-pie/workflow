@@ -16,14 +16,12 @@ interface AuthState {
   accessToken: string | null;
   refreshToken: string | null;
   user: UserObj | null;
-  emailVerified: boolean | null;
 }
 
 const initialState: AuthState = {
   accessToken: getTokens().accessToken,
   refreshToken: getTokens().refreshToken,
   user: null,
-  emailVerified: null,
 };
 
 const authSlice = createSlice({
@@ -55,12 +53,22 @@ const authSlice = createSlice({
       state.user = action.payload;
     },
     setEmailVerified: (state, action: PayloadAction<boolean>) => {
-      state.emailVerified = action.payload;
+      if (state.user) {
+        state.user = {
+          ...state.user,
+          emailVerified: action.payload,
+        };
+      }
     },
   },
 });
 
-export const { loginUser, logoutUser, setAccessToken, setCurrentUser, setEmailVerified } =
-  authSlice.actions;
+export const {
+  loginUser,
+  logoutUser,
+  setAccessToken,
+  setCurrentUser,
+  setEmailVerified,
+} = authSlice.actions;
 
 export default authSlice.reducer;

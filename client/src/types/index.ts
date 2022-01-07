@@ -5,6 +5,7 @@ export interface UserObj {
   username: string;
   profile: string;
   email: string;
+  emailVerified: boolean;
 }
 
 export interface ProjectObj {

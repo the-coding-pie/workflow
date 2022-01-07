@@ -19,30 +19,6 @@ const Header = () => {
   const { show } = useSelector((state: RootState) => state.sidebar);
   const { user } = useSelector((state: RootState) => state.auth);
 
-  // get current user info
-  const getCurrentUser = () =>
-    axios.get(`/users/getCurrentUser`).then((response) => {
-      const { data } = response.data;
-
-      dispatch(
-        setCurrentUser({
-          _id: data._id,
-          username: data.username,
-          email: data.email,
-          profile: data.profile,
-        })
-      );
-      dispatch(setEmailVerified(data.emailVerified));
-      return data;
-    });
-
-  const { data, isLoading, error } = useQuery<
-    UserObj | undefined,
-    Error,
-    UserObj,
-    string[]
-  >(["getCurrentUser"], getCurrentUser);
-
   return (
     <header className="header h-14 border-b bg-white flex items-center justify-between px-4">
       <div className="left flex items-center justify-start">

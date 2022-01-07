@@ -7,13 +7,13 @@ interface Props {
 }
 
 const PrivateRoute = ({ children }: Props) => {
-  const { accessToken } = useSelector(
+  const { accessToken, refreshToken } = useSelector(
     (state: RootState) => state.auth
   );
 
   const location = useLocation();
 
-  if (!accessToken) {
+  if (!accessToken && !refreshToken) {
     return <Navigate replace to="/auth/login" state={{ from: location }} />;
   }
 
