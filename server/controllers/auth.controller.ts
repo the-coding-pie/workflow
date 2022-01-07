@@ -301,6 +301,7 @@ export const googleAuth = async (req: Request, res: Response) => {
         username: username!.trim(),
         email: payload.email!.trim(),
         profile: payload.picture!,
+        emailVerified: true,
         isOAuth: true,
       });
 
@@ -327,7 +328,7 @@ export const googleAuth = async (req: Request, res: Response) => {
       success: true,
       data: {
         accessToken,
-        refreshToken
+        refreshToken,
       },
       message: "Google OAuth successfull",
       statusCode: 200,
