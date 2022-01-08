@@ -72,7 +72,7 @@ export const emailVerifiy = async (req: Request, res: Response) => {
       });
     }
 
-    // got valid token -> update user info and delete the record
+    // got valid token -> update user info and delete the record, then redirect user to client
   } catch {
     res.status(500).send({
       success: false,

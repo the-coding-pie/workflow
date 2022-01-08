@@ -72,7 +72,7 @@ const GoogleAuthBtn = ({ setCommonError, setIsSubmitting }: Props) => {
 
   return (
     <GoogleLogin
-      clientId="628321745921-s94tclhleu517kfhqic9e47jq804bgd3.apps.googleusercontent.com"
+      clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID as string}
       buttonText="Continue with Google"
       onSuccess={googleSuccess}
       onFailure={googleFailure}
