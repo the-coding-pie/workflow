@@ -59,10 +59,20 @@ export const emailVerifiy = async (req: Request, res: Response) => {
     const validToken = await EmailVerification.findOne({
       userId: user._id,
       token: token,
-      expiresAt: { $lte: new Date() },
+      expiresAt: { $gt: new Date() },
     });
 
-    console.log(validToken);
+    if (!validToken) {
+      return res.status(400).send({
+        success: false,
+        data: {},
+        message:
+          "Sorry, your email validation link has expired or is malformed",
+        statusCode: 400,
+      });
+    }
+
+    // got valid token -> update user info and delete the record
   } catch {
     res.status(500).send({
       success: false,
