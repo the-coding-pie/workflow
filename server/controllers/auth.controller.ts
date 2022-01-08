@@ -3,9 +3,13 @@ import { OAuth2Client } from "google-auth-library";
 import jwt from "jsonwebtoken";
 import { uniqueNamesGenerator } from "unique-names-generator";
 import validator from "validator";
+import EmailVerification from "../models/emailVerification.model.";
 import User from "../models/user.model";
+import { createRandomHex } from "../utils/helpers";
 import { generateAccessToken, generateRefreshToken } from "../utils/token";
 import { generateUsername } from "../utils/uniqueUsernameGen";
+import nodemailer from "nodemailer";
+import { BASE_PATH_COMPLETE, EMAIL_TOKEN_LENGTH } from "../config";
 
 export const refreshToken = async (req: Request, res: Response) => {
   try {
@@ -146,7 +150,43 @@ export const registerUser = async (req: Request, res: Response) => {
       email: email.trim(),
       password,
     });
+
     const genUser = await user.save();
+
+    // token generation for email verification
+    // store it in database
+    const emailVerification = await new EmailVerification({
+      userId: genUser._id,
+      token: createRandomHex(EMAIL_TOKEN_LENGTH),
+    });
+    const genEmailVer = await emailVerification.save();
+
+    // send email
+    // create a transport
+    const transporter = nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+        user: process.env.GMAIL!,
+        pass: process.env.GMAIL_PASSWORD!,
+      },
+    });
+
+    // mail options
+    const mailOptions = {
+      from: `Workflow ${process.env.GMAIL}`,
+      to: genUser.email,
+      subject: "Verify Email",
+      html: `
+        <h1>Verify your email address</h1>
+        <p style="font-size: 16px; font-weight: 600;">To start using workflow, just click the verify link below:</p>
+        
+        <br />
+        <a style="font-size: 14px;" href=${BASE_PATH_COMPLETE}/email/verify/${genEmailVer.token}?wuid=${genEmailVer.userId} target="_blank">Click here to verify your email</a>
+      `,
+    };
+
+    // fail silently if error happens
+    transporter.sendMail(mailOptions, function (err, info) {});
 
     // generate accessToken & refreshToken
     const accessToken = await generateAccessToken({
