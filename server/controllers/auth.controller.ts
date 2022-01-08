@@ -140,7 +140,7 @@ export const registerUser = async (req: Request, res: Response) => {
       return res.status(409).send({
         success: false,
         data: {},
-        message: "User with that email already exists",
+        message: "This email is already taken. Please log in.",
         statusCode: 409,
       });
     }
@@ -179,7 +179,7 @@ export const registerUser = async (req: Request, res: Response) => {
       html: `
         <h1>Verify your email address</h1>
         <p style="font-size: 16px; font-weight: 600;">To start using workflow, just click the verify link below:</p>
-        
+        <p style="font-size: 16px; font-weight: 600; color: red;">And only click the link if you are the person who initiated this process.</p>
         <br />
         <a style="font-size: 14px;" href=${BASE_PATH_COMPLETE}/email/verify/${genEmailVer.token}?wuid=${genEmailVer.userId} target="_blank">Click here to verify your email</a>
       `,
