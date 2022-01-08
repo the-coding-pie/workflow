@@ -10,21 +10,7 @@ import path from "path";
 // GET /users/getCurrentUser
 export const getCurrentUser = async (req: any, res: Response) => {
   try {
-    const { _id } = req.user;
-
-    const user = await User.findById(_id).select(
-      "_id username profile email emailVerified isOAuth"
-    );
-
-    // if no such user exists (bcz user has been deleted or invalid user _id)
-    if (!user) {
-      return res.status(401).send({
-        success: false,
-        data: {},
-        message: "Invalid user",
-        statusCode: 401,
-      });
-    }
+    const user = req.user;
 
     res.send({
       success: true,
