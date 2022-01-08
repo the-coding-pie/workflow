@@ -16,21 +16,22 @@ const MainLayout = () => {
   const { user } = useSelector((state: RootState) => state.auth);
 
   // get current user info
-  const getCurrentUser = () =>
-    axios.get(`/users/getCurrentUser`).then((response) => {
-      const { data } = response.data;
+  const getCurrentUser = async () => {
+    const response = await axios.get(`/users/getCurrentUser`);
 
-      dispatch(
-        setCurrentUser({
-          _id: data._id,
-          username: data.username,
-          email: data.email,
-          profile: data.profile,
-          emailVerified: data.emailVerified,
-        })
-      );
-      return data;
-    });
+    const { data } = response.data;
+
+    dispatch(
+      setCurrentUser({
+        _id: data._id,
+        username: data.username,
+        email: data.email,
+        profile: data.profile,
+        emailVerified: data.emailVerified,
+      })
+    );
+    return data;
+  };
 
   const { error } = useQuery<UserObj | undefined, Error, UserObj, string[]>(
     ["getCurrentUser"],

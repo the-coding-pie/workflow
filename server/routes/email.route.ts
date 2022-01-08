@@ -3,6 +3,6 @@ import * as emailController from "../controllers/email.controller";
 
 const emailRouter = express.Router();
 
-emailRouter.get("/verify/:token", emailController.emailVerifiy);
+emailRouter.get("/verify/:token", emailController.emailVerify);
 
 export default emailRouter;

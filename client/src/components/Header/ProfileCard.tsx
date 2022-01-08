@@ -1,24 +1,21 @@
 import { HiOutlineLogout } from "react-icons/hi";
 import React, { useState } from "react";
-import { useDispatch } from "react-redux";
-import person from "../../assets/img/person.png";
+import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import { CgProfile } from "react-icons/cg";
-import Profile from "../../assets/img/default.jpg";
 import useClose from "../../hooks/useClose";
 import { logoutUser } from "../../redux/features/authSlice";
-import Avatar from "react-avatar";
 import { useQueryClient } from "react-query";
 import { UserObj } from "../../types";
 import { chopChars } from "../../utils/helpers";
+import { RootState } from "../../redux/app";
+import Profile from "./Profile";
 
-interface Props {
-  user: UserObj | null;
-}
-
-const ProfileCard = ({ user }: Props) => {
+const ProfileCard = () => {
   const [show, setShow] = useState(false);
   const ref = useClose(() => setShow(false));
+
+  const { user } = useSelector((state: RootState) => state.auth);
 
   const dispatch = useDispatch();
 
@@ -34,22 +31,17 @@ const ProfileCard = ({ user }: Props) => {
   return (
     <div className="relative profile-card" ref={ref}>
       {user ? (
-        <Avatar
+        <Profile
           onClick={() => setShow(!show)}
           src={user.profile}
           alt={`${user.username} profile`}
-          size="32"
-          round={true}
-          className="cursor-pointer"
+          classes="cursor-pointer"
         />
       ) : (
-        <Avatar
+        <Profile
           onClick={() => setShow(!show)}
           src={undefined}
-          alt={"no profile"}
-          size="32"
-          round={true}
-          className="cursor-pointer"
+          classes="cursor-pointer"
         />
       )}
 
@@ -61,32 +53,20 @@ const ProfileCard = ({ user }: Props) => {
           }}
         >
           <div className="user-details flex items-center p-3 border-b">
-            <div className="left mr-3">
+            <div className="left w-8 mr-3">
               {user ? (
-                <Avatar
-                  onClick={() => setShow(!show)}
-                  src={user.profile}
-                  alt={`${user.username} profile`}
-                  size="32"
-                  round={true}
-                  className="cursor-pointer"
-                />
+                <Profile src={user.profile} alt={`${user.username} profile`} />
               ) : (
-                <Avatar
-                  onClick={() => setShow(!show)}
-                  src={undefined}
-                  alt={"no profile"}
-                  size="32"
-                  round={true}
-                  className="cursor-pointer"
-                />
+                <Profile src={undefined} />
               )}
             </div>
             <div className="right text-sm">
               <h3 className="font-semibold mb-0.5">
                 {user ? chopChars(24, user.username) : "Unknown"}
               </h3>
-              <span className="email text-gray-600">{user ? chopChars(24, user.email) : "unknown"}</span>
+              <span className="email text-gray-600">
+                {user ? chopChars(24, user.email) : "unknown"}
+              </span>
             </div>
           </div>
           <Link

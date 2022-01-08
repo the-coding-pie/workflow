@@ -1,11 +1,11 @@
 import { Request, Response } from "express";
 import { isValidObjectId } from "mongoose";
-import { EMAIL_TOKEN_LENGTH } from "../config";
+import { CLIENT_URL, EMAIL_TOKEN_LENGTH } from "../config";
 import EmailVerification from "../models/emailVerification.model.";
 import User from "../models/user.model";
 
 // email verify
-export const emailVerifiy = async (req: Request, res: Response) => {
+export const emailVerify = async (req: Request, res: Response) => {
   try {
     const { wuid } = req.query;
     const { token } = req.params;
@@ -73,6 +73,12 @@ export const emailVerifiy = async (req: Request, res: Response) => {
     }
 
     // got valid token -> update user info and delete the record, then redirect user to client
+    user.emailVerified = true;
+    await user.save();
+
+    await validToken.remove();
+
+    res.redirect(CLIENT_URL);
   } catch {
     res.status(500).send({
       success: false,
