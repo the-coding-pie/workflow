@@ -329,7 +329,7 @@ export const googleAuth = async (req: Request, res: Response) => {
 
     // if user doesn't exists with this email, create the user
     const userExists = await User.findOne({ email: payload.email }).select(
-      "_id"
+      "_id emailVerified"
     );
 
     let accessToken;
@@ -357,13 +357,47 @@ export const googleAuth = async (req: Request, res: Response) => {
         _id: genUser._id,
       });
     } else {
-      // generate tokens
-      accessToken = await generateAccessToken({
-        _id: userExists._id,
-      });
-      refreshToken = await generateRefreshToken({
-        _id: userExists._id,
-      });
+      // emailVerified false (manual registration)
+      if (userExists.emailVerified === false) {
+        // delete the old user
+        // delete record in the emailVerification collection
+        // create new user with isOAuth=true & emailVerified=true
+        const emailVer = await EmailVerification.findOne({
+          userId: userExists._id,
+        });
+        await userExists.remove();
+        await emailVer.remove();
+
+        // create valid username
+        const username = generateUsername();
+
+        const newUser = await new User({
+          username: username!.trim(),
+          email: payload.email!.trim(),
+          profile: payload.picture!,
+          emailVerified: true,
+          isOAuth: true,
+        });
+
+        const genNewUser = await newUser.save();
+
+        // generate tokens
+        accessToken = await generateAccessToken({
+          _id: genNewUser._id,
+        });
+        refreshToken = await generateRefreshToken({
+          _id: genNewUser._id,
+        });
+      } else {
+        // user already verified email, so allow Google OAuth
+        // generate tokens
+        accessToken = await generateAccessToken({
+          _id: userExists._id,
+        });
+        refreshToken = await generateRefreshToken({
+          _id: userExists._id,
+        });
+      }
     }
 
     return res.status(200).send({
