@@ -186,7 +186,9 @@ export const registerUser = async (req: Request, res: Response) => {
     };
 
     // fail silently if error happens
-    transporter.sendMail(mailOptions, function (err, info) {});
+    transporter.sendMail(mailOptions, function (err, info) {
+      transporter.close();
+    });
 
     // generate accessToken & refreshToken
     const accessToken = await generateAccessToken({
