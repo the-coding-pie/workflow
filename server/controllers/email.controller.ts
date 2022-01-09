@@ -78,7 +78,12 @@ export const emailVerify = async (req: Request, res: Response) => {
 
     await validToken.remove();
 
-    res.redirect(CLIENT_URL);
+    res.send({
+      success: true,
+      data: {},
+      message: "Email verified!",
+      statusCode: 200,
+    });
   } catch {
     res.status(500).send({
       success: false,

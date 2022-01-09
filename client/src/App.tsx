@@ -14,6 +14,8 @@ import { store } from "./redux/app";
 import { logoutUser, setAccessToken } from "./redux/features/authSlice";
 import EmailNotVerified from "./pages/EmailNotVerified";
 import MainLayout from "./components/layouts/MainLayout";
+import EmailVerify from "./pages/EmailVerify";
+import { WARNING } from "./types/constants";
 
 // axios defaults
 axios.defaults.baseURL = BASE_URL;
@@ -132,6 +134,15 @@ const App = () => {
               element={<Navigate to="/auth/login" replace={true} />}
             />
           </Route>
+
+          <Route
+            path="/email/verify/:token"
+            element={
+              <PrivateRoute toast={{ kind: WARNING, msg: "Please log in to Workflow before verifying your email address" }}>
+                <EmailVerify />
+              </PrivateRoute>
+            }
+          />
 
           {/* /* */}
           <Route

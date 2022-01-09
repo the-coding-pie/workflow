@@ -1,0 +1,59 @@
+import axios from "axios";
+import React, { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
+import { BASE_URL } from "../config";
+import { RootState } from "../redux/app";
+import { addToast } from "../redux/features/toastSlice";
+import { ERROR } from "../types/constants";
+
+const EmailVerify = () => {
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
+  const params = useParams();
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  useEffect(() => {
+    axios
+      .get(
+        `${BASE_URL}/email/verify/${params.token}?wuid=${searchParams.get(
+          "wuid"
+        )}`
+      )
+      .then((response) => {
+        console.log(response);
+      })
+      .catch((error) => {
+        if (error.response) {
+          const response = error.response;
+          const { message } = response.data;
+
+          switch (response.status) {
+            case 400:
+            case 500:
+              dispatch(addToast({ kind: ERROR, msg: message }));
+
+              break;
+            default:
+              dispatch(
+                addToast({ kind: ERROR, msg: "Oops, something went wrong" })
+              );
+              break;
+          }
+        } else if (error.request) {
+          dispatch(
+            addToast({ kind: ERROR, msg: "Oops, something went wrong" })
+          );
+        } else {
+          dispatch(addToast({ kind: ERROR, msg: `Error: ${error.message}` }));
+        }
+
+        navigate("/", { replace: true });
+      });
+  }, []);
+
+  return <div></div>;
+};
+
+export default EmailVerify;

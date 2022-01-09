@@ -9,7 +9,7 @@ import { createRandomHex } from "../utils/helpers";
 import { generateAccessToken, generateRefreshToken } from "../utils/token";
 import { generateUsername } from "../utils/uniqueUsernameGen";
 import nodemailer from "nodemailer";
-import { BASE_PATH_COMPLETE, EMAIL_TOKEN_LENGTH } from "../config";
+import { BASE_PATH_COMPLETE, CLIENT_URL, EMAIL_TOKEN_LENGTH } from "../config";
 
 export const refreshToken = async (req: Request, res: Response) => {
   try {
@@ -179,9 +179,9 @@ export const registerUser = async (req: Request, res: Response) => {
       html: `
         <h1>Verify your email address</h1>
         <p style="font-size: 16px; font-weight: 600;">To start using workflow, just click the verify link below:</p>
-        <p style="font-size: 16px; font-weight: 600; color: red;">And only click the link if you are the person who initiated this process.</p>
+        <p style="font-size: 14px; font-weight: 600; color: red;">And only click the link if you are the person who initiated this process.</p>
         <br />
-        <a style="font-size: 14px;" href=${BASE_PATH_COMPLETE}/email/verify/${genEmailVer.token}?wuid=${genEmailVer.userId} target="_blank">Click here to verify your email</a>
+        <a style="font-size: 14px;" href=${CLIENT_URL}/email/verify/${genEmailVer.token}?wuid=${genEmailVer.userId} target="_blank">Click here to verify your email</a>
       `,
     };
 
