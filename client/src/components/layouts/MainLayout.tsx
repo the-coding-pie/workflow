@@ -5,7 +5,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { Outlet } from "react-router-dom";
 import EmailNotVerified from "../../pages/EmailNotVerified";
 import { RootState } from "../../redux/app";
-import { setCurrentUser } from "../../redux/features/authSlice";
+import { logoutUser, setCurrentUser } from "../../redux/features/authSlice";
 import { UserObj } from "../../types";
 import DefaultLayout from "./DefaultLayout";
 
@@ -33,10 +33,18 @@ const MainLayout = () => {
     return data;
   };
 
-  const { error } = useQuery<UserObj | undefined, Error, UserObj, string[]>(
+  const { error } = useQuery<UserObj | undefined, any, UserObj, string[]>(
     ["getCurrentUser"],
     getCurrentUser
   );
+
+  if (error && error.response) {
+    const response = error.response;
+
+    if (response.status === 401) {
+      return dispatch(logoutUser());
+    }
+  }
 
   if (user) {
     if (user.emailVerified === true) {

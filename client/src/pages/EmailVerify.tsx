@@ -4,6 +4,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { BASE_URL } from "../config";
 import { RootState } from "../redux/app";
+import { logoutUser } from "../redux/features/authSlice";
 import { addToast } from "../redux/features/toastSlice";
 import { ERROR, SUCCESS } from "../types/constants";
 
@@ -34,10 +35,12 @@ const EmailVerify = () => {
           const { message } = response.data;
 
           switch (response.status) {
+            case 401:
+              dispatch(logoutUser());
+              break;
             case 400:
             case 500:
               dispatch(addToast({ kind: ERROR, msg: message }));
-
               break;
             default:
               dispatch(

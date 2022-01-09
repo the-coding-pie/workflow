@@ -60,6 +60,7 @@ axios.interceptors.response.use(
   function (error) {
     const originalRequest = error.config;
 
+    // if refresh also fails with 401
     if (
       error.response.status === 401 &&
       originalRequest.url.includes("refresh")
