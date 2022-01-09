@@ -5,53 +5,59 @@ import EmailVerification from "../models/emailVerification.model.";
 import User from "../models/user.model";
 
 // email verify
-export const emailVerify = async (req: Request, res: Response) => {
+export const emailVerify = async (req: any, res: Response) => {
   try {
     const { wuid } = req.query;
     const { token } = req.params;
 
-    if (!wuid) {
+    if (
+      !wuid ||
+      !isValidObjectId(wuid) ||
+      !token ||
+      token.length < EMAIL_TOKEN_LENGTH
+    ) {
       return res.status(400).send({
         success: false,
         data: {},
-        message: "user id is required",
-        statusCode: 400,
-      });
-    } else if (!isValidObjectId(wuid)) {
-      return res.status(400).send({
-        success: false,
-        data: {},
-        message: "Invalid user id",
-        statusCode: 400,
-      });
-    }
-
-    // token validation
-    if (!token) {
-      return res.status(400).send({
-        success: false,
-        data: {},
-        message: "token is required",
-        statusCode: 400,
-      });
-    } else if (token.length < EMAIL_TOKEN_LENGTH) {
-      return res.status(400).send({
-        success: false,
-        data: {},
-        message: "Invalid token",
+        message:
+          "Sorry, your email validation link has expired or is malformed",
         statusCode: 400,
       });
     }
 
     // check if user is valid
-    const user = await User.findOne({ _id: wuid }).select("_id");
+    const user = await User.findOne({ _id: wuid }).select(
+      "_id email emailVerified"
+    );
 
     if (!user) {
-      return res.status(404).send({
+      return res.status(400).send({
         success: false,
         data: {},
-        message: "No user with that user id found!",
-        statusCode: 404,
+        message:
+          "Sorry, your email validation link has expired or is malformed",
+        statusCode: 400,
+      });
+    }
+
+    // when the req comes, make sure that the user.email (wuid user) === the requesting user's email
+    if (user.email !== req.user.email) {
+      return res.status(400).send({
+        success: false,
+        data: {},
+        message:
+          "Verification failed. The verification email you clicked on was for a different account.",
+        statusCode: 400,
+      });
+    }
+
+    // if wuid user's email is already verified
+    if (user.emailVerified === true) {
+      return res.send({
+        success: true,
+        data: {},
+        message: "Email verified!",
+        statusCode: 200,
       });
     }
 
@@ -84,7 +90,8 @@ export const emailVerify = async (req: Request, res: Response) => {
       message: "Email verified!",
       statusCode: 200,
     });
-  } catch {
+  } catch (err) {
+    console.log(err);
     res.status(500).send({
       success: false,
       data: {},

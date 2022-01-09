@@ -5,7 +5,7 @@ import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { BASE_URL } from "../config";
 import { RootState } from "../redux/app";
 import { addToast } from "../redux/features/toastSlice";
-import { ERROR } from "../types/constants";
+import { ERROR, SUCCESS } from "../types/constants";
 
 const EmailVerify = () => {
   const dispatch = useDispatch();
@@ -22,7 +22,11 @@ const EmailVerify = () => {
         )}`
       )
       .then((response) => {
-        console.log(response);
+        const { message } = response.data;
+
+        dispatch(addToast({ kind: SUCCESS, msg: message }));
+
+        navigate("/", { replace: true });
       })
       .catch((error) => {
         if (error.response) {
