@@ -68,6 +68,12 @@ axios.interceptors.response.use(
       store.dispatch(logoutUser());
     }
 
+    // // if retried request failed with 401 status
+    // if (error.response.status === 401 && originalRequest._retry) {
+    //   // doesn't stops here, but also shows all the toast below due to Promise reject at the bottom
+    //   return store.dispatch(logoutUser());
+    // }
+
     if (
       error.response.status === 401 &&
       !originalRequest.url.includes("login") &&
@@ -139,7 +145,12 @@ const App = () => {
           <Route
             path="/email/verify/:token"
             element={
-              <PrivateRoute toast={{ kind: WARNING, msg: "Please log in to Workflow before verifying your email address" }}>
+              <PrivateRoute
+                toast={{
+                  kind: WARNING,
+                  msg: "Please log in to Workflow before verifying your email address",
+                }}
+              >
                 <EmailVerify />
               </PrivateRoute>
             }
