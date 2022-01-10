@@ -3,15 +3,16 @@ import React, { useCallback, useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
 import * as Yup from "yup";
-import Input from "../../components/FormikComponents/Input";
-import SubmitBtn from "../../components/FormikComponents/SubmitBtn";
-import { RootState } from "../../redux/app";
+import Input from "../components/FormikComponents/Input";
+import SubmitBtn from "../components/FormikComponents/SubmitBtn";
+import { FORGOT_PASSWORD_TOKEN_LENGTH } from "../config";
+import { RootState } from "../redux/app";
 
 interface PasswordObj {
   password: string;
 }
 
-const PasswordRecover = () => {
+const ResetPassword = () => {
   const navigate = useNavigate();
 
   const params = useParams();
@@ -24,13 +25,13 @@ const PasswordRecover = () => {
 
   useEffect(() => {
     const token = params.token;
-    console.log(token);
-    if (!token || token.length !== 1) {
+
+    if (!token || token.length !== FORGOT_PASSWORD_TOKEN_LENGTH) {
       // if authenticated
       if (accessToken || refreshToken) {
         navigate("/", { replace: true });
       } else {
-        navigate("/auth/reset-password", { replace: true });
+        navigate("/forgot-password", { replace: true });
       }
     }
   }, []);
@@ -110,4 +111,4 @@ const PasswordRecover = () => {
   );
 };
 
-export default PasswordRecover;
+export default ResetPassword;

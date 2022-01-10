@@ -1,16 +1,22 @@
+import axios, { AxiosError } from "axios";
 import { Form, Formik } from "formik";
 import React, { useCallback, useState } from "react";
+import { useDispatch } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
 import * as Yup from "yup";
-import Input from "../../components/FormikComponents/Input";
-import SubmitBtn from "../../components/FormikComponents/SubmitBtn";
+import Input from "../components/FormikComponents/Input";
+import SubmitBtn from "../components/FormikComponents/SubmitBtn";
+import { addToast } from "../redux/features/toastSlice";
+import { ERROR } from "../types/constants";
 
 interface EmailObj {
   email: string;
 }
 
-const ResetPassword = () => {
+const ForgotPassword = () => {
   const navigate = useNavigate();
+
+  const dispatch = useDispatch();
 
   const [isMsgScreen, setIsMsgScreen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -23,11 +29,47 @@ const ResetPassword = () => {
     email: Yup.string().email("Invalid Email").required("Email is required"),
   });
 
-  const handleSubmit = useCallback(({ email }: EmailObj) => {
-    console.log(email);
+  const handleSubmit = useCallback((emailObj: EmailObj) => {
+    setIsSubmitting(true);
 
-    // if success
-    setIsMsgScreen(true);
+    axios
+      .post(`/accounts/forgot-password`, emailObj, {
+        headers: {
+          ContentType: "application/json",
+        },
+      })
+      .then((response) => {
+        setIsSubmitting(false);
+
+        // show message screen
+        setIsMsgScreen(true);
+      })
+      .catch((error: AxiosError) => {
+        setIsSubmitting(false);
+
+        if (error.response) {
+          const response = error.response;
+          const { message } = response.data;
+
+          switch (response.status) {
+            case 400:
+            case 500:
+              dispatch(addToast({ kind: ERROR, msg: message }));
+              break;
+            default:
+              dispatch(
+                addToast({ kind: ERROR, msg: "Oops, something went wrong" })
+              );
+              break;
+          }
+        } else if (error.request) {
+          dispatch(
+            addToast({ kind: ERROR, msg: "Oops, something went wrong" })
+          );
+        } else {
+          dispatch(addToast({ kind: ERROR, msg: `Error: ${error.message}` }));
+        }
+      });
   }, []);
 
   return !isMsgScreen ? (
@@ -81,9 +123,11 @@ const ResetPassword = () => {
         instructions on resetting your password. If it doesn't arrive, be sure
         to check your spam folder.
       </p>
-      <Link to="/auth/login" className="text-primary text-sm">Back to Log in</Link>
+      <Link to="/auth/login" className="text-primary text-sm">
+        Back to Log in
+      </Link>
     </div>
   );
 };
 
-export default ResetPassword;
+export default ForgotPassword;

@@ -1,5 +1,6 @@
 import { add } from "date-fns";
 import mongoose from "mongoose";
+import { EMAIL_TOKEN_LENGTH } from "../config";
 
 const emailVerificationSchema = new mongoose.Schema({
   userId: {
@@ -10,6 +11,7 @@ const emailVerificationSchema = new mongoose.Schema({
   token: {
     type: String,
     required: true,
+    length: EMAIL_TOKEN_LENGTH
   },
   expiresAt: {
     type: Date,

@@ -12,3 +12,6 @@ export const PROFILE_PICS_DIR_NAME = "profiles";
 // EMAIL TOKEN VALIDITY
 export const EMAIL_TOKEN_VALIDITY = 1800; // 1800s = 30mins
 export const EMAIL_TOKEN_LENGTH = 94;
+
+// FORGOT PASSWORD TOKEN
+export const FORGOT_PASSWORD_TOKEN_LENGTH = 124;
