@@ -30,7 +30,9 @@ export const forgotPassword = async (req: Request, res: Response) => {
       });
     }
 
-    const user = await User.findOne({ email: email }).select("_id email");
+    const user = await User.findOne({ email: email, isOAuth: false }).select(
+      "_id email"
+    );
 
     if (user) {
       // delete old record if any exists
@@ -41,8 +43,6 @@ export const forgotPassword = async (req: Request, res: Response) => {
         userId: user._id,
         token: createRandomToken(FORGOT_PASSWORD_TOKEN_LENGTH),
       });
-
-      console.log(forgotPassword.token);
 
       const genForgotPassword = await forgotPassword.save();
 
@@ -100,7 +100,7 @@ export const forgotPassword = async (req: Request, res: Response) => {
 // POST /accounts/reset-password
 export const resetPassword = async (req: Request, res: Response) => {
   try {
-    const { token } = req.query;
+    const { token } = req.params;
     const { password } = req.body;
 
     if (!token || token.length !== FORGOT_PASSWORD_TOKEN_LENGTH) {
@@ -152,7 +152,7 @@ export const resetPassword = async (req: Request, res: Response) => {
     }
 
     // find the user and reset their password, then delete the record from forgotPassword collection
-    const user = await User.findOne({ _id: validToken._id });
+    const user = await User.findOne({ _id: validToken.userId });
     const emailVer = await EmailVerification.findOne({ userId: user._id });
 
     user.password = password;
