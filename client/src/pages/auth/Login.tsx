@@ -119,6 +119,12 @@ const Login = () => {
           />
         </div>
 
+        <div className="forgot-password mb-4 text-sm">
+          <Link to="/auth/reset-password" className="text-primary">
+            Forgot Password?
+          </Link>
+        </div>
+
         <p className="text-gray-500 text-sm">
           Don't have an account?{" "}
           <Link to="/auth/register" className="text-primary">

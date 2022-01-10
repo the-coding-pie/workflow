@@ -16,6 +16,8 @@ import EmailNotVerified from "./pages/EmailNotVerified";
 import MainLayout from "./components/layouts/MainLayout";
 import EmailVerify from "./pages/EmailVerify";
 import { WARNING } from "./types/constants";
+import ResetPassword from "./pages/auth/ResetPassword";
+import PasswordRecover from "./pages/auth/PasswordRecover";
 
 // axios defaults
 axios.defaults.baseURL = BASE_URL;
@@ -131,10 +133,14 @@ const App = () => {
 
       <BrowserRouter>
         <Routes>
+          {/* password - new password page */}
+          <Route path="password/recover/:token" element={<PasswordRecover />} />
+          
           {/* /auth */}
           <Route path="auth" element={<AuthLayout />}>
             <Route path="login" element={<Login />} />
             <Route path="register" element={<Register />} />
+            <Route path="reset-password" element={<ResetPassword />} />
 
             <Route
               path="*"

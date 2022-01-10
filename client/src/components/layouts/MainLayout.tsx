@@ -42,7 +42,7 @@ const MainLayout = () => {
     const response = error.response;
 
     if (response.status === 401) {
-      return dispatch(logoutUser());
+      dispatch(logoutUser());
     }
   }
 
