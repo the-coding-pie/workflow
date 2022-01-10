@@ -5,6 +5,8 @@ import ForgotPassword from "../models/forgotPassword.model";
 import { createRandomToken } from "../utils/helpers";
 import { CLIENT_URL, FORGOT_PASSWORD_TOKEN_LENGTH } from "../config";
 import nodemailer from "nodemailer";
+import { generateAccessToken, generateRefreshToken } from "../utils/token";
+import EmailVerification from "../models/emailVerification.model.";
 
 // POST /accounts/forgot-password
 export const forgotPassword = async (req: Request, res: Response) => {
@@ -40,7 +42,7 @@ export const forgotPassword = async (req: Request, res: Response) => {
         token: createRandomToken(FORGOT_PASSWORD_TOKEN_LENGTH),
       });
 
-      console.log(forgotPassword.token)
+      console.log(forgotPassword.token);
 
       const genForgotPassword = await forgotPassword.save();
 
@@ -85,8 +87,105 @@ export const forgotPassword = async (req: Request, res: Response) => {
         "If an account exists for the email address, you will get an email with instructions on resetting your password. If it doesn't arrive, be sure to check your spam folder.",
       statusCode: 200,
     });
-  } catch (err) {
-    console.log(err)
+  } catch {
+    res.status(500).send({
+      success: false,
+      data: {},
+      message: "Oops, something went wrong!",
+      statusCode: 500,
+    });
+  }
+};
+
+// POST /accounts/reset-password
+export const resetPassword = async (req: Request, res: Response) => {
+  try {
+    const { token } = req.query;
+    const { password } = req.body;
+
+    if (!token || token.length !== FORGOT_PASSWORD_TOKEN_LENGTH) {
+      return res.status(404).send({
+        success: false,
+        data: {},
+        message: "Sorry, your password reset link has expired or is malformed",
+        statusCode: 404,
+      });
+    }
+
+    if (!password) {
+      return res.status(400).send({
+        success: false,
+        data: {},
+        message: "New password is required",
+        statusCode: 400,
+      });
+    } else if (password.length < 8) {
+      return res.status(400).send({
+        success: false,
+        data: {},
+        message: "Password must be at least 8 chars long",
+        statusCode: 400,
+      });
+    } else if (!/\d/.test(password) || !/[a-zA-Z]/.test(password)) {
+      // check if password has atleast one digit and one letter
+      return res.status(400).send({
+        success: false,
+        data: {},
+        message: "Password must contain at least one letter and one number",
+        statusCode: 400,
+      });
+    }
+
+    // check if it is a valid token
+    const validToken = await ForgotPassword.findOne({
+      token: token,
+      expiresAt: { $gt: new Date() },
+    });
+
+    if (!validToken) {
+      return res.status(404).send({
+        success: false,
+        data: {},
+        message: "Sorry, your password reset link has expired or is malformed",
+        statusCode: 404,
+      });
+    }
+
+    // find the user and reset their password, then delete the record from forgotPassword collection
+    const user = await User.findOne({ _id: validToken._id });
+    const emailVer = await EmailVerification.findOne({ userId: user._id });
+
+    user.password = password;
+    user.emailVerified = true;
+
+    // if user clicks on the link, that indirectly means they verified their email
+    if (emailVer) {
+      await emailVer.remove();
+    }
+    await user.save();
+
+    await validToken.remove();
+
+    // generate new tokens and send
+    // generate accessToken & refreshToken
+    const accessToken = await generateAccessToken({
+      _id: user._id,
+    });
+    const refreshToken = await generateRefreshToken({
+      _id: user._id,
+    });
+
+    return res.send({
+      success: true,
+      data: {
+        accessToken,
+        refreshToken,
+        emailVerified: user.emailVerified,
+      },
+      message: "Password changed successfully!",
+      statusCode: 200,
+    });
+  } catch {
     res.status(500).send({
       success: false,
       data: {},

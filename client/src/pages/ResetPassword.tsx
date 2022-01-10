@@ -1,12 +1,16 @@
+import axios, { AxiosError } from "axios";
 import { Form, Formik } from "formik";
 import React, { useCallback, useEffect, useState } from "react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
 import * as Yup from "yup";
 import Input from "../components/FormikComponents/Input";
 import SubmitBtn from "../components/FormikComponents/SubmitBtn";
 import { FORGOT_PASSWORD_TOKEN_LENGTH } from "../config";
 import { RootState } from "../redux/app";
+import { loginUser, setEmailVerified } from "../redux/features/authSlice";
+import { addToast } from "../redux/features/toastSlice";
+import { ERROR } from "../types/constants";
 
 interface PasswordObj {
   password: string;
@@ -17,16 +21,20 @@ const ResetPassword = () => {
 
   const params = useParams();
 
+  const dispatch = useDispatch();
+
+  let token: string | undefined = "";
+
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [commonError, setCommonError] = useState("");
 
   const { accessToken, refreshToken } = useSelector(
     (state: RootState) => state.auth
   );
 
   useEffect(() => {
-    const token = params.token;
+    token = params.token;
 
-    console.log(token?.length)
     if (!token || token.length !== FORGOT_PASSWORD_TOKEN_LENGTH) {
       // if authenticated
       if (accessToken || refreshToken) {
@@ -53,8 +61,59 @@ const ResetPassword = () => {
       .required("Passwords must match"),
   });
 
-  const handleSubmit = useCallback(({ password }: PasswordObj) => {
-    console.log(password);
+  const handleSubmit = useCallback((passwordObj: PasswordObj) => {
+    axios
+      .post(`/accounts/reset-password/${token}`, passwordObj)
+      .then((response) => {
+        const { data } = response.data;
+
+        setCommonError("");
+
+        dispatch(
+          loginUser({
+            accessToken: data.accessToken,
+            refreshToken: data.refreshToken,
+          })
+        );
+        dispatch(setEmailVerified(data.emailVerified));
+
+        setIsSubmitting(false);
+      })
+      .catch((error: AxiosError) => {
+        setIsSubmitting(false);
+
+        if (error.response) {
+          const response = error.response;
+          const { message } = response.data;
+
+          switch (response.status) {
+            case 400:
+              setCommonError(message);
+              break;
+            case 404:
+              dispatch(addToast({ kind: ERROR, msg: message }));
+              // if authenticated
+              if (accessToken || refreshToken) {
+                navigate("/", { replace: true });
+              } else {
+                navigate("/forgot-password", { replace: true });
+              }
+              break;
+            case 500:
+              dispatch(addToast({ kind: ERROR, msg: message }));
+              break;
+            default:
+              setCommonError("Oops, something went wrong");
+              break;
+          }
+        } else if (error.request) {
+          dispatch(
+            addToast({ kind: ERROR, msg: "Oops, something went wrong" })
+          );
+        } else {
+          dispatch(addToast({ kind: ERROR, msg: `Error: ${error.message}` }));
+        }
+      });
   }, []);
 
   return (

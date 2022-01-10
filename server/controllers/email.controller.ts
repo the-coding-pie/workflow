@@ -14,7 +14,7 @@ export const emailVerify = async (req: any, res: Response) => {
       !wuid ||
       !isValidObjectId(wuid) ||
       !token ||
-      token.length < EMAIL_TOKEN_LENGTH
+      token.length !== EMAIL_TOKEN_LENGTH
     ) {
       return res.status(400).send({
         success: false,
