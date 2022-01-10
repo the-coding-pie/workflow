@@ -4,6 +4,7 @@ import React, { useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
 import * as Yup from "yup";
+import ErrorBox from "../components/FormikComponents/ErrorBox";
 import Input from "../components/FormikComponents/Input";
 import SubmitBtn from "../components/FormikComponents/SubmitBtn";
 import { FORGOT_PASSWORD_TOKEN_LENGTH } from "../config";
@@ -26,7 +27,6 @@ const ResetPassword = () => {
   let token: string | undefined = "";
 
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [commonError, setCommonError] = useState("");
 
   const { accessToken, refreshToken } = useSelector(
     (state: RootState) => state.auth
@@ -36,6 +36,12 @@ const ResetPassword = () => {
     token = params.token;
 
     if (!token || token.length !== FORGOT_PASSWORD_TOKEN_LENGTH) {
+      dispatch(
+        addToast({
+          kind: ERROR,
+          msg: "Sorry, your password reset link has expired or is malformed",
+        })
+      );
       // if authenticated
       if (accessToken || refreshToken) {
         navigate("/", { replace: true });
@@ -62,12 +68,12 @@ const ResetPassword = () => {
   });
 
   const handleSubmit = useCallback((passwordObj: PasswordObj) => {
+    setIsSubmitting(true);
+
     axios
       .post(`/accounts/reset-password/${token}`, passwordObj)
       .then((response) => {
         const { data } = response.data;
-
-        setCommonError("");
 
         dispatch(
           loginUser({
@@ -87,9 +93,6 @@ const ResetPassword = () => {
           const { message } = response.data;
 
           switch (response.status) {
-            case 400:
-              setCommonError(message);
-              break;
             case 404:
               dispatch(addToast({ kind: ERROR, msg: message }));
               // if authenticated
@@ -99,11 +102,14 @@ const ResetPassword = () => {
                 navigate("/forgot-password", { replace: true });
               }
               break;
+            case 400:
             case 500:
               dispatch(addToast({ kind: ERROR, msg: message }));
               break;
             default:
-              setCommonError("Oops, something went wrong");
+              dispatch(
+                addToast({ kind: ERROR, msg: "Oops, something went wrong" })
+              );
               break;
           }
         } else if (error.request) {
