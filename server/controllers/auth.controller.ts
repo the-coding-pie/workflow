@@ -203,6 +203,7 @@ export const registerUser = async (req: Request, res: Response) => {
       data: {
         accessToken,
         refreshToken,
+        emailVerified: genUser.emailVerified,
       },
       message: "Your account has been created successfully!",
       statusCode: 201,
@@ -284,6 +285,7 @@ export const loginUser = async (req: Request, res: Response) => {
       data: {
         accessToken,
         refreshToken,
+        emailVerified: user.emailVerified,
       },
       message: "",
       statusCode: 200,
@@ -334,6 +336,7 @@ export const googleAuth = async (req: Request, res: Response) => {
 
     let accessToken;
     let refreshToken;
+    let emailVerified;
 
     if (!userExists) {
       // create valid username
@@ -356,6 +359,7 @@ export const googleAuth = async (req: Request, res: Response) => {
       refreshToken = await generateRefreshToken({
         _id: genUser._id,
       });
+      emailVerified = genUser.emailVerified;
     } else {
       // emailVerified false (manual registration)
       if (userExists.emailVerified === false) {
@@ -388,6 +392,7 @@ export const googleAuth = async (req: Request, res: Response) => {
         refreshToken = await generateRefreshToken({
           _id: genNewUser._id,
         });
+        emailVerified = genNewUser.emailVerified;
       } else {
         // user already verified email, so allow Google OAuth
         // generate tokens
@@ -397,6 +402,8 @@ export const googleAuth = async (req: Request, res: Response) => {
         refreshToken = await generateRefreshToken({
           _id: userExists._id,
         });
+
+        emailVerified = userExists.emailVerified;
       }
     }
 
@@ -405,6 +412,7 @@ export const googleAuth = async (req: Request, res: Response) => {
       data: {
         accessToken,
         refreshToken,
+        emailVerified
       },
       message: "Google OAuth successfull",
       statusCode: 200,

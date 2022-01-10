@@ -1,12 +1,9 @@
 import axios from "axios";
 import React from "react";
-import GoogleLogin, {
-  GoogleLoginResponse,
-  GoogleLoginResponseOffline,
-} from "react-google-login";
+import GoogleLogin from "react-google-login";
 import { useDispatch } from "react-redux";
 import { BASE_URL } from "../../config";
-import { loginUser } from "../../redux/features/authSlice";
+import { loginUser, setEmailVerified } from "../../redux/features/authSlice";
 
 interface Props {
   setCommonError: React.Dispatch<React.SetStateAction<string>>;
@@ -37,6 +34,7 @@ const GoogleAuthBtn = ({ setCommonError, setIsSubmitting }: Props) => {
               refreshToken: data.refreshToken,
             })
           );
+          dispatch(setEmailVerified(data.emailVerified));
 
           setIsSubmitting(false);
         })
