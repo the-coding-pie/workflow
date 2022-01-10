@@ -412,7 +412,7 @@ export const googleAuth = async (req: Request, res: Response) => {
       data: {
         accessToken,
         refreshToken,
-        emailVerified
+        emailVerified,
       },
       message: "Google OAuth successfull",
       statusCode: 200,

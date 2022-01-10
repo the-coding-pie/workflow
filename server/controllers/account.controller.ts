@@ -30,9 +30,7 @@ export const forgotPassword = async (req: Request, res: Response) => {
       });
     }
 
-    const user = await User.findOne({ email: email, isOAuth: false }).select(
-      "_id email"
-    );
+    const user = await User.findOne({ email: email }).select("_id email");
 
     if (user) {
       // delete old record if any exists
@@ -156,6 +154,7 @@ export const resetPassword = async (req: Request, res: Response) => {
     const emailVer = await EmailVerification.findOne({ userId: user._id });
 
     user.password = password;
+    user.isOAuth = false;
     user.emailVerified = true;
 
     // if user clicks on the link, that indirectly means they verified their email

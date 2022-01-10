@@ -19,7 +19,7 @@ export const getCurrentUser = async (req: any, res: Response) => {
         username: user.username,
         email: user.email,
         emailVerified: user.emailVerified,
-        profile: user.isOAuth
+        profile: user.profile.includes("http")
           ? user.profile
           : BASE_PATH_COMPLETE +
             path.join(STATIC_PATH, PROFILE_PICS_DIR_NAME, user.profile),
