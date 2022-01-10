@@ -26,6 +26,7 @@ const ResetPassword = () => {
   useEffect(() => {
     const token = params.token;
 
+    console.log(token?.length)
     if (!token || token.length !== FORGOT_PASSWORD_TOKEN_LENGTH) {
       // if authenticated
       if (accessToken || refreshToken) {

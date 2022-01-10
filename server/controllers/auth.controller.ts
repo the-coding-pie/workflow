@@ -5,7 +5,7 @@ import { uniqueNamesGenerator } from "unique-names-generator";
 import validator from "validator";
 import EmailVerification from "../models/emailVerification.model.";
 import User from "../models/user.model";
-import { createRandomHex } from "../utils/helpers";
+import { createRandomToken } from "../utils/helpers";
 import { generateAccessToken, generateRefreshToken } from "../utils/token";
 import { generateUsername } from "../utils/uniqueUsernameGen";
 import nodemailer from "nodemailer";
@@ -157,7 +157,7 @@ export const registerUser = async (req: Request, res: Response) => {
     // store it in database
     const emailVerification = await new EmailVerification({
       userId: genUser._id,
-      token: createRandomHex(EMAIL_TOKEN_LENGTH),
+      token: createRandomToken(EMAIL_TOKEN_LENGTH),
     });
     const genEmailVer = await emailVerification.save();
 

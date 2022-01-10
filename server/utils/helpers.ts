@@ -1,6 +1,6 @@
-import crypto from "crypto";
+import { nanoid } from "nanoid";
 
-// creates 128 char long hex string
-export const createRandomHex = (length: number) => {
-  return crypto.randomBytes(length).toString("hex");
+// creates 'n' length char long hex string
+export const createRandomToken = (length: number) => {
+  return nanoid(length);
 };

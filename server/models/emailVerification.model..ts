@@ -11,7 +11,8 @@ const emailVerificationSchema = new mongoose.Schema({
   token: {
     type: String,
     required: true,
-    length: EMAIL_TOKEN_LENGTH
+    minlength: EMAIL_TOKEN_LENGTH,
+    maxlength: EMAIL_TOKEN_LENGTH,
   },
   expiresAt: {
     type: Date,
