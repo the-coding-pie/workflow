@@ -3,6 +3,7 @@ import { OAuth2Client } from "google-auth-library";
 import jwt from "jsonwebtoken";
 import validator from "validator";
 import EmailVerification from "../models/emailVerification.model.";
+import ForgotPassword from "../models/forgotPassword.model";
 import User from "../models/user.model";
 import { createRandomToken } from "../utils/helpers";
 import { generateAccessToken, generateRefreshToken } from "../utils/token";
@@ -136,12 +137,32 @@ export const registerUser = async (req: Request, res: Response) => {
     const userExists = await User.findOne({ email: email });
 
     if (userExists) {
-      return res.status(409).send({
-        success: false,
-        data: {},
-        message: "This email is already taken. Please log in.",
-        statusCode: 409,
+      const notEmailVer = await EmailVerification.findOne({
+        userId: userExists._id,
       });
+
+      // records -> email not verified (both expired and not expired)
+      // if email verified or link not expired
+      if (
+        userExists.emailVerified === true ||
+        (notEmailVer && new Date(notEmailVer.expiresAt) > new Date())
+      ) {
+        return res.status(409).send({
+          success: false,
+          data: {},
+          message: "This email is already taken. Please log in.",
+          statusCode: 409,
+        });
+      }
+
+      // remove the user, the emailVer record, and forgotPassword, and refreshToken
+      // then create a new user
+      await ForgotPassword.deleteOne({ userId: userExists._id });
+      await userExists.remove();
+      // expired document
+      if (notEmailVer) {
+        await notEmailVer.remove();
+      }
     }
 
     const user = await new User({
@@ -368,6 +389,8 @@ export const googleAuth = async (req: Request, res: Response) => {
         const emailVer = await EmailVerification.findOne({
           userId: userExists._id,
         });
+
+        await ForgotPassword.deleteOne({ userId: userExists._id });
         await userExists.remove();
         await emailVer.remove();
 

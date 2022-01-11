@@ -2,6 +2,7 @@ import axios from "axios";
 import React from "react";
 import GoogleLogin from "react-google-login";
 import { useDispatch } from "react-redux";
+import { useNavigate } from "react-router-dom";
 import { loginUser, setEmailVerified } from "../../redux/features/authSlice";
 
 interface Props {
@@ -11,6 +12,8 @@ interface Props {
 
 const GoogleAuthBtn = ({ setCommonError, setIsSubmitting }: Props) => {
   const dispatch = useDispatch();
+
+  const navigate = useNavigate();
 
   const googleSuccess = async (response: any) => {
     const tokenId = response?.tokenId;
@@ -34,6 +37,8 @@ const GoogleAuthBtn = ({ setCommonError, setIsSubmitting }: Props) => {
             })
           );
           dispatch(setEmailVerified(data.emailVerified));
+
+          navigate("/");
 
           setIsSubmitting(false);
         })
