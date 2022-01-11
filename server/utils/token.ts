@@ -15,44 +15,41 @@ export const generateRefreshToken = async (payload: UserTokenObj) => {
   const tokenExists = await RefreshToken.findOne({ userId: payload._id });
 
   if (tokenExists) {
-    jwt.verify(
-      tokenExists.refreshToken,
-      process.env.REFRESH_TOKEN_SECRET!,
-      async function (err: any, payload: any) {
-        if (err) {
-          // delete old token
-          await tokenExists.remove();
+    try {
+      await jwt.verify(
+        tokenExists.refreshToken,
+        process.env.REFRESH_TOKEN_SECRET!
+      );
 
-          // generate new one
-          const newToken = jwt.sign(
-            payload,
-            process.env.REFRESH_TOKEN_SECRET!,
-            {
-              expiresIn: "7d",
-            }
-          );
+      return tokenExists.refreshToken;
+    } catch (e) {
+      // delete old token
+      await tokenExists.remove();
 
-          const refreshDoc = await new RefreshToken({
-            userId: payload._id,
-            refreshToken: newToken,
-          });
-          await refreshDoc.save();
-          return newToken;
-        }
+      // generate new one
+      const newToken = jwt.sign(payload, process.env.REFRESH_TOKEN_SECRET!, {
+        expiresIn: "7d",
+      });
 
-        return tokenExists.refreshToken;
-      }
-    );
+      const refreshDoc = await new RefreshToken({
+        userId: payload._id,
+        refreshToken: newToken,
+      });
+      await refreshDoc.save();
+      return newToken;
+    }
+  } else {
+    const newToken = jwt.sign(payload, process.env.REFRESH_TOKEN_SECRET!, {
+      expiresIn: "7d",
+    });
+
+    const refreshDoc = await new RefreshToken({
+      userId: payload._id,
+      refreshToken: newToken,
+    });
+    await refreshDoc.save();
+    return newToken;
   }
 
-  const newToken = jwt.sign(payload, process.env.REFRESH_TOKEN_SECRET!, {
-    expiresIn: "7d",
-  });
-
-  const refreshDoc = await new RefreshToken({
-    userId: payload._id,
-    refreshToken: newToken,
-  });
-  await refreshDoc.save();
-  return newToken;
+  console.log("ee");
 };
