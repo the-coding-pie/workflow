@@ -67,7 +67,7 @@ export const emailVerify = async (req: any, res: Response) => {
     const validToken = await EmailVerification.findOne({
       userId: user._id,
       token: token,
-      expiresAt: { $gt: new Date() },
+      expiresAt: { $gt: new Date().toUTCString() },
     });
 
     if (!validToken) {

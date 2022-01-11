@@ -57,15 +57,14 @@ const Register = () => {
 
         setCommonError("");
 
+        setIsSubmitting(false);
+
         dispatch(
           loginUser({
             accessToken: data.accessToken,
             refreshToken: data.refreshToken,
           })
         );
-        dispatch(setEmailVerified(data.emailVerified));
-
-        setIsSubmitting(false);
       })
       .catch((error: AxiosError) => {
         setIsSubmitting(false);

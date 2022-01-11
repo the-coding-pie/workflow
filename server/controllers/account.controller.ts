@@ -137,7 +137,7 @@ export const resetPassword = async (req: Request, res: Response) => {
     // check if it is a valid token
     const validToken = await ForgotPassword.findOne({
       token: token,
-      expiresAt: { $gt: new Date() },
+      expiresAt: { $gt: new Date().toUTCString() },
     });
 
     if (!validToken) {
@@ -179,7 +179,6 @@ export const resetPassword = async (req: Request, res: Response) => {
       data: {
         accessToken,
         refreshToken,
-        emailVerified: user.emailVerified,
       },
       message: "Password changed successfully!",
       statusCode: 200,

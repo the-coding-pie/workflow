@@ -7,7 +7,7 @@ import SubmitBtn from "../../components/FormikComponents/SubmitBtn";
 import { Link } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import axios, { AxiosError } from "axios";
-import { loginUser, setEmailVerified } from "../../redux/features/authSlice";
+import { loginUser } from "../../redux/features/authSlice";
 import GoogleAuthBtn from "../../components/GoogleAuth/GoogleAuthBtn";
 
 interface UserObj {
@@ -48,15 +48,14 @@ const Login = () => {
 
         setCommonError("");
 
+        setIsSubmitting(false);
+
         dispatch(
           loginUser({
             accessToken: data.accessToken,
             refreshToken: data.refreshToken,
           })
         );
-        dispatch(setEmailVerified(data.emailVerified));
-
-        setIsSubmitting(false);
       })
       .catch((error: AxiosError) => {
         setIsSubmitting(false);

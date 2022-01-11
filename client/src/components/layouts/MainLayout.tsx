@@ -1,5 +1,5 @@
 import axios from "axios";
-import React from "react";
+import React, { useEffect } from "react";
 import { useQuery } from "react-query";
 import { useDispatch, useSelector } from "react-redux";
 import { Outlet } from "react-router-dom";
@@ -18,25 +18,29 @@ const MainLayout = () => {
   // get current user info
   const getCurrentUser = async () => {
     const response = await axios.get(`/users/getCurrentUser`);
-
     const { data } = response.data;
 
-    dispatch(
-      setCurrentUser({
-        _id: data._id,
-        username: data.username,
-        email: data.email,
-        profile: data.profile,
-        emailVerified: data.emailVerified,
-      })
-    );
     return data;
   };
 
-  const { error } = useQuery<UserObj | undefined, any, UserObj, string[]>(
+  const { data, error } = useQuery<UserObj | undefined, any, UserObj, string[]>(
     ["getCurrentUser"],
     getCurrentUser
   );
+
+  useEffect(() => {
+    if (data) {
+      dispatch(
+        setCurrentUser({
+          _id: data._id,
+          username: data.username,
+          email: data.email,
+          profile: data.profile,
+          emailVerified: data.emailVerified,
+        })
+      );
+    }
+  }, [data]);
 
   if (error && error.response) {
     const response = error.response;

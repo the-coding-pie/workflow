@@ -17,7 +17,7 @@ const emailVerificationSchema = new mongoose.Schema({
   expiresAt: {
     type: Date,
     default: add(new Date(), {
-      minutes: 30,
+      minutes: 1,
     }),
   },
 });

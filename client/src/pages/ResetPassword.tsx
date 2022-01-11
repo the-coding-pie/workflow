@@ -81,7 +81,6 @@ const ResetPassword = () => {
             refreshToken: data.refreshToken,
           })
         );
-        dispatch(setEmailVerified(data.emailVerified));
 
         setIsSubmitting(false);
       })
