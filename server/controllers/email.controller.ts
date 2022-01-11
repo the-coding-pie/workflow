@@ -3,6 +3,8 @@ import { isValidObjectId } from "mongoose";
 import { CLIENT_URL, EMAIL_TOKEN_LENGTH } from "../config";
 import EmailVerification from "../models/emailVerification.model.";
 import User from "../models/user.model";
+import { createRandomToken } from "../utils/helpers";
+import nodemailer from "nodemailer";
 
 // email verify
 export const emailVerify = async (req: any, res: Response) => {
@@ -90,8 +92,67 @@ export const emailVerify = async (req: any, res: Response) => {
       message: "Email verified!",
       statusCode: 200,
     });
-  } catch (err) {
-    console.log(err);
+  } catch {
+    res.status(500).send({
+      success: false,
+      data: {},
+      message: "Oops, something went wrong",
+      statusCode: 500,
+    });
+  }
+};
+
+// resend verify email
+export const resendVerifyEmail = async (req: any, res: Response) => {
+  try {
+    const user = req.user;
+
+    // delete old record in emailVerification collection if any exists
+    await EmailVerification.deleteOne({ userId: user._id });
+
+    // create a new token and store it
+    const emailVerification = await new EmailVerification({
+      userId: user._id,
+      token: createRandomToken(EMAIL_TOKEN_LENGTH),
+    });
+    const genEmailVer = await emailVerification.save();
+
+    // send email
+    // create a transport
+    const transporter = nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+        user: process.env.GMAIL!,
+        pass: process.env.GMAIL_PASSWORD!,
+      },
+    });
+
+    // mail options
+    const mailOptions = {
+      from: `Workflow ${process.env.GMAIL}`,
+      to: user.email,
+      subject: "Verify Email",
+      html: `
+        <h1>Verify your email address</h1>
+        <p style="font-size: 16px; font-weight: 600;">To start using workflow, just click the verify link below:</p>
+        <p style="font-size: 14px; font-weight: 600; color: red;">And only click the link if you are the person who initiated this process.</p>
+        <br />
+        <a style="font-size: 14px;" href=${CLIENT_URL}/email/verify/${genEmailVer.token}?wuid=${genEmailVer.userId} target="_blank">Click here to verify your email</a>
+      `,
+    };
+
+    // fail silently if error happens
+    transporter.sendMail(mailOptions, function (err, info) {
+      transporter.close();
+    });
+
+    return res.send({
+      success: true,
+      data: {},
+      message: "Email resent!",
+      statusCode: 201,
+    });
+  } catch {
     res.status(500).send({
       success: false,
       data: {},
