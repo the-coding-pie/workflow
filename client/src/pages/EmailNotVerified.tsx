@@ -66,8 +66,9 @@ const EmailNotVerified = () => {
           </button>
         </p>
         <p className="mb-4">
-          Wrong address? Log out to sign in with a different email. If you
-          mistyped your email when signing up, create a new account.
+          Wrong address? <button className="text-primary" onClick={() => dispatch(logoutUser())}>Log out</button> to
+          sign in with a different email. If you mistyped your email when
+          signing up, create a new account.
         </p>
       </div>
     </div>

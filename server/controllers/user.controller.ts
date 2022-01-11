@@ -4,7 +4,6 @@ import {
   PROFILE_PICS_DIR_NAME,
   STATIC_PATH,
 } from "../config";
-import User from "../models/user.model";
 import path from "path";
 
 // GET /users/getCurrentUser

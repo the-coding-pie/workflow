@@ -1,7 +1,6 @@
 import { Request, Response } from "express";
 import { OAuth2Client } from "google-auth-library";
 import jwt from "jsonwebtoken";
-import { uniqueNamesGenerator } from "unique-names-generator";
 import validator from "validator";
 import EmailVerification from "../models/emailVerification.model.";
 import User from "../models/user.model";
@@ -9,7 +8,7 @@ import { createRandomToken } from "../utils/helpers";
 import { generateAccessToken, generateRefreshToken } from "../utils/token";
 import { generateUsername } from "../utils/uniqueUsernameGen";
 import nodemailer from "nodemailer";
-import { BASE_PATH_COMPLETE, CLIENT_URL, EMAIL_TOKEN_LENGTH } from "../config";
+import { CLIENT_URL, EMAIL_TOKEN_LENGTH } from "../config";
 
 export const refreshToken = async (req: Request, res: Response) => {
   try {
