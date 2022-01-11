@@ -173,6 +173,7 @@ export const registerUser = async (req: Request, res: Response) => {
       // then create a new user
       await ForgotPassword.deleteOne({ userId: userExists._id });
       await EmailVerification.deleteOne({ userId: userExists._id });
+      await RefreshToken.deleteOne({ userId: userExists._id });
       await userExists.remove();
     }
 
@@ -228,12 +229,6 @@ export const registerUser = async (req: Request, res: Response) => {
     const refreshToken = await generateRefreshToken({
       _id: genUser._id,
     });
-
-    const refreshDoc = await new RefreshToken({
-      userId: genUser._id,
-      refreshToken: refreshToken,
-    });
-    await refreshDoc.save();
 
     return res.status(201).send({
       success: true,
@@ -393,12 +388,6 @@ export const googleAuth = async (req: Request, res: Response) => {
       refreshToken = await generateRefreshToken({
         _id: genUser._id,
       });
-
-      const refreshDoc = await new RefreshToken({
-        userId: genUser._id,
-        refreshToken: refreshToken,
-      });
-      await refreshDoc.save();
     } else {
       // emailVerified false (manual registration)
       if (userExists.emailVerified === false) {
@@ -409,6 +398,7 @@ export const googleAuth = async (req: Request, res: Response) => {
           userId: userExists._id,
         });
 
+        await RefreshToken.deleteOne({ userId: userExists._id });
         await ForgotPassword.deleteOne({ userId: userExists._id });
         await userExists.remove();
         await emailVer.remove();

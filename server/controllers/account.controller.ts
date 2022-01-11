@@ -7,6 +7,7 @@ import { CLIENT_URL, FORGOT_PASSWORD_TOKEN_LENGTH } from "../config";
 import nodemailer from "nodemailer";
 import { generateAccessToken, generateRefreshToken } from "../utils/token";
 import EmailVerification from "../models/emailVerification.model.";
+import RefreshToken from "../models/refreshTokens.model";
 
 // POST /accounts/forgot-password
 export const forgotPassword = async (req: Request, res: Response) => {
@@ -162,7 +163,7 @@ export const resetPassword = async (req: Request, res: Response) => {
       await emailVer.remove();
     }
     await user.save();
-
+    await RefreshToken.deleteOne({ userId: user._id });
     await validToken.remove();
 
     // generate new tokens and send
