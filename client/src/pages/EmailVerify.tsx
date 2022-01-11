@@ -1,5 +1,6 @@
 import axios from "axios";
 import React, { useEffect } from "react";
+import { useQueryClient } from "react-query";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { logoutUser } from "../redux/features/authSlice";
@@ -9,17 +10,14 @@ import { ERROR, SUCCESS } from "../types/constants";
 const EmailVerify = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
 
   const params = useParams();
   const [searchParams, setSearchParams] = useSearchParams();
 
   useEffect(() => {
     axios
-      .get(
-        `/email/verify/${params.token}?wuid=${searchParams.get(
-          "wuid"
-        )}`
-      )
+      .get(`/email/verify/${params.token}?wuid=${searchParams.get("wuid")}`)
       .then((response) => {
         const { message } = response.data;
 
@@ -34,6 +32,7 @@ const EmailVerify = () => {
 
           switch (response.status) {
             case 401:
+              queryClient.removeQueries();
               dispatch(logoutUser());
               break;
             case 400:

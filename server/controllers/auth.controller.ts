@@ -10,7 +10,7 @@ import { generateAccessToken, generateRefreshToken } from "../utils/token";
 import { generateUsername } from "../utils/uniqueUsernameGen";
 import nodemailer from "nodemailer";
 import { CLIENT_URL, EMAIL_TOKEN_LENGTH } from "../config";
-import { isAfter } from "date-fns";
+import RefreshToken from "../models/refreshTokens.model";
 
 export const refreshToken = async (req: Request, res: Response) => {
   try {
@@ -30,8 +30,23 @@ export const refreshToken = async (req: Request, res: Response) => {
     jwt.verify(
       refreshToken,
       process.env.REFRESH_TOKEN_SECRET!,
-      function (err: any, user: any) {
+      async function (err: any, user: any) {
         if (err) {
+          return res.status(401).send({
+            success: false,
+            data: {},
+            message: "Invalid refresh token",
+            statusCode: 401,
+          });
+        }
+
+        // check in db
+        const isValidRefreshToken = await RefreshToken.findOne({
+          userId: user._id,
+          refreshToken: refreshToken,
+        });
+
+        if (!isValidRefreshToken) {
           return res.status(401).send({
             success: false,
             data: {},
@@ -214,6 +229,12 @@ export const registerUser = async (req: Request, res: Response) => {
       _id: genUser._id,
     });
 
+    const refreshDoc = await new RefreshToken({
+      userId: genUser._id,
+      refreshToken: refreshToken,
+    });
+    await refreshDoc.save();
+
     return res.status(201).send({
       success: true,
       data: {
@@ -372,6 +393,12 @@ export const googleAuth = async (req: Request, res: Response) => {
       refreshToken = await generateRefreshToken({
         _id: genUser._id,
       });
+
+      const refreshDoc = await new RefreshToken({
+        userId: genUser._id,
+        refreshToken: refreshToken,
+      });
+      await refreshDoc.save();
     } else {
       // emailVerified false (manual registration)
       if (userExists.emailVerified === false) {

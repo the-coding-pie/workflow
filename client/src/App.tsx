@@ -18,6 +18,7 @@ import EmailVerify from "./pages/EmailVerify";
 import { WARNING } from "./types/constants";
 import ResetPassword from "./pages/ResetPassword";
 import ForgotPassword from "./pages/ForgotPassword";
+import { QueryCache } from "react-query";
 
 // axios defaults
 axios.defaults.baseURL = BASE_URL;
@@ -68,6 +69,8 @@ axios.interceptors.response.use(
       originalRequest.url.includes("refresh")
     ) {
       store.dispatch(logoutUser());
+
+      location.reload();
     }
 
     // // if retried request failed with 401 status

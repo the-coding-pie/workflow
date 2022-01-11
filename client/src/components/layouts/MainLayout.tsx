@@ -1,6 +1,6 @@
 import axios from "axios";
 import React, { useEffect } from "react";
-import { useQuery } from "react-query";
+import { useQuery, useQueryClient } from "react-query";
 import { useDispatch, useSelector } from "react-redux";
 import { Outlet } from "react-router-dom";
 import EmailNotVerified from "../../pages/EmailNotVerified";
@@ -12,6 +12,7 @@ import DefaultLayout from "./DefaultLayout";
 // deciding layout
 const MainLayout = () => {
   const dispatch = useDispatch();
+  const queryClient = useQueryClient();
 
   const { user } = useSelector((state: RootState) => state.auth);
 
@@ -46,6 +47,7 @@ const MainLayout = () => {
     const response = error.response;
 
     if (response.status === 401) {
+      queryClient.removeQueries();
       dispatch(logoutUser());
     }
   }
