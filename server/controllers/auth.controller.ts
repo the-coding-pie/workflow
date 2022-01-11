@@ -284,7 +284,7 @@ export const loginUser = async (req: Request, res: Response) => {
     const user = await User.findOne({ email });
 
     // if open authentication
-    if (user.isOAuth) {
+    if (user && user.isOAuth) {
       return res.status(401).send({
         success: false,
         data: {},
