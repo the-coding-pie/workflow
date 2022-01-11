@@ -2,8 +2,6 @@ import axios from "axios";
 import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
-import { BASE_URL } from "../config";
-import { RootState } from "../redux/app";
 import { logoutUser } from "../redux/features/authSlice";
 import { addToast } from "../redux/features/toastSlice";
 import { ERROR, SUCCESS } from "../types/constants";
@@ -18,7 +16,7 @@ const EmailVerify = () => {
   useEffect(() => {
     axios
       .get(
-        `${BASE_URL}/email/verify/${params.token}?wuid=${searchParams.get(
+        `/email/verify/${params.token}?wuid=${searchParams.get(
           "wuid"
         )}`
       )

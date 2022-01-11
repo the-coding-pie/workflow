@@ -150,7 +150,7 @@ export const resendVerifyEmail = async (req: any, res: Response) => {
       success: true,
       data: {},
       message: "Email resent!",
-      statusCode: 201,
+      statusCode: 200,
     });
   } catch {
     res.status(500).send({

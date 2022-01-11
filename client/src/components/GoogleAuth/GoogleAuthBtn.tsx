@@ -2,7 +2,6 @@ import axios from "axios";
 import React from "react";
 import GoogleLogin from "react-google-login";
 import { useDispatch } from "react-redux";
-import { BASE_URL } from "../../config";
 import { loginUser, setEmailVerified } from "../../redux/features/authSlice";
 
 interface Props {
@@ -20,7 +19,7 @@ const GoogleAuthBtn = ({ setCommonError, setIsSubmitting }: Props) => {
       setCommonError("Oops, something went wrong");
     } else {
       axios
-        .post(`${BASE_URL}/auth/google`, {
+        .post(`/auth/google`, {
           tokenId: tokenId,
         })
         .then((response) => {
