@@ -10,5 +10,7 @@ userRouter.get(
   authMiddleware,
   userController.getCurrentUser
 );
+// Protected(Auth) DELETE /users -> deletes the current user
+userRouter.delete("/", authMiddleware, userController.deleteCurrentUser);
 
 export default userRouter;
