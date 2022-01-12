@@ -159,17 +159,19 @@ const ResetPassword = () => {
               classes="text-sm mb-4"
             />
 
-            <button
-              type="button"
-              className="text-primary cursor-pointer text-sm"
-              onClick={(e) => {
-                e.preventDefault();
+            {!accessToken && !refreshToken && (
+              <button
+                type="button"
+                className="text-primary cursor-pointer text-sm"
+                onClick={(e) => {
+                  e.preventDefault();
 
-                navigate("/auth/login");
-              }}
-            >
-              Back to Log in
-            </button>
+                  navigate("/auth/login");
+                }}
+              >
+                Back to Log in
+              </button>
+            )}
           </div>
         </Form>
       </Formik>
