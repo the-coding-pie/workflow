@@ -12,13 +12,11 @@ import "react-toastify/dist/ReactToastify.css";
 import PrivateRoute from "./PrivateRoute";
 import { store } from "./redux/app";
 import { logoutUser, setAccessToken } from "./redux/features/authSlice";
-import EmailNotVerified from "./pages/EmailNotVerified";
 import MainLayout from "./components/layouts/MainLayout";
 import EmailVerify from "./pages/EmailVerify";
 import { WARNING } from "./types/constants";
 import ResetPassword from "./pages/ResetPassword";
 import ForgotPassword from "./pages/ForgotPassword";
-import { QueryCache } from "react-query";
 
 // axios defaults
 axios.defaults.baseURL = BASE_URL;
@@ -69,8 +67,6 @@ axios.interceptors.response.use(
       originalRequest.url.includes("refresh")
     ) {
       store.dispatch(logoutUser());
-
-      location.reload();
     }
 
     // // if retried request failed with 401 status

@@ -1,6 +1,5 @@
 import axios from "axios";
 import React, { useCallback } from "react";
-import { useQueryClient } from "react-query";
 import { useDispatch } from "react-redux";
 import { logoutUser } from "../redux/features/authSlice";
 import { addToast } from "../redux/features/toastSlice";
@@ -8,7 +7,6 @@ import { ERROR, SUCCESS } from "../types/constants";
 
 const EmailNotVerified = () => {
   const dispatch = useDispatch();
-  const queryClient = useQueryClient();
 
   const resendEmail = useCallback(() => {
     axios
@@ -25,7 +23,6 @@ const EmailNotVerified = () => {
 
           switch (response.status) {
             case 401:
-              queryClient.removeQueries();
               dispatch(logoutUser());
               break;
             case 500:
@@ -73,7 +70,6 @@ const EmailNotVerified = () => {
           <button
             className="text-primary"
             onClick={() => {
-              queryClient.removeQueries();
               dispatch(logoutUser());
             }}
           >

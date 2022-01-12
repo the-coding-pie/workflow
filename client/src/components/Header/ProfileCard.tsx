@@ -5,7 +5,6 @@ import { Link } from "react-router-dom";
 import { CgProfile } from "react-icons/cg";
 import useClose from "../../hooks/useClose";
 import { logoutUser } from "../../redux/features/authSlice";
-import { useQueryClient } from "react-query";
 import { UserObj } from "../../types";
 import { chopChars } from "../../utils/helpers";
 import { RootState } from "../../redux/app";
@@ -19,12 +18,7 @@ const ProfileCard = () => {
 
   const dispatch = useDispatch();
 
-  const queryClient = useQueryClient();
-
   const handleLogout = () => {
-    // remove all query caches
-    queryClient.removeQueries();
-
     dispatch(logoutUser());
   };
 
