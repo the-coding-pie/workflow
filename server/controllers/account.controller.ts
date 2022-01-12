@@ -152,16 +152,13 @@ export const resetPassword = async (req: Request, res: Response) => {
 
     // find the user and reset their password, then delete the record from forgotPassword collection
     const user = await User.findOne({ _id: validToken.userId });
-    const emailVer = await EmailVerification.findOne({ userId: user._id });
 
     user.password = password;
     user.isOAuth = false;
     user.emailVerified = true;
 
     // if user clicks on the link, that indirectly means they verified their email
-    if (emailVer) {
-      await emailVer.remove();
-    }
+    await EmailVerification.deleteOne({ userId: user._id });
     await user.save();
     await RefreshToken.deleteOne({ userId: user._id });
     await validToken.remove();

@@ -177,6 +177,7 @@ export const registerUser = async (req: Request, res: Response) => {
       await userExists.remove();
     }
 
+    // create new user
     const user = await new User({
       username: username.trim(),
       email: email.trim(),

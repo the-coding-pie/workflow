@@ -64,13 +64,13 @@ export const emailVerify = async (req: any, res: Response) => {
     }
 
     // check for a record in emailVerification collection
-    const validToken = await EmailVerification.findOne({
+    const emailVer = await EmailVerification.findOne({
       userId: user._id,
       token: token,
       expiresAt: { $gt: new Date().toUTCString() },
     });
 
-    if (!validToken) {
+    if (!emailVer) {
       return res.status(400).send({
         success: false,
         data: {},
@@ -84,7 +84,7 @@ export const emailVerify = async (req: any, res: Response) => {
     user.emailVerified = true;
     await user.save();
 
-    await validToken.remove();
+    await emailVer.remove();
 
     res.send({
       success: true,
