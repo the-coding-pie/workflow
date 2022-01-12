@@ -6,6 +6,7 @@ export interface UserObj {
   profile: string;
   email: string;
   emailVerified: boolean;
+  isOAuth: boolean;
 }
 
 export interface ProjectObj {

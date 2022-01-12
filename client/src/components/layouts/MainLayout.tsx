@@ -38,6 +38,7 @@ const MainLayout = () => {
           email: data.email,
           profile: data.profile,
           emailVerified: data.emailVerified,
+          isOAuth: data.isOAuth,
         })
       );
     }

@@ -35,7 +35,9 @@ export const deleteCurrentUser = async (req: any, res: Response) => {
         });
       }
 
-      const userExists = await User.findOne({ _id: user._id }).select("password")
+      const userExists = await User.findOne({ _id: user._id }).select(
+        "password"
+      );
 
       if (!(await userExists.comparePassword(password))) {
         return res.status(400).send({
@@ -60,7 +62,7 @@ export const deleteCurrentUser = async (req: any, res: Response) => {
       statusCode: 200,
     });
   } catch (err) {
-    console.log(err)
+    console.log(err);
     res.status(500).send({
       success: false,
       data: {},
@@ -80,6 +82,7 @@ export const getCurrentUser = async (req: any, res: Response) => {
       data: {
         _id: user._id,
         username: user.username,
+        isOAuth: user.isOAuth,
         email: user.email,
         emailVerified: user.emailVerified,
         profile: user.profile.includes("http")
