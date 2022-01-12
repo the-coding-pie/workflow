@@ -50,6 +50,4 @@ export const generateRefreshToken = async (payload: UserTokenObj) => {
     await refreshDoc.save();
     return newToken;
   }
-
-  console.log("ee");
 };

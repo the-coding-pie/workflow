@@ -30,7 +30,7 @@ export const refreshToken = async (req: Request, res: Response) => {
     jwt.verify(
       refreshToken,
       process.env.REFRESH_TOKEN_SECRET!,
-      async function (err: any, user: any) {
+      async function (err: any, payload: any) {
         if (err) {
           return res.status(401).send({
             success: false,
@@ -42,7 +42,7 @@ export const refreshToken = async (req: Request, res: Response) => {
 
         // check in db
         const isValidRefreshToken = await RefreshToken.findOne({
-          userId: user._id,
+          userId: payload._id,
           refreshToken: refreshToken,
         });
 
@@ -57,7 +57,7 @@ export const refreshToken = async (req: Request, res: Response) => {
 
         // valid refresh token, so generate a new accessToken and send it
         const newAccessToken = generateAccessToken({
-          _id: user._id,
+          _id: payload._id,
         });
         return res.send({
           success: true,
