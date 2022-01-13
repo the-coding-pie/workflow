@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import validator from "validator";
 
 const cardSchema = new mongoose.Schema({
   name: {
@@ -7,6 +8,11 @@ const cardSchema = new mongoose.Schema({
     minlength: 1,
     maxlength: 512,
   },
+  listId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "List",
+    required: true,
+  },
   description: {
     type: String,
     required: false,
@@ -14,6 +20,15 @@ const cardSchema = new mongoose.Schema({
   cover: {
     type: String,
     required: false,
+    validator: function (value: string) {
+      return (
+        value.startsWith("#", 0) ||
+        validator.isURL(value, {
+          require_protocol: true,
+        })
+      );
+    },
+    message: `Invalid value for cover`,
   },
 });
 

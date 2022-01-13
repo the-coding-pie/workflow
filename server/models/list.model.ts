@@ -22,6 +22,10 @@ const listSchema = new mongoose.Schema({
     ],
     default: [],
   },
+  isCollapsed: {
+    type: Boolean,
+    default: false,
+  },
 });
 
 const List = mongoose.model("List", listSchema);
