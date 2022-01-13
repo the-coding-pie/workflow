@@ -1,0 +1,4 @@
+export const PROJECT_VISIBILITY = {
+    PRIVATE: "PRIVATE",
+    PUBLIC: "PUBLIC",
+}

@@ -1,27 +1,34 @@
 import mongoose from "mongoose";
-import { PROJECT_VISIBILITY } from "../types/constants";
 
-const projectSchema = new mongoose.Schema({
+const boardSchema = new mongoose.Schema({
   name: {
     type: String,
     required: true,
     minlength: 1,
-    maxlength: 100,
+    maxlength: 512,
   },
-  visibility: {
-    type: String,
-    enum: Object.values(PROJECT_VISIBILITY),
-    default: PROJECT_VISIBILITY.PRIVATE,
-  },
-  icon: {
+  bgImg: {
     type: String,
     required: false,
   },
-  boards: {
+  color: {
+    type: String,
+    required: true,
+  },
+  isFavorite: {
+    type: Boolean,
+    default: false,
+  },
+  projectId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Project",
+    required: true,
+  },
+  lists: {
     type: [
       {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "Board",
+        ref: "List",
         required: true,
       },
     ],
@@ -39,6 +46,6 @@ const projectSchema = new mongoose.Schema({
   },
 });
 
-const Project = mongoose.model("Project", projectSchema);
+const Board = mongoose.model("Board", boardSchema);
 
-export default Project;
+export default Board;

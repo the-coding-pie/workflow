@@ -24,7 +24,7 @@ export const generateRefreshToken = async (payload: UserTokenObj) => {
       return tokenExists.refreshToken;
     } catch (e) {
       // delete old token
-      await tokenExists.remove();
+      await RefreshToken.deleteOne({ _id: tokenExists._id });
 
       // generate new one
       const newToken = jwt.sign(payload, process.env.REFRESH_TOKEN_SECRET!, {

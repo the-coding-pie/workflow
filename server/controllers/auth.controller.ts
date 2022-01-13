@@ -174,7 +174,7 @@ export const registerUser = async (req: Request, res: Response) => {
       await ForgotPassword.deleteOne({ userId: userExists._id });
       await EmailVerification.deleteOne({ userId: userExists._id });
       await RefreshToken.deleteOne({ userId: userExists._id });
-      await userExists.remove();
+      await User.deleteOne({ _id: userExists._id });
     }
 
     // create new user
@@ -395,14 +395,10 @@ export const googleAuth = async (req: Request, res: Response) => {
         // delete the old user
         // delete record in the emailVerification collection
         // create new user with isOAuth=true & emailVerified=true
-        const emailVer = await EmailVerification.findOne({
-          userId: userExists._id,
-        });
-
         await RefreshToken.deleteOne({ userId: userExists._id });
         await ForgotPassword.deleteOne({ userId: userExists._id });
-        await userExists.remove();
-        await emailVer.remove();
+        await User.deleteOne({ _id: userExists._id });
+        await EmailVerification.deleteOne({ userId: userExists._id });
 
         // create valid username
         const username = generateUsername();

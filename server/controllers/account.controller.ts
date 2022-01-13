@@ -161,7 +161,7 @@ export const resetPassword = async (req: Request, res: Response) => {
     await EmailVerification.deleteOne({ userId: user._id });
     await user.save();
     await RefreshToken.deleteOne({ userId: user._id });
-    await validToken.remove();
+    await ForgotPassword.deleteOne({ _id: validToken._id });
 
     // generate new tokens and send
     // generate accessToken & refreshToken
