@@ -73,11 +73,11 @@ const Modal = ({
           )}
           {modalTitle && (
             <div className="modal__title">
-              <h3 className="text-xl font-semibold p-2">{modalTitle}</h3>
+              <h3 className="text-xl font-semibold pl-4 p-2">{modalTitle}</h3>
             </div>
           )}
 
-          <div className={`${showCloseBtn ? "mr-4" : ""}`}>
+          <div className={`${showCloseBtn ? "mr-6" : ""}`}>
             {Component !== null && <Component {...{ ...modalProps }} />}
           </div>
         </div>

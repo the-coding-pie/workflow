@@ -33,6 +33,16 @@ export const createProject = async (req: any, res: Response) => {
       });
     }
 
+    if (description && description.length > 255) {
+      return res.status(400).send({
+        success: false,
+        data: {},
+        message:
+          "Project description should be less than or equal to 255 chars",
+        statusCode: 400,
+      });
+    }
+
     // project members validation
     if (members) {
       if (!Array.isArray(members) || !checkAllString(members)) {
@@ -122,7 +132,7 @@ export const createProject = async (req: any, res: Response) => {
       statusCode: 201,
     });
   } catch (err) {
-      console.log(err)
+    console.log(err);
     res.status(500).send({
       success: false,
       data: {},

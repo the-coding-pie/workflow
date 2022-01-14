@@ -62,7 +62,13 @@ body {
   }
 
   .form-group input {
-    @apply outline-none rounded px-2 py-1.5 mb-1.5 bg-slate-100 border border-slate-200 w-full;
+    border-width: 1.4px;
+    @apply outline-none rounded px-2 py-1.5 mb-0.5 bg-slate-100 w-full;
+  }
+
+  .form-group textarea {
+    border-width: 1.4px;
+    @apply outline-none rounded px-2 py-1.5 mb-0.5 bg-slate-100 w-full;
   }
 }
 

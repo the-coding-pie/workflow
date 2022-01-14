@@ -47,10 +47,6 @@ const Sidebar = () => {
               dispatch(
                 showModal({
                   modalType: CREATE_PROJECT_MODAL,
-                  modalProps: {
-                    name: "cool",
-                  },
-                  
                 })
               )
             }

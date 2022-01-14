@@ -1,9 +1,9 @@
 import { useField } from "formik";
+import React from "react";
 import ErrorBox from "./ErrorBox";
 
 interface Props {
   label: string;
-  type: string;
   id: string;
   name: string;
   optional?: boolean;
@@ -11,9 +11,8 @@ interface Props {
   classes?: string;
 }
 
-const Input = ({
+const TextArea = ({
   label,
-  type,
   id,
   name,
   classes,
@@ -21,42 +20,39 @@ const Input = ({
   inline = false,
   ...props
 }: Props) => {
-  //   field -> { name: string, value: string, onChange: () => {}, onBlur: () => {} }
-  //   meta -> { touched: boolean, error: string, ... }
-  const [field, meta] = useField({ name, type });
+  // props -> every props except label and type -> { name: 'value', id: 'value' }
+  const [field, meta] = useField(name);
 
   return (
-    <div className={`flex flex-col w-full mb-6 ${classes}`}>
+    <div className={`flex flex-col mb-6 ${classes}`}>
       <div
         className={`form-group flex ${
           inline ? " flex-row items-center" : "flex-col justify-center"
         }`}
       >
         <label
-          className={`font-medium text-sm ${inline ? "mr-2 w-28" : "mb-2"}`}
+          className={`font-medium ${inline ? "mr-4" : "mb-2"}`}
           htmlFor={id}
         >
-          {label}{" "}
-          {optional && (
-            <span className="optional text-slate-400">(Optional)</span>
-          )}
+          {label} {optional && <span className="optional text-slate-400">(Optional)</span>}
         </label>
-
-        <input
-          className={`${
+        <textarea
+          {...field}
+          {...props}
+          className={`resize-none ${
             meta.touched && meta.error
               ? "border-red-400 "
               : "border-slate-200 focus:border-primary"
-          }   placeholder-transparent  disabled:opacity-80`}
-          {...field}
-          {...props}
-          id={id}
-          type={type}
-        />
+          } disabled:opacity-80`}
+          style={{
+            minHeight: "11rem",
+            maxHeight: "11rem",
+          }}
+        ></textarea>
       </div>
       {meta.touched && meta.error && <ErrorBox msg={meta.error} />}
     </div>
   );
 };
 
-export default Input;
+export default TextArea;

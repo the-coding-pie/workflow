@@ -27,7 +27,7 @@ const modalSlice = createSlice({
         state.modalTitle = modal.modalTitle;
       }
 
-      if (modal.showCloseBtn) {
+      if (Object.keys(modal).includes("showCloseBtn")) {
         state.showCloseBtn = modal.showCloseBtn;
       }
 
