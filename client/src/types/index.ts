@@ -1,4 +1,11 @@
-import { DEFAULT, ERROR, INFO, SUCCESS, WARNING } from "./constants";
+import {
+  CREATE_PROJECT_MODAL,
+  DEFAULT,
+  ERROR,
+  INFO,
+  SUCCESS,
+  WARNING,
+} from "./constants";
 
 export interface UserObj {
   _id: string;
@@ -31,4 +38,13 @@ export interface ToastObj {
     | typeof WARNING
     | typeof DEFAULT;
   msg: string;
+}
+
+export interface ModalObj {
+  modalType: typeof CREATE_PROJECT_MODAL | null;
+  modalProps?: any;
+  modalTitle?: string;
+  showCloseBtn?: boolean;
+  bgColor?: string;
+  textColor?: string;
 }

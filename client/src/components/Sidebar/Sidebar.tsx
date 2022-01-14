@@ -8,12 +8,16 @@ import SidebarLink from "./SidebarLink";
 import ProjectList from "../ProjectList/ProjectList";
 import { useDispatch } from "react-redux";
 import { hideSidebar } from "../../redux/features/sidebarSlice";
+import { showModal } from "../../redux/features/modalSlice";
+import { CREATE_PROJECT_MODAL } from "../../types/constants";
 
 const Sidebar = () => {
   const dispatch = useDispatch();
 
   return (
-    <aside className={`sidebar border-r w-52 bg-white h-screen flex flex-col transition ease-in-out delay-75`}>
+    <aside
+      className={`sidebar border-r w-52 bg-white h-screen flex flex-col transition ease-in-out delay-75`}
+    >
       <header className="h-14 flex justify-between items-center px-4 mb-3">
         <Logo />
 
@@ -37,7 +41,20 @@ const Sidebar = () => {
       <div className="projects flex-1 overflow-y-auto">
         <div className="top flex items-center justify-between px-4 py-4">
           <h3 className="text-sm font-medium">PROJECTS</h3>
-          <button className="text-gray-600">
+          <button
+            className="text-gray-600"
+            onClick={() =>
+              dispatch(
+                showModal({
+                  modalType: CREATE_PROJECT_MODAL,
+                  modalProps: {
+                    name: "cool",
+                  },
+                  
+                })
+              )
+            }
+          >
             <HiOutlinePlus size={16} />
           </button>
         </div>
