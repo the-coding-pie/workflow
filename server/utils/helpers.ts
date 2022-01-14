@@ -4,3 +4,10 @@ import { nanoid } from "nanoid";
 export const createRandomToken = (length: number) => {
   return nanoid(length);
 };
+
+// get unique array value
+export const getUniqueValues = <T>(array: T[]) => {
+  return array.filter((value, index, self) => {
+    return self.indexOf(value) === index;
+  });
+};

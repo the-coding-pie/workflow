@@ -38,7 +38,7 @@ export const forgotPassword = async (req: Request, res: Response) => {
       await ForgotPassword.deleteOne({ userId: user._id });
 
       // send an email with token with a validity of 3 days
-      const forgotPassword = await new ForgotPassword({
+      const forgotPassword = new ForgotPassword({
         userId: user._id,
         token: createRandomToken(FORGOT_PASSWORD_TOKEN_LENGTH),
       });

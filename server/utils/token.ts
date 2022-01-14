@@ -31,7 +31,7 @@ export const generateRefreshToken = async (payload: UserTokenObj) => {
         expiresIn: "7d",
       });
 
-      const refreshDoc = await new RefreshToken({
+      const refreshDoc = new RefreshToken({
         userId: payload._id,
         refreshToken: newToken,
       });
@@ -43,7 +43,7 @@ export const generateRefreshToken = async (payload: UserTokenObj) => {
       expiresIn: "7d",
     });
 
-    const refreshDoc = await new RefreshToken({
+    const refreshDoc = new RefreshToken({
       userId: payload._id,
       refreshToken: newToken,
     });

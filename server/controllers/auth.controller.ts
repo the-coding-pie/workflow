@@ -35,7 +35,7 @@ export const refreshToken = async (req: Request, res: Response) => {
           return res.status(401).send({
             success: false,
             data: {},
-            message: "Invalid refresh token",
+            message: "Invalid refresh token, please login to continue",
             statusCode: 401,
           });
         }
@@ -178,7 +178,7 @@ export const registerUser = async (req: Request, res: Response) => {
     }
 
     // create new user
-    const user = await new User({
+    const user = new User({
       username: username.trim(),
       email: email.trim(),
       password,
@@ -188,7 +188,7 @@ export const registerUser = async (req: Request, res: Response) => {
 
     // token generation for email verification
     // store it in database
-    const emailVerification = await new EmailVerification({
+    const emailVerification = new EmailVerification({
       userId: genUser._id,
       token: createRandomToken(EMAIL_TOKEN_LENGTH),
     });
@@ -372,7 +372,7 @@ export const googleAuth = async (req: Request, res: Response) => {
       // create valid username
       const username = generateUsername();
 
-      const user = await new User({
+      const user = new User({
         username: username!.trim(),
         email: payload.email!.trim(),
         profile: payload.picture!,
@@ -403,7 +403,7 @@ export const googleAuth = async (req: Request, res: Response) => {
         // create valid username
         const username = generateUsername();
 
-        const newUser = await new User({
+        const newUser = new User({
           username: username!.trim(),
           email: payload.email!.trim(),
           profile: payload.picture!,

@@ -108,10 +108,10 @@ export const resendVerifyEmail = async (req: any, res: Response) => {
     const user = req.user;
 
     // delete old record in emailVerification collection if any exists
-    await EmailVerification({ userId: user._id });
+    await EmailVerification.deleteOne({ userId: user._id });
 
     // create a new token and store it
-    const emailVerification = await new EmailVerification({
+    const emailVerification = new EmailVerification({
       userId: user._id,
       token: createRandomToken(EMAIL_TOKEN_LENGTH),
     });
