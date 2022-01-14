@@ -130,13 +130,19 @@ export const searchUser = async (req: any, res: Response) => {
           _id: { $ne: req.user._id },
         },
       ],
-    }).select("_id username")
+    }).lean().select("_id username profile");
 
     res.send({
       success: true,
-      data: {
-        users: otherUsers,
-      },
+      data: otherUsers.map((user) => {
+        return {
+          ...user,
+          profile: user.profile.includes("http")
+            ? user.profile
+            : BASE_PATH_COMPLETE +
+              path.join(STATIC_PATH, PROFILE_PICS_DIR_NAME, user.profile),
+        };
+      }),
       message: "",
       statusCode: 200,
     });

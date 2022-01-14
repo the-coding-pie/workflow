@@ -8,7 +8,7 @@ interface Props {
 }
 
 const SubmitBtn = ({ text, isSubmitting, classes }: Props) => {
-  const { dirty, isValid } = useFormikContext();
+  const { isValid } = useFormikContext();
 
   return isSubmitting === true ? (
     <button
@@ -40,7 +40,7 @@ const SubmitBtn = ({ text, isSubmitting, classes }: Props) => {
     <button
       type="submit"
       className={`btn-primary w-full disabled:opacity-40 disabled:cursor-not-allowed ${classes}`}
-      disabled={!(dirty && isValid)}
+      disabled={!isValid}
     >
       {text}
     </button>

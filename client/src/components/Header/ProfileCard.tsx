@@ -8,7 +8,7 @@ import { logoutUser } from "../../redux/features/authSlice";
 import { UserObj } from "../../types";
 import { chopChars } from "../../utils/helpers";
 import { RootState } from "../../redux/app";
-import Profile from "./Profile";
+import Profile from "../Profile/Profile";
 
 const ProfileCard = () => {
   const [show, setShow] = useState(false);
