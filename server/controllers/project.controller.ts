@@ -31,10 +31,7 @@ export const createProject = async (req: any, res: Response) => {
 
     // project members validation
     if (members) {
-      if (
-        !Array.isArray(members) ||
-        !checkAllString(members)
-      ) {
+      if (!Array.isArray(members) || !checkAllString(members)) {
         return res.status(400).send({
           success: false,
           data: {},
@@ -88,7 +85,7 @@ export const createProject = async (req: any, res: Response) => {
         };
       });
 
-      //   insert valid values
+      // insert valid values
       newProject.members = valuesToInsert;
     }
 
