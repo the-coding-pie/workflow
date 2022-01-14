@@ -13,4 +13,7 @@ userRouter.get(
 // Protected(Auth) DELETE /users -> deletes the current user
 userRouter.delete("/", authMiddleware, userController.deleteCurrentUser);
 
+// Protected(Auth) GET /users/search?q=query -> search other user
+userRouter.get("/search", authMiddleware, userController.searchUser);
+
 export default userRouter;

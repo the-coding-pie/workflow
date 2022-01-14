@@ -5,6 +5,7 @@ import * as Yup from "yup";
 import Input from "../FormikComponents/Input";
 import NextBtn from "../FormikComponents/NextBtn";
 import TextArea from "../FormikComponents/TextArea";
+import AsyncSelect from "react-select/async";
 
 interface ProjectObj {
   name: string;
@@ -38,6 +39,14 @@ const CreateProjectModal = () => {
     console.log(project);
   }, []);
 
+  const searchUsers = (query: string) => {
+    console.log(query);
+  };
+
+  const promiseOptions = async (inputValue: string) => {
+    setTimeout(() => searchUsers(inputValue), 2000);
+  };
+
   return (
     <Formik
       initialValues={initialValues}
@@ -70,7 +79,9 @@ const CreateProjectModal = () => {
             </div>
           </div>
         ) : (
-          <div className="second-page flex flex-col"></div>
+          <div className="second-page flex flex-col">
+            <AsyncSelect isMulti loadOptions={promiseOptions} />
+          </div>
         )}
       </Form>
     </Formik>

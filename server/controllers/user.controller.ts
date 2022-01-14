@@ -102,3 +102,50 @@ export const getCurrentUser = async (req: any, res: Response) => {
     });
   }
 };
+
+// GET /users/search?q=query search users
+export const searchUser = async (req: any, res: Response) => {
+  try {
+    const { q } = req.query;
+
+    if (!q) {
+      return res.status(400).send({
+        success: false,
+        data: {},
+        message: "Query string is required",
+        statusCode: 400,
+      });
+    }
+
+    // find other users except current searching user
+    let otherUsers = await User.find({
+      $and: [
+        {
+          $or: [
+            { username: { $regex: q, $options: "i" } },
+            { email: { $regex: q, $options: "i" } },
+          ],
+        },
+        {
+          _id: { $ne: req.user._id },
+        },
+      ],
+    }).select("_id username")
+
+    res.send({
+      success: true,
+      data: {
+        users: otherUsers,
+      },
+      message: "",
+      statusCode: 200,
+    });
+  } catch {
+    res.status(500).send({
+      success: false,
+      data: {},
+      message: "Oops, something went wrong!",
+      statusCode: 500,
+    });
+  }
+};
