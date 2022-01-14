@@ -42,7 +42,7 @@ const SelectDropDownAsync = ({
   inline = false,
 }: Props) => {
   const [field, meta, helpers] = useField({ name });
-
+  
   return (
     <div className={`flex flex-col w-full mb-6 ${classes}`}>
       <div
@@ -67,9 +67,9 @@ const SelectDropDownAsync = ({
           components={components}
           loadOptions={loadOptions}
           onChange={(value: any) => {
-            console.log(field.value)
-            helpers.setValue(field.value.push(...value));
+            helpers.setValue(value);
           }}
+          value={field.value}
         />
       </div>
       {meta.touched && meta.error && <ErrorBox msg={meta.error} />}

@@ -128,9 +128,12 @@ export const searchUser = async (req: any, res: Response) => {
         },
         {
           _id: { $ne: req.user._id },
+          emailVerified: true,
         },
       ],
-    }).lean().select("_id username profile");
+    })
+      .lean()
+      .select("_id username profile");
 
     res.send({
       success: true,

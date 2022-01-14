@@ -15,7 +15,7 @@ import SubmitBtn from "../FormikComponents/SubmitBtn";
 interface ProjectObj {
   name: string;
   description: string;
-  members: string[];
+  members: any[];
 }
 
 interface UserObj {
@@ -53,7 +53,12 @@ const CreateProjectModal = () => {
   });
 
   const handleSubmit = useCallback((project: ProjectObj) => {
-    console.log(project);
+    const value = {
+      ...project,
+      members: project.members.map((m) => m.value),
+    };
+
+    console.log(value)
   }, []);
 
   const searchUsers = async (query: string) => {
