@@ -107,8 +107,7 @@ export const createProject = async (req: any, res: Response) => {
       message: "Project created successfully",
       statusCode: 201,
     });
-  } catch (err) {
-    console.log(err);
+  } catch {
     res.status(500).send({
       success: false,
       data: {},
