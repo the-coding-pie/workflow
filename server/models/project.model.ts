@@ -1,18 +1,21 @@
 import mongoose from "mongoose";
 import { PROJECT_MEMBER_ROLES } from "../types/constants";
 
-const projectMemberSchema = new mongoose.Schema({
-  memberId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "User",
-    required: true,
+const projectMemberSchema = new mongoose.Schema(
+  {
+    memberId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    },
+    role: {
+      type: String,
+      enum: Object.values(PROJECT_MEMBER_ROLES),
+      default: PROJECT_MEMBER_ROLES.NORMAL,
+    },
   },
-  role: {
-    type: String,
-    enum: Object.values(PROJECT_MEMBER_ROLES),
-    default: PROJECT_MEMBER_ROLES.NORMAL,
-  },
-});
+  { _id: false }
+);
 
 const projectSchema = new mongoose.Schema(
   {

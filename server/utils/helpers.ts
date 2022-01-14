@@ -11,3 +11,8 @@ export const getUniqueValues = <T>(array: T[]) => {
     return self.indexOf(value) === index;
   });
 };
+
+// get unique array value
+export const checkAllString = (array: any[]) => {
+  return array.every((i) => typeof i === "string");
+};

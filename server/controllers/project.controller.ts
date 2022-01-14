@@ -2,7 +2,7 @@ import { Response } from "express";
 import mongoose from "mongoose";
 import Project from "../models/project.model";
 import User from "../models/user.model";
-import { getUniqueValues } from "../utils/helpers";
+import { checkAllString, getUniqueValues } from "../utils/helpers";
 import validator from "validator";
 import { PROJECT_MEMBER_ROLES } from "../types/constants";
 
@@ -31,7 +31,10 @@ export const createProject = async (req: any, res: Response) => {
 
     // project members validation
     if (members) {
-      if (!Array.isArray(members)) {
+      if (
+        !Array.isArray(members) ||
+        !checkAllString(members)
+      ) {
         return res.status(400).send({
           success: false,
           data: {},
@@ -48,17 +51,22 @@ export const createProject = async (req: any, res: Response) => {
             statusCode: 400,
           });
         }
+
         // extract unique values
         // remove the creator's _id
         uniqueMemberIds = getUniqueValues<string>(members).filter(
           (m) => m !== req.user._id.toString()
         );
+
+        // remove empty strings from array
+        uniqueMemberIds = uniqueMemberIds.filter((id) => id);
       }
     }
 
     // create a new project
     const newProject = new Project({
       name: validator.escape(name),
+      creator: req.user._id,
     });
 
     // description
@@ -73,15 +81,22 @@ export const createProject = async (req: any, res: Response) => {
         _id: { $in: uniqueMemberIds },
       }).select("_id");
 
-      const valuesToInsert = validMembers.map((m) => {
+      let valuesToInsert = validMembers.map((m) => {
         return {
           memberId: m,
           role: PROJECT_MEMBER_ROLES.NORMAL,
         };
       });
 
+      //   insert valid values
       newProject.members = valuesToInsert;
     }
+
+    // add creator as ADMIN
+    newProject.members.push({
+      memberId: req.user._id,
+      role: PROJECT_MEMBER_ROLES.ADMIN,
+    });
 
     // save
     await newProject.save();
@@ -92,7 +107,8 @@ export const createProject = async (req: any, res: Response) => {
       message: "Project created successfully",
       statusCode: 201,
     });
-  } catch {
+  } catch (err) {
+    console.log(err);
     res.status(500).send({
       success: false,
       data: {},
