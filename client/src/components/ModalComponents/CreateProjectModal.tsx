@@ -142,6 +142,12 @@ const CreateProjectModal = () => {
       >
         {isFirstPage ? (
           <div className="first-page flex flex-col">
+            <div className="intro mb-7">
+              <h3 className="text-2xl font-semibold mb-1">Let's start a Project</h3>
+              <p className="text-lg text-slate-600 " style={{
+                lineHeight: "1.4rem"
+              }}>Group all your related boards under one project,<br /> so that it becames easier to access it.</p>
+            </div>
             <Input
               label="Project name"
               id="name"
