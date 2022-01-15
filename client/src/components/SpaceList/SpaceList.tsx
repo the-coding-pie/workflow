@@ -1,22 +1,21 @@
 import React, { useState } from "react";
-import projects from "../../data/projects.ts";
-import { showModal } from "../../redux/features/modalSlice";
-import { ProjectObj } from "../../types";
-import ProjectItem from "./ProjectItem";
+import spaces from "../../data/spaces";
+import { SpaceObj } from "../../types";
+import SpaceItem from "./SpaceItem";
 
-const ProjectList = () => {
+const SpaceList = () => {
   const [currentActive, setCurrentActive] = useState<null | string>(null);
 
   return (
-    <ul className="project-list">
-      {projects.length > 0 ? (
-        projects.map((project: ProjectObj) => {
+    <ul className="space-list">
+      {spaces.length > 0 ? (
+        spaces.map((space: SpaceObj) => {
           return (
-            <ProjectItem
+            <SpaceItem
               currentActive={currentActive}
               setCurrentActive={setCurrentActive}
-              key={project._id}
-              project={project}
+              key={space._id}
+              space={space}
             />
           );
         })
@@ -24,7 +23,7 @@ const ProjectList = () => {
         <li className="px-6 text-sm py-1">
           Start a
           <button className="ml-1 underline text-violet-500 decoration-dashed outline-violet-500 underline-offset-4">
-            new project
+            new space
           </button>
         </li>
       )}
@@ -32,4 +31,4 @@ const ProjectList = () => {
   );
 };
 
-export default ProjectList;
+export default SpaceList;

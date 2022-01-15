@@ -4,8 +4,8 @@ import { useDispatch } from "react-redux";
 import useEscClose from "../../hooks/useEscClose";
 import { hideModal } from "../../redux/features/modalSlice";
 import { ModalObj } from "../../types";
-import { CREATE_PROJECT_MODAL } from "../../types/constants";
-import CreateProjectModal from "../ModalComponents/CreateProjectModal";
+import { CREATE_SPACE_MODAL } from "../../types/constants";
+import CreateSpaceModal from "../ModalComponents/CreateSpaceModal";
 
 interface Props extends ModalObj {}
 
@@ -28,8 +28,8 @@ const Modal = ({
   let Component = null;
 
   switch (modalType) {
-    case CREATE_PROJECT_MODAL:
-      Component = CreateProjectModal;
+    case CREATE_SPACE_MODAL:
+      Component = CreateSpaceModal;
       break;
     default:
       Component = null;

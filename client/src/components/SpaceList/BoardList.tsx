@@ -3,17 +3,14 @@ import { BoardObj } from "../../types";
 import BoardItem from "./BoardItem";
 
 interface Props {
-  projectId: string;
   boards: BoardObj[];
 }
 
-const BoardList = ({ boards, projectId }: Props) => {
+const BoardList = ({ boards }: Props) => {
   return (
     <ul className="board-list text-sm">
       {boards.length > 0 ? (
-        boards.map((b) => (
-          <BoardItem projectId={projectId} key={b._id} board={b} />
-        ))
+        boards.map((b) => <BoardItem key={b._id} board={b} />)
       ) : (
         <li className="pl-8 py-2">
           Create a{" "}

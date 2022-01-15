@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
-import { PROJECT_MEMBER_ROLES } from "../types/constants";
+import { SPACE_MEMBER_ROLES } from "../types/constants";
 
-const projectMemberSchema = new mongoose.Schema(
+const spaceMemberSchema = new mongoose.Schema(
   {
     memberId: {
       type: mongoose.Schema.Types.ObjectId,
@@ -10,14 +10,14 @@ const projectMemberSchema = new mongoose.Schema(
     },
     role: {
       type: String,
-      enum: Object.values(PROJECT_MEMBER_ROLES),
-      default: PROJECT_MEMBER_ROLES.NORMAL,
+      enum: Object.values(SPACE_MEMBER_ROLES),
+      default: SPACE_MEMBER_ROLES.NORMAL,
     },
   },
   { _id: false }
 );
 
-const projectSchema = new mongoose.Schema(
+const spaceSchema = new mongoose.Schema(
   {
     name: {
       type: String,
@@ -45,7 +45,7 @@ const projectSchema = new mongoose.Schema(
       default: [],
     },
     members: {
-      type: [projectMemberSchema],
+      type: [spaceMemberSchema],
       default: [],
     },
     creator: {
@@ -57,6 +57,6 @@ const projectSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-const Project = mongoose.model("Project", projectSchema);
+const Space = mongoose.model("Space", spaceSchema);
 
-export default Project;
+export default Space;

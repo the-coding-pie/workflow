@@ -1,39 +1,35 @@
 import React from "react";
 import { Navigate, NavLink } from "react-router-dom";
 import { Outlet, useParams } from "react-router-dom";
-import projects from "../../data/projects";
+import spaces from "../../data/spaces";
 import Avatar from "react-avatar";
-import {
-  HiOutlineLockClosed,
-  HiOutlinePencil,
-  HiOutlinePencilAlt,
-} from "react-icons/hi";
+import { HiOutlineLockClosed, HiOutlinePencil } from "react-icons/hi";
 
-const ProjectLayout = () => {
+const SpaceLayout = () => {
   const { id } = useParams();
 
-  const project = projects.find((p) => p._id === id);
+  const space = spaces.find((s) => s._id === id);
 
-  if (!project) {
+  if (!space) {
     return <Navigate to="/404" replace={true} />;
   }
 
   return (
-    <div className="project-detail">
+    <div className="space-detail">
       <header className="top w-full bg-white px-8 pt-4">
         <div className="info flex items-start mb-8">
           <div className="icon mr-4">
-            {project.icon ? (
+            {space.icon ? (
               <Avatar
-                src={project.icon}
-                alt="project icon"
+                src={space.icon}
+                alt="space icon"
                 className="rounded"
                 size="48"
                 textSizeRatio={1.75}
               />
             ) : (
               <Avatar
-                name={project.name}
+                name={space.name}
                 className="rounded"
                 size="48"
                 textSizeRatio={1.75}
@@ -41,7 +37,7 @@ const ProjectLayout = () => {
             )}
           </div>
           <div className="right mr-4">
-            <h3 className="text-xl font-medium mb-0.5">{project.name}</h3>
+            <h3 className="text-xl font-medium mb-0.5">{space.name}</h3>
             <p className="flex items-center text-sm">
               <span className="mr-1">
                 <HiOutlineLockClosed />
@@ -57,7 +53,7 @@ const ProjectLayout = () => {
         <ul className="flex pb-2">
           <li className="w-18">
             <NavLink
-              to={`/p/${id}/boards`}
+              to={`/s/${id}/boards`}
               className={({ isActive }) => {
                 return `text-base mr-6 font-medium text-gray-500 ${
                   isActive ? "border-b-4 pb-2 text-primary border-primary" : ""
@@ -69,7 +65,7 @@ const ProjectLayout = () => {
           </li>
           <li className="w-18">
             <NavLink
-              to={`/p/${id}/members`}
+              to={`/s/${id}/members`}
               className={({ isActive }) => {
                 return `text-base mr-6 font-medium text-gray-500 ${
                   isActive ? "border-b-4 pb-2 text-primary border-primary" : ""
@@ -81,7 +77,7 @@ const ProjectLayout = () => {
           </li>
           <li className="w-18">
             <NavLink
-              to={`/p/${id}/settings`}
+              to={`/s/${id}/settings`}
               className={({ isActive }) => {
                 return `text-base mr-6 font-medium text-gray-500 ${
                   isActive ? "border-b-4 pb-2 text-primary border-primary" : ""
@@ -101,4 +97,4 @@ const ProjectLayout = () => {
   );
 };
 
-export default ProjectLayout;
+export default SpaceLayout;

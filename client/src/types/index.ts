@@ -1,5 +1,5 @@
 import {
-  CREATE_PROJECT_MODAL,
+  CREATE_SPACE_MODAL,
   DEFAULT,
   ERROR,
   INFO,
@@ -16,10 +16,11 @@ export interface UserObj {
   isOAuth: boolean;
 }
 
-export interface ProjectObj {
+export interface SpaceObj {
   _id: string;
   name: string;
   icon: string | null;
+  isGuestSpace: boolean;
   boards: BoardObj[];
 }
 
@@ -41,7 +42,7 @@ export interface ToastObj {
 }
 
 export interface ModalObj {
-  modalType: typeof CREATE_PROJECT_MODAL | null;
+  modalType: typeof CREATE_SPACE_MODAL | null;
   modalProps?: any;
   modalTitle?: string;
   showCloseBtn?: boolean;

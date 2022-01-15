@@ -2,15 +2,15 @@ import { lazy, Suspense } from "react";
 import { useSelector } from "react-redux";
 import { Navigate, Route, Routes } from "react-router-dom";
 import Notifications from "../../pages/Notifications";
-import BoardDetail from "../../pages/projects/boards/BoardDetail";
-import ProjectBoards from "../../pages/projects/ProjectBoards";
-import ProjectMembers from "../../pages/projects/ProjectMembers";
-import ProjectSettings from "../../pages/projects/ProjectSettings";
+import BoardDetail from "../../pages/spaces/boards/BoardDetail";
+import SpaceBoards from "../../pages/spaces/SpaceBoards";
+import SpaceMembers from "../../pages/spaces/SpaceMembers";
+import SpaceSettings from "../../pages/spaces/SpaceSettings";
 import { RootState } from "../../redux/app";
 import Header from "../Header/Header";
 import Modal from "../Modal/Modal";
 import Sidebar from "../Sidebar/Sidebar";
-import ProjectLayout from "./ProjectLayout";
+import SpaceLayout from "./SpaceLayout";
 
 const Home = lazy(() => import("../../pages/Home"));
 const Settings = lazy(() => import("../../pages/Settings"));
@@ -37,15 +37,15 @@ const DefaultLayout = () => {
                 <Route path="/notifications" element={<Notifications />} />
                 <Route path="/settings" element={<Settings />} />
 
-                {/* /p/:id/* */}
-                <Route path="/p/:id/" element={<ProjectLayout />}>
+                {/* /s/:id/* */}
+                <Route path="/s/:id/" element={<SpaceLayout />}>
                   <Route
                     path=""
                     element={<Navigate to="boards" replace={true} />}
                   />
-                  <Route path="boards" element={<ProjectBoards />} />
-                  <Route path="members" element={<ProjectMembers />} />
-                  <Route path="settings" element={<ProjectSettings />} />
+                  <Route path="boards" element={<SpaceBoards />} />
+                  <Route path="members" element={<SpaceMembers />} />
+                  <Route path="settings" element={<SpaceSettings />} />
                 </Route>
 
                 {/* /b/:id/* */}

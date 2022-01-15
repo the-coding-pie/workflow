@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { BoardObj, ProjectObj } from "../../types";
+import { BoardObj } from "../../types";
 import { HiOutlineDotsHorizontal } from "react-icons/hi";
 import { NavLink } from "react-router-dom";
 

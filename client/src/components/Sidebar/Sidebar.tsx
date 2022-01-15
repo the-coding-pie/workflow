@@ -5,11 +5,11 @@ import { VscHome } from "react-icons/vsc";
 import { IoNotificationsOutline } from "react-icons/io5";
 import { HiOutlinePlus } from "react-icons/hi";
 import SidebarLink from "./SidebarLink";
-import ProjectList from "../ProjectList/ProjectList";
+import SpaceList from "../SpaceList/SpaceList";
 import { useDispatch } from "react-redux";
 import { hideSidebar } from "../../redux/features/sidebarSlice";
 import { showModal } from "../../redux/features/modalSlice";
-import { CREATE_PROJECT_MODAL } from "../../types/constants";
+import { CREATE_SPACE_MODAL } from "../../types/constants";
 
 const Sidebar = () => {
   const dispatch = useDispatch();
@@ -38,15 +38,15 @@ const Sidebar = () => {
         />
       </nav>
 
-      <div className="projects flex-1 overflow-y-auto">
+      <div className="spaces flex-1 overflow-y-auto">
         <div className="top flex items-center justify-between px-4 py-4">
-          <h3 className="text-sm font-medium">PROJECTS</h3>
+          <h3 className="text-sm font-medium">SPACES</h3>
           <button
             className="text-gray-600"
             onClick={() =>
               dispatch(
                 showModal({
-                  modalType: CREATE_PROJECT_MODAL,
+                  modalType: CREATE_SPACE_MODAL,
                 })
               )
             }
@@ -55,7 +55,7 @@ const Sidebar = () => {
           </button>
         </div>
 
-        <ProjectList />
+        <SpaceList />
       </div>
     </aside>
   );

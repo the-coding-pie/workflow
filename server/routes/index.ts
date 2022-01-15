@@ -3,7 +3,7 @@ import authRouter from "./auth.route";
 import emailRouter from "./email.route";
 import userRouter from "./user.route";
 import accountRouter from "./account.route";
-import projectRouter from "./project.route";
+import spaceRouter from "./space.route";
 
 const rootRouter = express.Router();
 
@@ -11,6 +11,6 @@ rootRouter.use("/auth", authRouter);
 rootRouter.use("/users", userRouter);
 rootRouter.use("/email", emailRouter);
 rootRouter.use("/accounts", accountRouter);
-rootRouter.use("/projects", projectRouter);
+rootRouter.use("/spaces", spaceRouter);
 
 export default rootRouter;

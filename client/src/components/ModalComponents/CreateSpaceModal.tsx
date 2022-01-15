@@ -15,7 +15,7 @@ import { hideModal } from "../../redux/features/modalSlice";
 import { ERROR } from "../../types/constants";
 import { logoutUser } from "../../redux/features/authSlice";
 
-interface ProjectObj {
+interface SpaceObj {
   name: string;
   description: string;
   members: any[];
@@ -27,24 +27,24 @@ interface UserObj {
   profile: string;
 }
 
-const CreateProjectModal = () => {
+const CreateSpaceModal = () => {
   const dispatch = useDispatch();
 
   const [isFirstPage, setIsFirstPage] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const initialValues: ProjectObj = {
+  const initialValues: SpaceObj = {
     name: "",
     description: "",
     members: [],
   };
   const validationSchema = Yup.object({
     name: Yup.string()
-      .max(100, "Project name should be less than or equal to 100 chars")
-      .required("Project name is required"),
+      .max(100, "Space name should be less than or equal to 100 chars")
+      .required("Space name is required"),
     description: Yup.string().max(
       255,
-      "Project description should be less than or equal to 255 chars"
+      "Space description should be less than or equal to 255 chars"
     ),
     members: Yup.array(
       Yup.object({
@@ -55,14 +55,14 @@ const CreateProjectModal = () => {
     ),
   });
 
-  const handleSubmit = useCallback((project: ProjectObj) => {
+  const handleSubmit = useCallback((space: SpaceObj) => {
     const value = {
-      ...project,
-      members: project.members.map((m) => m.value),
+      ...space,
+      members: space.members.map((m) => m.value),
     };
 
     axios
-      .post(`/projects`, value, {
+      .post(`/spaces`, value, {
         headers: {
           ContentType: "application/json",
         },
@@ -72,7 +72,7 @@ const CreateProjectModal = () => {
 
         dispatch(hideModal());
 
-        // update existing projects list
+        // update existing spaces list
       })
       .catch((error: AxiosError) => {
         setIsSubmitting(false);
@@ -143,13 +143,21 @@ const CreateProjectModal = () => {
         {isFirstPage ? (
           <div className="first-page flex flex-col">
             <div className="intro mb-7">
-              <h3 className="text-2xl font-semibold mb-1">Let's start a Project</h3>
-              <p className="text-lg text-slate-600 " style={{
-                lineHeight: "1.4rem"
-              }}>Group all your related boards under one project,<br /> so that it becames easier to access it.</p>
+              <h3 className="text-2xl font-semibold mb-1">
+                Let's start a Space
+              </h3>
+              <p
+                className="text-lg text-slate-600 "
+                style={{
+                  lineHeight: "1.4rem",
+                }}
+              >
+                Group all your related boards under one space,
+                <br /> so that it becames easier to access it.
+              </p>
             </div>
             <Input
-              label="Project name"
+              label="Space name"
               id="name"
               name="name"
               type="text"
@@ -157,7 +165,7 @@ const CreateProjectModal = () => {
               optional={false}
             />
             <TextArea
-              label="Project Description"
+              label="Space Description"
               id="description"
               name="description"
               optional={true}
@@ -181,7 +189,7 @@ const CreateProjectModal = () => {
             <SelectDropDownAsync
               name="members"
               id="members"
-              label="Project members"
+              label="Space members"
               isMulti={true}
               loadOptions={loadUsers}
               components={{ Option: CustomOption }}
@@ -210,4 +218,4 @@ const CreateProjectModal = () => {
   );
 };
 
-export default CreateProjectModal;
+export default CreateSpaceModal;

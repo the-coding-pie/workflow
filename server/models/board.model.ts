@@ -39,7 +39,7 @@ const boardSchema = new mongoose.Schema(
       validate: {
         validator: function (value: string) {
           return validator.isURL(value, {
-            require_protocol: true
+            require_protocol: true,
           });
         },
         message: `Invalid Image URL`,
@@ -53,9 +53,9 @@ const boardSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
-    projectId: {
+    spaceId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Project",
+      ref: "Space",
       required: true,
     },
     lists: {

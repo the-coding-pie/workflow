@@ -6,4 +6,4 @@ export const WARNING = "WARNING";
 export const DEFAULT = "DEFAULT";
 
 // modal types
-export const CREATE_PROJECT_MODAL = "CREATE_PROJECT_MODAL";
+export const CREATE_SPACE_MODAL = "CREATE_SPACE_MODAL";

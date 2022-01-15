@@ -3,8 +3,8 @@ export const BOARD_VISIBILITY = {
   PUBLIC: "PUBLIC",
 };
 
-// project member roles
-export const PROJECT_MEMBER_ROLES = {
+// space member roles
+export const SPACE_MEMBER_ROLES = {
   ADMIN: "ADMIN",
   NORMAL: "NORMAL",
 };
