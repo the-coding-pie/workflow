@@ -1,8 +1,10 @@
 import {
+  BOARD,
   CREATE_SPACE_MODAL,
   DEFAULT,
   ERROR,
   INFO,
+  SPACE,
   SUCCESS,
   WARNING,
 } from "./constants";
@@ -14,6 +16,16 @@ export interface UserObj {
   email: string;
   emailVerified: boolean;
   isOAuth: boolean;
+}
+
+export interface FavoriteObj {
+  _id: string;
+  name: string;
+  spaceId?: string;
+  type: typeof SPACE | typeof BOARD;
+  isGuestSpace?: boolean;
+  icon?: string;
+  color?: string;
 }
 
 export interface SpaceObj {

@@ -1,26 +1,34 @@
 import React, { useState } from "react";
-import { BoardObj } from "../../types";
+import { BoardObj, FavoriteObj } from "../../../types";
 import { HiOutlineDotsHorizontal } from "react-icons/hi";
 import { NavLink } from "react-router-dom";
+import { setCurrentActiveMenu } from "../../../redux/features/sidebarMenu";
+import { useDispatch } from "react-redux";
+import { setCurrentActiveSpace } from "../../../redux/features/spaceMenu";
 
 interface Props {
-  board: BoardObj;
+  item: FavoriteObj;
 }
 
-const BoardItem = ({ board }: Props) => {
+const FavoriteItemBoard = ({ item }: Props) => {
+  const dispatch = useDispatch();
   const [showIcons, setShowIcons] = useState(false);
 
   const [isCurrentBoard, setIsCurrentBoard] = useState(false);
 
   return (
-    <li className="board-item">
+    <li className="fav-board-item">
       <NavLink
         end
-        to={`/b/${board._id}`}
+        onClick={(e) => {
+          dispatch(setCurrentActiveMenu(1));
+          dispatch(setCurrentActiveSpace(item.spaceId!));
+        }}
+        to={`/b/${item._id}`}
         className={({ isActive }) => {
           setIsCurrentBoard(isActive);
 
-          return `flex items-center justify-between pl-8 pr-4 py-1 cursor-pointer relative  ${
+          return `flex items-center justify-between px-3 pl-4 py-2 cursor-pointer relative  ${
             isActive ? "bg-primary_light" : "hover:bg-secondary"
           }`;
         }}
@@ -34,10 +42,10 @@ const BoardItem = ({ board }: Props) => {
           <div
             className={`color mr-2 w-2 h-2 rounded-full`}
             style={{
-              background: board.color,
+              background: item.color,
             }}
           ></div>
-          <span>{board.name}</span>
+          <span>{item.name}</span>
         </div>
         {showIcons && (
           <div className="right text-gray-600 flex items-center">
@@ -51,4 +59,4 @@ const BoardItem = ({ board }: Props) => {
   );
 };
 
-export default BoardItem;
+export default FavoriteItemBoard;

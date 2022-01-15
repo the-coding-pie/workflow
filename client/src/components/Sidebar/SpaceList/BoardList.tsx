@@ -1,5 +1,5 @@
 import React from "react";
-import { BoardObj } from "../../types";
+import { BoardObj } from "../../../types";
 import BoardItem from "./BoardItem";
 
 interface Props {

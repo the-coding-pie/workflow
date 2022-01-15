@@ -3,12 +3,16 @@ import authReducer from "../features/authSlice";
 import sidebarReducer from "../features/sidebarSlice";
 import toastReducer from "../features/toastSlice";
 import modalReducer from "../features/modalSlice";
+import sidebarMenuReducer from "../features/sidebarMenu";
+import spaceMenuReducer from "../features/spaceMenu";
 
 const combinedReducer = combineReducers({
   auth: authReducer,
   sidebar: sidebarReducer,
   toast: toastReducer,
   modal: modalReducer,
+  sidebarMenu: sidebarMenuReducer,
+  spaceMenu: spaceMenuReducer,
 });
 
 // empty store when logout

@@ -1,5 +1,5 @@
 import React, { useRef, useState } from "react";
-import { SpaceObj } from "../../types";
+import { SpaceObj } from "../../../types";
 import Avatar from "react-avatar";
 import {
   HiChevronRight,
@@ -9,15 +9,23 @@ import {
 } from "react-icons/hi";
 import BoardList from "./BoardList";
 import { useLocation } from "react-router-dom";
-import CustomNavLink from "../CustomNavLink/CustomNavLink";
+import CustomNavLink from "../../CustomNavLink/CustomNavLink";
+import { useDispatch, useSelector } from "react-redux";
+import { RootState } from "../../../redux/app";
+import ReactTooltip from "react-tooltip";
+import { setCurrentActiveSpace } from "../../../redux/features/spaceMenu";
+import { MdGroup } from "react-icons/md";
 
 interface Props {
   space: SpaceObj;
-  currentActive: string | null;
-  setCurrentActive: React.Dispatch<React.SetStateAction<string | null>>;
 }
 
-const SpaceItem = ({ space, setCurrentActive, currentActive }: Props) => {
+const SpaceItem = ({ space }: Props) => {
+  const dispatch = useDispatch();
+  const { currentActiveSpace } = useSelector(
+    (state: RootState) => state.spaceMenu
+  );
+
   const [showIcons, setShowIcons] = useState(false);
 
   const { pathname } = useLocation();
@@ -28,12 +36,13 @@ const SpaceItem = ({ space, setCurrentActive, currentActive }: Props) => {
 
   return (
     <li
-      className="space-item noselect "
+      className="space-item noselect"
       onMouseEnter={() => setShowIcons(true)}
       onMouseLeave={() => setShowIcons(false)}
     >
       <div
-        className={`space px-2 relative py-2 w-full flex items-center justify-between cursor-pointer ${
+        aria-label="clickable"
+        className={`space px-3 relative py-2 w-full flex items-center justify-between cursor-pointer ${
           isCurrentSpace ? "bg-primary_light" : "hover:bg-secondary"
         }`}
         onClick={(e) => {
@@ -42,12 +51,11 @@ const SpaceItem = ({ space, setCurrentActive, currentActive }: Props) => {
           // if it is not on link
           if (ref.current && !ref.current.contains(e.target)) {
             // toggling
-            setCurrentActive((prevValue) => {
-              if (prevValue === space._id) {
-                return null;
-              }
-              return space._id;
-            });
+            dispatch(
+              setCurrentActiveSpace(
+                currentActiveSpace === space._id ? null : space._id
+              )
+            );
           } else {
             // if it is on link, open it only once, no toggling
             // if links are not same
@@ -58,7 +66,7 @@ const SpaceItem = ({ space, setCurrentActive, currentActive }: Props) => {
                 `/s/${space._id}/settings`,
               ].includes(pathname)
             ) {
-              setCurrentActive(space._id);
+              dispatch(setCurrentActiveSpace(space._id));
             }
           }
         }}
@@ -68,7 +76,7 @@ const SpaceItem = ({ space, setCurrentActive, currentActive }: Props) => {
         )}
         <div className="left flex items-center">
           <div className="down-icon mr-1 text-gray-600">
-            {currentActive === space._id ? (
+            {currentActiveSpace === space._id ? (
               <HiChevronDown size={16} />
             ) : (
               <HiChevronRight size={16} />
@@ -120,18 +128,29 @@ const SpaceItem = ({ space, setCurrentActive, currentActive }: Props) => {
             </div>
           </div>
         </div>
-        {showIcons && (
-          <div className="right text-gray-600 flex items-center">
-            <button className="mr-1">
-              <HiOutlineDotsHorizontal size={16} />
-            </button>
-            <button>
-              <HiOutlinePlus size={16} />
-            </button>
-          </div>
-        )}
+        <div className="right text-gray-600 flex items-center">
+          {showIcons && (
+            <>
+              <button className="mr-1">
+                <HiOutlineDotsHorizontal size={16} />
+              </button>
+              {!space.isGuestSpace && (
+                <button>
+                  <HiOutlinePlus size={16} />
+                </button>
+              )}
+            </>
+          )}
+          {space.isGuestSpace && (
+            <div className="icon text-slate-600">
+              <MdGroup data-tip="Guest Space" size={18} />
+
+              <ReactTooltip place="bottom" />
+            </div>
+          )}
+        </div>
       </div>
-      {currentActive === space._id && <BoardList boards={space.boards} />}
+      {currentActiveSpace === space._id && <BoardList boards={space.boards} />}
     </li>
   );
 };

@@ -143,11 +143,11 @@ const CreateSpaceModal = () => {
         {isFirstPage ? (
           <div className="first-page flex flex-col">
             <div className="intro mb-7">
-              <h3 className="text-2xl font-semibold mb-1">
-                Let's start a Space
+              <h3 className="text-xl font-semibold mb-1">
+                Let's create a Space
               </h3>
               <p
-                className="text-lg text-slate-600 "
+                className="text-base text-slate-600 "
                 style={{
                   lineHeight: "1.4rem",
                 }}

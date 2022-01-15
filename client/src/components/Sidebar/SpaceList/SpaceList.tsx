@@ -1,23 +1,13 @@
-import React, { useState } from "react";
-import spaces from "../../data/spaces";
-import { SpaceObj } from "../../types";
+import spaces from "../../../data/spaces";
+import { SpaceObj } from "../../../types";
 import SpaceItem from "./SpaceItem";
 
 const SpaceList = () => {
-  const [currentActive, setCurrentActive] = useState<null | string>(null);
-
   return (
     <ul className="space-list">
       {spaces.length > 0 ? (
         spaces.map((space: SpaceObj) => {
-          return (
-            <SpaceItem
-              currentActive={currentActive}
-              setCurrentActive={setCurrentActive}
-              key={space._id}
-              space={space}
-            />
-          );
+          return <SpaceItem key={space._id} space={space} />;
         })
       ) : (
         <li className="px-6 text-sm py-1">
