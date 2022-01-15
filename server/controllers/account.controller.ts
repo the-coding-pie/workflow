@@ -153,6 +153,20 @@ export const resetPassword = async (req: Request, res: Response) => {
     // find the user and reset their password, then delete the record from forgotPassword collection
     const user = await User.findOne({ _id: validToken.userId });
 
+    // rare foolish case -> token exists no user
+    if (!user) {
+      await ForgotPassword.deleteOne({ _id: validToken._id });
+      await EmailVerification.deleteOne({ userId: validToken.userId });
+      await RefreshToken.deleteOne({ userId: validToken.userId });
+
+      return res.status(401).send({
+        success: false,
+        data: {},
+        message: "Invalid user",
+        statusCode: 401,
+      });
+    }
+
     user.password = password;
     user.isOAuth = false;
     user.emailVerified = true;

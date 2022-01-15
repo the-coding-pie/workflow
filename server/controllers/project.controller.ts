@@ -5,14 +5,11 @@ import User from "../models/user.model";
 import { checkAllString, getUniqueValues } from "../utils/helpers";
 import validator from "validator";
 import { PROJECT_MEMBER_ROLES } from "../types/constants";
-import { saveFile } from "../utils/file";
-import { PROJECT_ICONS_DIR_NAME, PROJECT_ICON_SIZE } from "../config";
 
 // POST /projects -> create a new project
 export const createProject = async (req: any, res: Response) => {
   try {
     const { name, description, members } = req.body;
-    const icon = req.file;
 
     let uniqueMemberIds: string[] = [];
 
@@ -90,6 +87,7 @@ export const createProject = async (req: any, res: Response) => {
       // get all valid users
       const validMembers = await User.find({
         _id: { $in: uniqueMemberIds },
+        emailVerified: true,
       }).select("_id");
 
       let valuesToInsert = validMembers.map((m) => {
@@ -108,19 +106,6 @@ export const createProject = async (req: any, res: Response) => {
       memberId: req.user._id,
       role: PROJECT_MEMBER_ROLES.ADMIN,
     });
-
-    // project icon, file
-    if (icon) {
-      // upload it
-      const fileName = await saveFile(
-        icon,
-        PROJECT_ICON_SIZE.WIDTH,
-        PROJECT_ICON_SIZE.HEIGHT,
-        PROJECT_ICONS_DIR_NAME
-      );
-
-      newProject.icon = fileName;
-    }
 
     // save
     await newProject.save();

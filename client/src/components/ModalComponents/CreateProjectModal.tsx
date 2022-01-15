@@ -5,12 +5,15 @@ import * as Yup from "yup";
 import Input from "../FormikComponents/Input";
 import NextBtn from "../FormikComponents/NextBtn";
 import TextArea from "../FormikComponents/TextArea";
-import AsyncSelect from "react-select/async";
 import debounce from "debounce-promise";
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 import CustomOption from "../CustomOption/CustomOption";
 import SelectDropDownAsync from "../FormikComponents/SelectDropDownAsync";
 import SubmitBtn from "../FormikComponents/SubmitBtn";
+import { addToast } from "../../redux/features/toastSlice";
+import { hideModal } from "../../redux/features/modalSlice";
+import { ERROR } from "../../types/constants";
+import { logoutUser } from "../../redux/features/authSlice";
 
 interface ProjectObj {
   name: string;
@@ -58,7 +61,48 @@ const CreateProjectModal = () => {
       members: project.members.map((m) => m.value),
     };
 
-    console.log(value)
+    axios
+      .post(`/projects`, value, {
+        headers: {
+          ContentType: "application/json",
+        },
+      })
+      .then((response) => {
+        setIsSubmitting(false);
+
+        dispatch(hideModal());
+
+        // update existing projects list
+      })
+      .catch((error: AxiosError) => {
+        setIsSubmitting(false);
+
+        if (error.response) {
+          const response = error.response;
+          const { message } = response.data;
+
+          switch (response.status) {
+            case 401:
+              dispatch(logoutUser());
+              break;
+            case 400:
+            case 500:
+              dispatch(addToast({ kind: ERROR, msg: message }));
+              break;
+            default:
+              dispatch(
+                addToast({ kind: ERROR, msg: "Oops, something went wrong" })
+              );
+              break;
+          }
+        } else if (error.request) {
+          dispatch(
+            addToast({ kind: ERROR, msg: "Oops, something went wrong" })
+          );
+        } else {
+          dispatch(addToast({ kind: ERROR, msg: `Error: ${error.message}` }));
+        }
+      });
   }, []);
 
   const searchUsers = async (query: string) => {
@@ -90,7 +134,12 @@ const CreateProjectModal = () => {
       validationSchema={validationSchema}
       onSubmit={(values) => handleSubmit(values)}
     >
-      <Form className="p-4 pl-8 pb-6 mt-6">
+      <Form
+        className="p-4 pl-8 pb-6 mt-6"
+        style={{
+          maxWidth: "48rem",
+        }}
+      >
         {isFirstPage ? (
           <div className="first-page flex flex-col">
             <Input
@@ -98,6 +147,7 @@ const CreateProjectModal = () => {
               id="name"
               name="name"
               type="text"
+              autoFocus={true}
               optional={false}
             />
             <TextArea
@@ -116,7 +166,12 @@ const CreateProjectModal = () => {
             </div>
           </div>
         ) : (
-          <div className="second-page flex flex-col">
+          <div
+            className="second-page flex flex-col justify-between"
+            style={{
+              minHeight: "14rem",
+            }}
+          >
             <SelectDropDownAsync
               name="members"
               id="members"
@@ -124,10 +179,23 @@ const CreateProjectModal = () => {
               isMulti={true}
               loadOptions={loadUsers}
               components={{ Option: CustomOption }}
+              optional={true}
+              autoFocus={true}
             />
 
-            <div className="buttons w-full flex justify-end">
-              <SubmitBtn text="Create" isSubmitting={isSubmitting} />
+            <div className="buttons w-full flex flex-col text-sm">
+              <SubmitBtn
+                text="Create"
+                classes="mb-4"
+                isSubmitting={isSubmitting}
+              />
+
+              <button
+                className="underline text-gray-700"
+                onClick={() => setIsFirstPage(true)}
+              >
+                Go back
+              </button>
             </div>
           </div>
         )}

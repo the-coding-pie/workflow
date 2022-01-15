@@ -48,6 +48,7 @@ const MainLayout = () => {
 
     if (response.status === 401) {
       dispatch(logoutUser());
+      return;
     }
   }
 

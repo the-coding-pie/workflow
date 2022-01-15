@@ -10,6 +10,7 @@ interface Props {
   loadOptions: (val: string) => Promise<any>;
   components?: Object;
   isMulti?: boolean;
+  autoFocus?: boolean;
   optional?: boolean;
   inline?: boolean;
   classes?: string;
@@ -25,7 +26,7 @@ const customStyles = {
         borderColor: "#8b5cf6",
         cursor: "text",
       },
-      borderColor: "#ddd6fe",
+      borderColor: state.isFocused ? '#8b5cf6' : '#ddd6fe'
     };
   },
 };
@@ -38,11 +39,12 @@ const SelectDropDownAsync = ({
   classes,
   components = {},
   isMulti = false,
+  autoFocus = false,
   optional = false,
   inline = false,
 }: Props) => {
   const [field, meta, helpers] = useField({ name });
-  
+
   return (
     <div className={`flex flex-col w-full mb-6 ${classes}`}>
       <div
@@ -70,6 +72,14 @@ const SelectDropDownAsync = ({
             helpers.setValue(value);
           }}
           value={field.value}
+          autoFocus={autoFocus}
+          theme={theme => ({
+            ...theme,
+            colors: {
+              ...theme.colors,
+              primary25: '#8b5cf6',
+            }
+          })}
         />
       </div>
       {meta.touched && meta.error && <ErrorBox msg={meta.error} />}

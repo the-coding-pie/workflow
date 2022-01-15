@@ -1,7 +1,6 @@
 import express from "express";
 import { authMiddleware } from "../middlewares/auth";
 import * as projectController from "../controllers/project.controller";
-import { multerUploadSingle } from "../middlewares/multerUploadSingle";
 
 const projectRouter = express.Router();
 
@@ -9,9 +8,6 @@ const projectRouter = express.Router();
 projectRouter.post(
   "/",
   authMiddleware,
-  function (req, res, next) {
-    multerUploadSingle(req, res, next, "icon");
-  },
   projectController.createProject
 );
 

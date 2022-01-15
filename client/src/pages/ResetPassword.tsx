@@ -9,7 +9,11 @@ import Input from "../components/FormikComponents/Input";
 import SubmitBtn from "../components/FormikComponents/SubmitBtn";
 import { FORGOT_PASSWORD_TOKEN_LENGTH } from "../config";
 import { RootState } from "../redux/app";
-import { loginUser, setEmailVerified } from "../redux/features/authSlice";
+import {
+  loginUser,
+  logoutUser,
+  setEmailVerified,
+} from "../redux/features/authSlice";
 import { addToast } from "../redux/features/toastSlice";
 import { ERROR } from "../types/constants";
 
@@ -101,6 +105,9 @@ const ResetPassword = () => {
               } else {
                 navigate("/forgot-password", { replace: true });
               }
+              break;
+            case 401:
+              dispatch(logoutUser());
               break;
             case 400:
             case 500:
