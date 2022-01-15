@@ -1,4 +1,5 @@
 import React, { useEffect } from "react";
+import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 
 interface Props {
@@ -21,7 +22,11 @@ const CustomNavLink = ({
   const location = useLocation();
   const pathname = location.pathname;
 
-  const isActive = pathname === to || list?.includes(pathname);
+  const [isActive, setIsActive] = useState<boolean>();
+
+  useEffect(() => {
+    setIsActive(pathname === to || list?.includes(pathname));
+  }, [pathname, list]);
 
   useEffect(() => {
     if (isActive !== undefined && fn) {

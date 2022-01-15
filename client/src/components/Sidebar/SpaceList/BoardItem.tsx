@@ -2,15 +2,28 @@ import React, { useState } from "react";
 import { BoardObj } from "../../../types";
 import { HiOutlineDotsHorizontal } from "react-icons/hi";
 import { NavLink } from "react-router-dom";
+import { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { setCurrentActiveSpace } from "../../../redux/features/spaceMenu";
+import { setCurrentActiveMenu } from "../../../redux/features/sidebarMenu";
+import { RootState } from "../../../redux/app";
 
 interface Props {
   board: BoardObj;
 }
 
 const BoardItem = ({ board }: Props) => {
+  const dispatch = useDispatch();
   const [showIcons, setShowIcons] = useState(false);
 
   const [isCurrentBoard, setIsCurrentBoard] = useState(false);
+
+  useEffect(() => {
+    if (isCurrentBoard) {
+      dispatch(setCurrentActiveMenu(1));
+      dispatch(setCurrentActiveSpace(board.spaceId));
+    }
+  }, [isCurrentBoard]);
 
   return (
     <li className="board-item">

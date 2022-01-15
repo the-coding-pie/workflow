@@ -10,6 +10,9 @@ module.exports = {
       fontFamily: {
         ubuntu: "Ubuntu, sans-serif",
       },
+      transitionProperty: {
+        width: 'width',
+      },
     },
   },
   plugins: [],

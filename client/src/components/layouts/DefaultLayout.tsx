@@ -23,14 +23,11 @@ const DefaultLayout = () => {
   return (
     <div className="relative">
       <div className="flex">
-        {show && (
-          <div className="left">
-            <Sidebar />
-          </div>
-        )}
-        <div className="right w-full">
+        <Sidebar />
+        
+        <main className={`main w-full ${show ? "ml-60" : ""} transition-all`}>
           <Header />
-          <main>
+          <div>
             <Suspense fallback={<div>Loading...</div>}>
               <Routes>
                 <Route path="/" element={<Home />} />
@@ -59,8 +56,8 @@ const DefaultLayout = () => {
                 />
               </Routes>
             </Suspense>
-          </main>
-        </div>
+          </div>
+        </main>
       </div>
 
       {/* modal */}

@@ -24,32 +24,45 @@ const Sidebar = () => {
   const { currentActiveMenu } = useSelector(
     (state: RootState) => state.sidebarMenu
   );
+  const { show } = useSelector((state: RootState) => state.sidebar);
 
   const ref = useRef<any>(null);
 
   const [menu, setMenu] = useState([
     {
       id: 0,
-      fn: null,
+      button: null,
       name: "Favorites",
       component: <FavoritesList />,
     },
     {
       id: 1,
       name: "Spaces",
-      fn: () =>
-        dispatch(
-          showModal({
-            modalType: CREATE_SPACE_MODAL,
-          })
-        ),
+      button: (
+        <button
+          ref={ref}
+          className="text-gray-600"
+          onClick={() =>
+            dispatch(
+              showModal({
+                modalType: CREATE_SPACE_MODAL,
+              })
+            )
+          }
+        >
+          <HiOutlinePlus size={15} />
+        </button>
+      ),
       component: <SpaceList />,
     },
   ]);
 
   return (
     <aside
-      className={`sidebar border-r w-60 bg-white h-screen flex flex-col transition ease-in-out delay-75`}
+      id="sidebar"
+      className={`sidebar fixed left-0 top-0 bottom-0 border-r ${
+        show ? "w-60" : "w-0"
+      } bg-white h-screen flex flex-col overflow-x-hidden transition-all  box-border`}
     >
       <header className="h-14 flex justify-between items-center px-4 mb-3">
         <Logo />
@@ -74,15 +87,18 @@ const Sidebar = () => {
       <ul className="text-sm">
         {menu.map((m) => (
           <li
+            key={m.id}
             className={`border-b ${
               currentActiveMenu === m.id ? "text-gray-800" : "text-gray-500 "
             }`}
           >
-            <button
+            <div
+              aria-label="clickable"
               onClick={(e) => {
-                // if the click is on plus btn
+                // if plus btn is there
                 if (ref.current) {
-                  if (ref.current && !ref.current.contains(e.target)) {
+                  // if the click is not on plus btn
+                  if (!ref.current.contains(e.target)) {
                     dispatch(
                       setCurrentActiveMenu(
                         currentActiveMenu === m.id ? null : m.id
@@ -116,19 +132,16 @@ const Sidebar = () => {
                   {m.name}
                 </h3>
               </div>
-              {m.fn && (
-                <button
-                  ref={ref}
-                  className="text-gray-600"
-                  onClick={() => m.fn()}
-                >
-                  <HiOutlinePlus size={15} />
-                </button>
-              )}
-            </button>
-            {currentActiveMenu === m.id && (
-              <div className="content">{m.component}</div>
-            )}
+              {m.button && m.button}
+            </div>
+
+            <div
+              className={`content ${
+                currentActiveMenu === m.id ? "block" : "hidden"
+              }`}
+            >
+              {m.component}
+            </div>
           </li>
         ))}
       </ul>

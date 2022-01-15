@@ -41,6 +41,7 @@ export interface BoardObj {
   name: string;
   color: string;
   img?: string;
+  spaceId: string;
 }
 
 export interface ToastObj {

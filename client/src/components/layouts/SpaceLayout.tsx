@@ -45,9 +45,11 @@ const SpaceLayout = () => {
               <span>Private</span>
             </p>
           </div>
-          <button className="bg-violet-200 px-1 py-0.5 rounded text-sm">
-            <HiOutlinePencil size={18} />
-          </button>
+          {!space.isGuestSpace && (
+            <button className="bg-violet-200 px-1 py-0.5 rounded text-sm">
+              <HiOutlinePencil size={18} />
+            </button>
+          )}
         </div>
 
         <ul className="flex pb-2">
@@ -63,30 +65,51 @@ const SpaceLayout = () => {
               Boards
             </NavLink>
           </li>
-          <li className="w-18">
-            <NavLink
-              to={`/s/${id}/members`}
-              className={({ isActive }) => {
-                return `text-base mr-6 font-medium text-gray-500 ${
-                  isActive ? "border-b-4 pb-2 text-primary border-primary" : ""
-                }`;
-              }}
-            >
-              Members
-            </NavLink>
-          </li>
-          <li className="w-18">
-            <NavLink
-              to={`/s/${id}/settings`}
-              className={({ isActive }) => {
-                return `text-base mr-6 font-medium text-gray-500 ${
-                  isActive ? "border-b-4 pb-2 text-primary border-primary" : ""
-                }`;
-              }}
-            >
-              Settings
-            </NavLink>
-          </li>
+          {space.isGuestSpace ? (
+            <>
+              <li className="w-18">
+                <div className="text-base mr-6 font-medium text-gray-400 cursor-not-allowed noselect">
+                  Members
+                </div>
+              </li>
+              <li className="w-18">
+                <div className="text-base mr-6 font-medium text-gray-400 cursor-not-allowed noselect">
+                  Settings
+                </div>
+              </li>
+            </>
+          ) : (
+            <>
+              <li className="w-18">
+                <NavLink
+                  to={`/s/${id}/members`}
+                  className={({ isActive }) => {
+                    return `text-base mr-6 font-medium text-gray-500 ${
+                      isActive
+                        ? "border-b-4 pb-2 text-primary border-primary"
+                        : ""
+                    }`;
+                  }}
+                >
+                  Members
+                </NavLink>
+              </li>
+              <li className="w-18">
+                <NavLink
+                  to={`/s/${id}/settings`}
+                  className={({ isActive }) => {
+                    return `text-base mr-6 font-medium text-gray-500 ${
+                      isActive
+                        ? "border-b-4 pb-2 text-primary border-primary"
+                        : ""
+                    }`;
+                  }}
+                >
+                  Settings
+                </NavLink>
+              </li>
+            </>
+          )}
         </ul>
       </header>
 

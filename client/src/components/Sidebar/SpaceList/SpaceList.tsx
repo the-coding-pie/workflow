@@ -4,7 +4,7 @@ import SpaceItem from "./SpaceItem";
 
 const SpaceList = () => {
   return (
-    <ul className="space-list">
+    <ul className="space-list pb-2">
       {spaces.length > 0 ? (
         spaces.map((space: SpaceObj) => {
           return <SpaceItem key={space._id} space={space} />;

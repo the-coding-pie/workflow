@@ -15,6 +15,8 @@ import { RootState } from "../../../redux/app";
 import ReactTooltip from "react-tooltip";
 import { setCurrentActiveSpace } from "../../../redux/features/spaceMenu";
 import { MdGroup } from "react-icons/md";
+import { useEffect } from "react";
+import { setCurrentActiveMenu } from "../../../redux/features/sidebarMenu";
 
 interface Props {
   space: SpaceObj;
@@ -31,6 +33,13 @@ const SpaceItem = ({ space }: Props) => {
   const { pathname } = useLocation();
 
   const [isCurrentSpace, setIsCurrentSpace] = useState(false);
+
+  useEffect(() => {
+    if (isCurrentSpace) {
+      dispatch(setCurrentActiveMenu(1));
+      dispatch(setCurrentActiveSpace(space._id));
+    }
+  }, [isCurrentSpace]);
 
   const ref = useRef<any>(null);
 
@@ -58,7 +67,7 @@ const SpaceItem = ({ space }: Props) => {
             );
           } else {
             // if it is on link, open it only once, no toggling
-            // if links are not same
+            // if links are not same, ie only on path change
             if (
               ![
                 `/s/${space._id}/boards`,
@@ -150,7 +159,11 @@ const SpaceItem = ({ space }: Props) => {
           )}
         </div>
       </div>
-      {currentActiveSpace === space._id && <BoardList boards={space.boards} />}
+      <div
+        className={`${currentActiveSpace === space._id ? "block" : "hidden"}`}
+      >
+        <BoardList boards={space.boards} />
+      </div>
     </li>
   );
 };
