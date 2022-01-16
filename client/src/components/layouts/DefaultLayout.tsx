@@ -62,8 +62,6 @@ const DefaultLayout = () => {
 
       {/* modal */}
       {modal.modalType !== null && <Modal {...modal} />}
-
-      <div id="options-portal"></div>
     </div>
   );
 };

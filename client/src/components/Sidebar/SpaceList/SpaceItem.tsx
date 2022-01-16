@@ -29,8 +29,11 @@ const SpaceItem = ({ space }: Props) => {
     (state: RootState) => state.spaceMenu
   );
 
-  const [showIcons, setShowIcons] = useState(false);
+  const [showIcon, setShowIcon] = useState(false);
+  const [showPlusIcon, setShowPlusIcon] = useState(false);
   const [showOptions, setShowOptions] = useState(false);
+
+  const [lastCoords, setLastCoords] = useState({ x: 0, y: 0 });
 
   const { pathname } = useLocation();
 
@@ -43,18 +46,31 @@ const SpaceItem = ({ space }: Props) => {
     }
   }, [isCurrentSpace]);
 
+  useEffect(() => {
+    if (showOptions === true) {
+      setShowIcon(false);
+      setShowPlusIcon(false);
+    }
+  }, [showOptions]);
+
   const ref = useRef<any>(null);
   const optionsBtnRef = useRef<any>(null);
 
   return (
     <li
-      className={`space-item noselect ${
-        isCurrentSpace ? "border-l-2  border-violet-700" : ""
-      }`}
-      onMouseEnter={() => setShowIcons(true)}
-      onMouseLeave={() => setShowIcons(false)}
+      className={`space-item noselect`}
+      onMouseOver={() => {
+        !showOptions && setShowPlusIcon(true);
+      }}
+      onMouseEnter={() => setShowPlusIcon(true)}
+      onMouseLeave={() => setShowPlusIcon(false)}
     >
       <div
+        onMouseOver={() => {
+          setShowIcon(true);
+        }}
+        onMouseEnter={() => setShowIcon(true)}
+        onMouseLeave={() => setShowIcon(false)}
         aria-label="clickable"
         className={`space relative px-3 py-2 w-full flex items-center justify-between cursor-pointer ${
           isCurrentSpace ? "bg-primary_light" : "hover:bg-secondary"
@@ -154,25 +170,30 @@ const SpaceItem = ({ space }: Props) => {
             <button
               ref={optionsBtnRef}
               data-tip="Space settings"
-              onClick={() => {
+              onClick={({ nativeEvent }) => {
+                if (showOptions === false) {
+                  setLastCoords({
+                    x: nativeEvent.pageX,
+                    y: nativeEvent.pageY,
+                  });
+                }
                 setShowOptions((prevValue) => !prevValue);
               }}
-              className={`mr-1 ${
-                showIcons || showOptions ? "block" : "hidden"
-              }`}
+              className={`mr-1 ${showIcon ? "block" : "hidden"}`}
             >
               <HiOutlineDotsHorizontal size={16} />
             </button>
             <CustomReactToolTip />
 
-            {(showIcons || showOptions) && !space.isGuestSpace && (
-              <>
-                <button data-tip="Add Board">
-                  <HiOutlinePlus size={16} />
-                </button>
-                <CustomReactToolTip />
-              </>
-            )}
+            <button
+              className={`${
+                showPlusIcon && !space.isGuestSpace ? "block" : "hidden"
+              }`}
+              data-tip="Add Board"
+            >
+              <HiOutlinePlus size={16} />
+            </button>
+            <CustomReactToolTip />
           </>
 
           {space.isGuestSpace && (
@@ -194,24 +215,29 @@ const SpaceItem = ({ space }: Props) => {
         <BoardList boards={space.boards} />
       </div>
 
-      <ul
-        className={`options ${
-          showOptions ? "absolute" : "hidden"
-        } bg-white rounded shadow-lg -bottom-0 -left-4`}
-        style={{
-          minWidth: "150px",
-        }}
+      <Options
+        show={showOptions}
+        setShow={setShowOptions}
+        x={lastCoords.x}
+        y={lastCoords.y}
       >
-        <li className="p-2 hover:bg-slate-400 rounded-t">Option 1</li>
-        <li className="p-2 hover:bg-slate-400">Option 1</li>
-        <li className="p-2 hover:bg-slate-400">Option 1</li>
-        <li className="p-2 hover:bg-slate-400 rounded-b">Option 1</li>
-        <li className="p-2 hover:bg-slate-400 rounded-b">Option 1</li>
-        <li className="p-2 hover:bg-slate-400 rounded-b">Option 1</li>
-        <li className="p-2 hover:bg-slate-400 rounded-b">Option 1</li>
-        <li className="p-2 hover:bg-slate-400 rounded-b">Option 1</li>
-        <li className="p-2 hover:bg-slate-400 rounded-b">Option 1</li>
-      </ul>
+        <ul
+          className={`options block bg-white rounded shadow-lg top-0 -left-4`}
+          style={{
+            minWidth: "150px",
+          }}
+        >
+          <li className="p-2 hover:bg-slate-400 rounded-t">Option 1</li>
+          <li className="p-2 hover:bg-slate-400">Option 1</li>
+          <li className="p-2 hover:bg-slate-400">Option 1</li>
+          <li className="p-2 hover:bg-slate-400 rounded-b">Option 1</li>
+          <li className="p-2 hover:bg-slate-400 rounded-b">Option 1</li>
+          <li className="p-2 hover:bg-slate-400 rounded-b">Option 1</li>
+          <li className="p-2 hover:bg-slate-400 rounded-b">Option 1</li>
+          <li className="p-2 hover:bg-slate-400 rounded-b">Option 1</li>
+          <li className="p-2 hover:bg-slate-400 rounded-b">Option 1</li>
+        </ul>
+      </Options>
     </li>
   );
 };
