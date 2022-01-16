@@ -9,5 +9,9 @@ export const DEFAULT = "DEFAULT";
 export const CREATE_SPACE_MODAL = "CREATE_SPACE_MODAL";
 
 // types
-export const SPACE = "SPACE"
-export const BOARD = "BOARD"
+export const SPACE = "SPACE";
+export const BOARD = "BOARD";
+
+// ROLES
+export const ADMIN = "ADMIN";
+export const NORMAL = "NORMAL";

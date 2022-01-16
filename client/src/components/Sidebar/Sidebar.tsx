@@ -18,6 +18,7 @@ import FavoritesList from "./FavoritesList/FavoritesList";
 import { useRef } from "react";
 import { RootState } from "../../redux/app";
 import { setCurrentActiveMenu } from "../../redux/features/sidebarMenu";
+import CustomReactToolTip from "../CustomReactToolTip/CustomReactToolTip";
 
 const Sidebar = () => {
   const dispatch = useDispatch();
@@ -39,19 +40,23 @@ const Sidebar = () => {
       id: 1,
       name: "Spaces",
       button: (
-        <button
-          ref={ref}
-          className="text-gray-600"
-          onClick={() =>
-            dispatch(
-              showModal({
-                modalType: CREATE_SPACE_MODAL,
-              })
-            )
-          }
-        >
-          <HiOutlinePlus size={15} />
-        </button>
+        <>
+          <button
+          data-tip="Create Space"
+            ref={ref}
+            className="text-gray-600"
+            onClick={() =>
+              dispatch(
+                showModal({
+                  modalType: CREATE_SPACE_MODAL,
+                })
+              )
+            }
+          >
+            <HiOutlinePlus size={15} />
+          </button>
+          <CustomReactToolTip />
+        </>
       ),
       component: <SpaceList />,
     },

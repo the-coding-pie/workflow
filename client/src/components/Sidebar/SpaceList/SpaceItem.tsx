@@ -12,11 +12,11 @@ import { useLocation } from "react-router-dom";
 import CustomNavLink from "../../CustomNavLink/CustomNavLink";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../../redux/app";
-import ReactTooltip from "react-tooltip";
 import { setCurrentActiveSpace } from "../../../redux/features/spaceMenu";
 import { MdGroup } from "react-icons/md";
 import { useEffect } from "react";
 import { setCurrentActiveMenu } from "../../../redux/features/sidebarMenu";
+import CustomReactToolTip from "../../CustomReactToolTip/CustomReactToolTip";
 
 interface Props {
   space: SpaceObj;
@@ -140,13 +140,18 @@ const SpaceItem = ({ space }: Props) => {
         <div className="right text-gray-600 flex items-center">
           {showIcons && (
             <>
-              <button className="mr-1">
+              <button data-tip="Space settings" className="mr-1">
                 <HiOutlineDotsHorizontal size={16} />
               </button>
+              <CustomReactToolTip />
+
               {!space.isGuestSpace && (
-                <button>
-                  <HiOutlinePlus size={16} />
-                </button>
+                <>
+                  <button data-tip="Add Board">
+                    <HiOutlinePlus size={16} />
+                  </button>
+                  <CustomReactToolTip />
+                </>
               )}
             </>
           )}
@@ -154,7 +159,7 @@ const SpaceItem = ({ space }: Props) => {
             <div className="icon text-slate-600">
               <MdGroup data-tip="Guest Space" size={18} />
 
-              <ReactTooltip place="bottom" />
+              <CustomReactToolTip />
             </div>
           )}
         </div>

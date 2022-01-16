@@ -7,8 +7,8 @@ import CustomNavLink from "../../CustomNavLink/CustomNavLink";
 import { setCurrentActiveSpace } from "../../../redux/features/spaceMenu";
 import { setCurrentActiveMenu } from "../../../redux/features/sidebarMenu";
 import { MdGroup } from "react-icons/md";
-import ReactTooltip from "react-tooltip";
 import { useEffect } from "react";
+import CustomReactToolTip from "../../CustomReactToolTip/CustomReactToolTip";
 
 interface Props {
   item: FavoriteObj;
@@ -79,13 +79,18 @@ const FavoriteItemSpace = ({ item }: Props) => {
           <div className="right text-gray-600 flex items-center">
             {showIcons && (
               <>
-                <button className="mr-1">
+                <button data-tip="Space settings" className="mr-1">
                   <HiOutlineDotsHorizontal size={16} />
                 </button>
+                <CustomReactToolTip />
+
                 {!item.isGuestSpace && (
-                  <button>
-                    <HiOutlinePlus size={16} />
-                  </button>
+                  <>
+                    <button data-tip="Add Board">
+                      <HiOutlinePlus size={16} />
+                    </button>
+                    <CustomReactToolTip />
+                  </>
                 )}
               </>
             )}
@@ -93,7 +98,7 @@ const FavoriteItemSpace = ({ item }: Props) => {
               <div className="icon text-slate-600">
                 <MdGroup data-tip="Guest Space" size={18} />
 
-                <ReactTooltip place="bottom" />
+                <CustomReactToolTip />
               </div>
             )}
           </div>

@@ -5,6 +5,7 @@ import { NavLink } from "react-router-dom";
 import { setCurrentActiveMenu } from "../../../redux/features/sidebarMenu";
 import { useDispatch } from "react-redux";
 import { setCurrentActiveSpace } from "../../../redux/features/spaceMenu";
+import CustomReactToolTip from "../../CustomReactToolTip/CustomReactToolTip";
 
 interface Props {
   item: FavoriteObj;
@@ -49,9 +50,10 @@ const FavoriteItemBoard = ({ item }: Props) => {
         </div>
         {showIcons && (
           <div className="right text-gray-600 flex items-center">
-            <button className="mr-1">
+            <button data-tip="Board settings" className="mr-1">
               <HiOutlineDotsHorizontal size={16} />
             </button>
+            <CustomReactToolTip />
           </div>
         )}
       </NavLink>
