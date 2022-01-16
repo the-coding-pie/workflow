@@ -17,6 +17,7 @@ import { MdGroup } from "react-icons/md";
 import { useEffect } from "react";
 import { setCurrentActiveMenu } from "../../../redux/features/sidebarMenu";
 import CustomReactToolTip from "../../CustomReactToolTip/CustomReactToolTip";
+import Options from "../../Options/Options";
 
 interface Props {
   space: SpaceObj;
@@ -29,6 +30,7 @@ const SpaceItem = ({ space }: Props) => {
   );
 
   const [showIcons, setShowIcons] = useState(false);
+  const [showOptions, setShowOptions] = useState(false);
 
   const { pathname } = useLocation();
 
@@ -42,40 +44,50 @@ const SpaceItem = ({ space }: Props) => {
   }, [isCurrentSpace]);
 
   const ref = useRef<any>(null);
+  const optionsBtnRef = useRef<any>(null);
 
   return (
     <li
-      className="space-item noselect"
+      className={`space-item noselect ${
+        isCurrentSpace ? "border-l-2  border-violet-700" : ""
+      }`}
       onMouseEnter={() => setShowIcons(true)}
       onMouseLeave={() => setShowIcons(false)}
     >
       <div
         aria-label="clickable"
-        className={`space px-3 relative py-2 w-full flex items-center justify-between cursor-pointer ${
+        className={`space relative px-3 py-2 w-full flex items-center justify-between cursor-pointer ${
           isCurrentSpace ? "bg-primary_light" : "hover:bg-secondary"
         }`}
         onClick={(e) => {
-          // when click, if it is in link, open it for the first time
-          // no toggle
-          // if it is not on link
-          if (ref.current && !ref.current.contains(e.target)) {
-            // toggling
-            dispatch(
-              setCurrentActiveSpace(
-                currentActiveSpace === space._id ? null : space._id
-              )
-            );
-          } else {
-            // if it is on link, open it only once, no toggling
-            // if links are not same, ie only on path change
-            if (
-              ![
-                `/s/${space._id}/boards`,
-                `/s/${space._id}/members`,
-                `/s/${space._id}/settings`,
-              ].includes(pathname)
-            ) {
-              dispatch(setCurrentActiveSpace(space._id));
+          // if options menu is closed, and click is not on options menu btn
+          if (
+            optionsBtnRef.current &&
+            !optionsBtnRef.current.contains(e.target) &&
+            showOptions === false
+          ) {
+            // when click, if it is in link, open it for the first time
+            // no toggle
+            // if it is not on link and not on options btn
+            if (ref.current && !ref.current.contains(e.target)) {
+              // toggling
+              dispatch(
+                setCurrentActiveSpace(
+                  currentActiveSpace === space._id ? null : space._id
+                )
+              );
+            } else {
+              // if it is on link or on path, open it only once, no toggling
+              // if links are not same, ie only on path change
+              if (
+                ![
+                  `/s/${space._id}/boards`,
+                  `/s/${space._id}/members`,
+                  `/s/${space._id}/settings`,
+                ].includes(pathname)
+              ) {
+                dispatch(setCurrentActiveSpace(space._id));
+              }
             }
           }
         }}
@@ -138,26 +150,38 @@ const SpaceItem = ({ space }: Props) => {
           </div>
         </div>
         <div className="right text-gray-600 flex items-center">
-          {showIcons && (
-            <>
-              <button data-tip="Space settings" className="mr-1">
-                <HiOutlineDotsHorizontal size={16} />
-              </button>
-              <CustomReactToolTip />
+          <>
+            <button
+              ref={optionsBtnRef}
+              data-tip="Space settings"
+              onClick={() => {
+                setShowOptions((prevValue) => !prevValue);
+              }}
+              className={`mr-1 ${
+                showIcons || showOptions ? "block" : "hidden"
+              }`}
+            >
+              <HiOutlineDotsHorizontal size={16} />
+            </button>
+            <CustomReactToolTip />
 
-              {!space.isGuestSpace && (
-                <>
-                  <button data-tip="Add Board">
-                    <HiOutlinePlus size={16} />
-                  </button>
-                  <CustomReactToolTip />
-                </>
-              )}
-            </>
-          )}
+            {(showIcons || showOptions) && !space.isGuestSpace && (
+              <>
+                <button data-tip="Add Board">
+                  <HiOutlinePlus size={16} />
+                </button>
+                <CustomReactToolTip />
+              </>
+            )}
+          </>
+
           {space.isGuestSpace && (
             <div className="icon text-slate-600">
-              <MdGroup data-tip="Guest Space" size={18} />
+              <MdGroup
+                data-tip="Guest Space"
+                className="outline-none"
+                size={18}
+              />
 
               <CustomReactToolTip />
             </div>
@@ -169,6 +193,25 @@ const SpaceItem = ({ space }: Props) => {
       >
         <BoardList boards={space.boards} />
       </div>
+
+      <ul
+        className={`options ${
+          showOptions ? "absolute" : "hidden"
+        } bg-white rounded shadow-lg -bottom-0 -left-4`}
+        style={{
+          minWidth: "150px",
+        }}
+      >
+        <li className="p-2 hover:bg-slate-400 rounded-t">Option 1</li>
+        <li className="p-2 hover:bg-slate-400">Option 1</li>
+        <li className="p-2 hover:bg-slate-400">Option 1</li>
+        <li className="p-2 hover:bg-slate-400 rounded-b">Option 1</li>
+        <li className="p-2 hover:bg-slate-400 rounded-b">Option 1</li>
+        <li className="p-2 hover:bg-slate-400 rounded-b">Option 1</li>
+        <li className="p-2 hover:bg-slate-400 rounded-b">Option 1</li>
+        <li className="p-2 hover:bg-slate-400 rounded-b">Option 1</li>
+        <li className="p-2 hover:bg-slate-400 rounded-b">Option 1</li>
+      </ul>
     </li>
   );
 };

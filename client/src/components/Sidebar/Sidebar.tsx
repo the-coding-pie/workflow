@@ -42,7 +42,7 @@ const Sidebar = () => {
       button: (
         <>
           <button
-          data-tip="Create Space"
+            data-tip="Create Space"
             ref={ref}
             className="text-gray-600"
             onClick={() =>
@@ -64,12 +64,11 @@ const Sidebar = () => {
 
   return (
     <aside
-      id="sidebar"
-      className={`sidebar fixed left-0 top-0 bottom-0 border-r ${
+      className={`sidebar z-20 shadow-xl fixed left-0 top-0 bottom-0 overflow-x-hidden box-border ${
         show ? "w-60" : "w-0"
-      } bg-white h-screen flex flex-col overflow-x-hidden transition-all  box-border`}
+      } bg-white h-screen flex flex-col transition-all`}
     >
-      <header className="h-14 flex justify-between items-center px-4 mb-3">
+      <header className="h-14 flex justify-between items-center px-4 border-b">
         <Logo />
 
         <button
@@ -80,76 +79,78 @@ const Sidebar = () => {
         </button>
       </header>
 
-      <nav className="border-b pb-3">
-        <SidebarLink to="/" Icon={VscHome} text="Home" />
-        <SidebarLink
-          to="/notifications"
-          Icon={IoNotificationsOutline}
-          text="Notifications"
-        />
-      </nav>
+      <main className="flex-1" id="sidebar">
+        <nav className="border-b pb-3">
+          <SidebarLink to="/" Icon={VscHome} text="Home" />
+          <SidebarLink
+            to="/notifications"
+            Icon={IoNotificationsOutline}
+            text="Notifications"
+          />
+        </nav>
 
-      <ul className="text-sm">
-        {menu.map((m) => (
-          <li
-            key={m.id}
-            className={`border-b ${
-              currentActiveMenu === m.id ? "text-gray-800" : "text-gray-500 "
-            }`}
-          >
-            <div
-              aria-label="clickable"
-              onClick={(e) => {
-                // if plus btn is there
-                if (ref.current) {
-                  // if the click is not on plus btn
-                  if (!ref.current.contains(e.target)) {
+        <ul className="text-sm">
+          {menu.map((m) => (
+            <li
+              key={m.id}
+              className={`border-b ${
+                currentActiveMenu === m.id ? "text-gray-800" : "text-gray-500 "
+              }`}
+            >
+              <div
+                aria-label="clickable"
+                onClick={(e) => {
+                  // if plus btn is there
+                  if (ref.current) {
+                    // if the click is not on plus btn
+                    if (!ref.current.contains(e.target)) {
+                      dispatch(
+                        setCurrentActiveMenu(
+                          currentActiveMenu === m.id ? null : m.id
+                        )
+                      );
+                    }
+                  } else {
                     dispatch(
                       setCurrentActiveMenu(
                         currentActiveMenu === m.id ? null : m.id
                       )
                     );
                   }
-                } else {
-                  dispatch(
-                    setCurrentActiveMenu(
-                      currentActiveMenu === m.id ? null : m.id
-                    )
-                  );
-                }
-              }}
-              className={`flex items-center px-2 py-3 w-full justify-between noselect hover:bg-secondary cursor-pointer`}
-            >
-              <div className="left flex items-center">
-                <div className="icon mr-2">
-                  {currentActiveMenu === m.id ? (
-                    <HiChevronDown size={18} />
-                  ) : (
-                    <HiChevronRight size={18} />
-                  )}
+                }}
+                className={`flex items-center px-2 py-3 w-full justify-between noselect hover:bg-secondary cursor-pointer`}
+              >
+                <div className="left flex items-center">
+                  <div className="icon mr-2">
+                    {currentActiveMenu === m.id ? (
+                      <HiChevronDown size={18} />
+                    ) : (
+                      <HiChevronRight size={18} />
+                    )}
+                  </div>
+                  <h3
+                    className="uppercase"
+                    style={{
+                      fontSize: "13px",
+                    }}
+                  >
+                    {m.name}
+                  </h3>
                 </div>
-                <h3
-                  className="uppercase"
-                  style={{
-                    fontSize: "13px",
-                  }}
-                >
-                  {m.name}
-                </h3>
+                {m.button && m.button}
               </div>
-              {m.button && m.button}
-            </div>
 
-            <div
-              className={`content ${
-                currentActiveMenu === m.id ? "block" : "hidden"
-              }`}
-            >
-              {m.component}
-            </div>
-          </li>
-        ))}
-      </ul>
+              <div
+                className={`content ${
+                  currentActiveMenu === m.id ? "block" : "hidden"
+                }`}
+              >
+                {m.component}
+              </div>
+            </li>
+          ))}
+        </ul>
+      </main>
     </aside>
   );
 };

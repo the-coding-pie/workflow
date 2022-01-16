@@ -24,7 +24,7 @@ const DefaultLayout = () => {
     <div className="relative">
       <div className="flex">
         <Sidebar />
-        
+
         <main className={`main w-full ${show ? "ml-60" : ""} transition-all`}>
           <Header />
           <div>
@@ -62,6 +62,8 @@ const DefaultLayout = () => {
 
       {/* modal */}
       {modal.modalType !== null && <Modal {...modal} />}
+
+      <div id="options-portal"></div>
     </div>
   );
 };

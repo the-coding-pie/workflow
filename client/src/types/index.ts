@@ -1,11 +1,14 @@
 import {
+  ADMIN,
   BOARD,
   CREATE_SPACE_MODAL,
   DEFAULT,
   ERROR,
   INFO,
+  NORMAL,
   SPACE,
   SUCCESS,
+  VIEWER,
   WARNING,
 } from "./constants";
 
@@ -40,6 +43,7 @@ export interface BoardObj {
   _id: string;
   name: string;
   color: string;
+  role: typeof ADMIN | typeof NORMAL | typeof VIEWER,
   img?: string;
   spaceId: string;
 }

@@ -15,3 +15,4 @@ export const BOARD = "BOARD";
 // ROLES
 export const ADMIN = "ADMIN";
 export const NORMAL = "NORMAL";
+export const VIEWER = "VIEWER";
