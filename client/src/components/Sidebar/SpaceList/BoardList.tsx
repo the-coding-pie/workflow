@@ -4,13 +4,17 @@ import BoardItem from "./BoardItem";
 
 interface Props {
   boards: BoardObj[];
+  setShowPlusIcon: React.Dispatch<React.SetStateAction<boolean>>;
+  setShowBoardOptions: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-const BoardList = ({ boards }: Props) => {
+const BoardList = ({ boards, setShowPlusIcon, setShowBoardOptions }: Props) => {
   return (
     <ul className="board-list text-sm">
       {boards.length > 0 ? (
-        boards.map((b) => <BoardItem key={b._id} board={b} />)
+        boards.map((b) => (
+          <BoardItem setShowBoardOptions={setShowBoardOptions} setShowPlusIcon={setShowPlusIcon} key={b._id} board={b} />
+        ))
       ) : (
         <li className="pl-8 py-2">
           Create a{" "}

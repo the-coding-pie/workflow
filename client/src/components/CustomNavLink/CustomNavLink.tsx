@@ -37,7 +37,7 @@ const CustomNavLink = ({
   return (
     <Link
       onClick={(e) => {
-        onClick && onClick();
+        onClick && onClick(e);
       }}
       to={to}
       className={`text-sm ${

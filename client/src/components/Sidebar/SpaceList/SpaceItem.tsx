@@ -32,6 +32,7 @@ const SpaceItem = ({ space }: Props) => {
   const [showIcon, setShowIcon] = useState(false);
   const [showPlusIcon, setShowPlusIcon] = useState(false);
   const [showOptions, setShowOptions] = useState(false);
+  const [showBoardOptions, setShowBoardOptions] = useState(false);
 
   const [lastCoords, setLastCoords] = useState({ x: 0, y: 0 });
 
@@ -47,9 +48,8 @@ const SpaceItem = ({ space }: Props) => {
   }, [isCurrentSpace]);
 
   useEffect(() => {
-    if (showOptions === true) {
+    if (showOptions === false) {
       setShowIcon(false);
-      setShowPlusIcon(false);
     }
   }, [showOptions]);
 
@@ -60,17 +60,21 @@ const SpaceItem = ({ space }: Props) => {
     <li
       className={`space-item noselect`}
       onMouseOver={() => {
-        !showOptions && setShowPlusIcon(true);
+        !showOptions && !showBoardOptions && setShowPlusIcon(true);
       }}
-      onMouseEnter={() => setShowPlusIcon(true)}
-      onMouseLeave={() => setShowPlusIcon(false)}
+      onMouseEnter={() =>
+        !showOptions && !showBoardOptions && setShowPlusIcon(true)
+      }
+      onMouseLeave={() => {
+        setShowPlusIcon(false);
+      }}
     >
       <div
         onMouseOver={() => {
           setShowIcon(true);
         }}
         onMouseEnter={() => setShowIcon(true)}
-        onMouseLeave={() => setShowIcon(false)}
+        onMouseLeave={() => !showOptions && setShowIcon(false)}
         aria-label="clickable"
         className={`space relative px-3 py-2 w-full flex items-center justify-between cursor-pointer ${
           isCurrentSpace ? "bg-primary_light" : "hover:bg-secondary"
@@ -79,8 +83,7 @@ const SpaceItem = ({ space }: Props) => {
           // if options menu is closed, and click is not on options menu btn
           if (
             optionsBtnRef.current &&
-            !optionsBtnRef.current.contains(e.target) &&
-            showOptions === false
+            !optionsBtnRef.current.contains(e.target)
           ) {
             // when click, if it is in link, open it for the first time
             // no toggle
@@ -171,13 +174,13 @@ const SpaceItem = ({ space }: Props) => {
               ref={optionsBtnRef}
               data-tip="Space settings"
               onClick={({ nativeEvent }) => {
-                if (showOptions === false) {
-                  setLastCoords({
-                    x: nativeEvent.pageX,
-                    y: nativeEvent.pageY,
-                  });
-                }
-                setShowOptions((prevValue) => !prevValue);
+                setLastCoords({
+                  x: nativeEvent.pageX,
+                  y: nativeEvent.pageY,
+                });
+                setShowOptions(true);
+                setShowPlusIcon(false);
+                setShowIcon(true);
               }}
               className={`mr-1 ${showIcon ? "block" : "hidden"}`}
             >
@@ -212,7 +215,11 @@ const SpaceItem = ({ space }: Props) => {
       <div
         className={`${currentActiveSpace === space._id ? "block" : "hidden"}`}
       >
-        <BoardList boards={space.boards} />
+        <BoardList
+          setShowBoardOptions={setShowBoardOptions}
+          setShowPlusIcon={setShowPlusIcon}
+          boards={space.boards}
+        />
       </div>
 
       <Options

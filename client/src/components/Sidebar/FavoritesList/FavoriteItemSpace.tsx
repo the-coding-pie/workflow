@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import { useDispatch } from "react-redux";
 import { FavoriteObj } from "../../../types";
 import Avatar from "react-avatar";
@@ -9,6 +9,7 @@ import { setCurrentActiveMenu } from "../../../redux/features/sidebarMenu";
 import { MdGroup } from "react-icons/md";
 import { useEffect } from "react";
 import CustomReactToolTip from "../../CustomReactToolTip/CustomReactToolTip";
+import Options from "../../Options/Options";
 
 interface Props {
   item: FavoriteObj;
@@ -17,14 +18,29 @@ interface Props {
 const FavoriteItemSpace = ({ item }: Props) => {
   const dispatch = useDispatch();
 
-  const [showIcons, setShowIcons] = useState(false);
+  const [showIcon, setShowIcon] = useState(false);
+  const [showOptions, setShowOptions] = useState(false);
+
+  const [lastCoords, setLastCoords] = useState({ x: 0, y: 0 });
+
   const [isCurrentSpace, setIsCurrentSpace] = useState(false);
+
+  useEffect(() => {
+    setShowOptions(showOptions);
+
+    if (showOptions === false) {
+      setShowIcon(false);
+    }
+  }, [showOptions]);
+
+  const optionsBtnRef = useRef<any>(null);
 
   return (
     <li
       className="fav-space-item noselect"
-      onMouseEnter={() => setShowIcons(true)}
-      onMouseLeave={() => setShowIcons(false)}
+      onMouseEnter={() => setShowIcon(true)}
+      onMouseOver={() => setShowIcon(true)}
+      onMouseLeave={() => !showOptions && setShowIcon(false)}
     >
       <CustomNavLink
         showUnderline={false}
@@ -35,9 +51,16 @@ const FavoriteItemSpace = ({ item }: Props) => {
           `/s/${item._id}/members`,
           `/s/${item._id}/settings`,
         ]}
-        onClick={() => {
-          dispatch(setCurrentActiveMenu(1));
-          dispatch(setCurrentActiveSpace(item._id));
+        onClick={(e: any) => {
+          if (
+            optionsBtnRef.current &&
+            optionsBtnRef.current.contains(e.target)
+          ) {
+            e.preventDefault();
+          } else {
+            dispatch(setCurrentActiveMenu(1));
+            dispatch(setCurrentActiveSpace(item._id));
+          }
         }}
       >
         <div
@@ -77,23 +100,32 @@ const FavoriteItemSpace = ({ item }: Props) => {
           </div>
 
           <div className="right text-gray-600 flex items-center">
-            {showIcons && (
+            <button
+              onClick={({ nativeEvent }) => {
+                setLastCoords({
+                  x: nativeEvent.pageX,
+                  y: nativeEvent.pageY,
+                });
+                setShowOptions(true);
+                setShowIcon(true);
+              }}
+              ref={optionsBtnRef}
+              data-tip="Space settings"
+              className={`mr-1 ${showIcon ? "block" : "hidden"}`}
+            >
+              <HiOutlineDotsHorizontal size={16} />
+            </button>
+            <CustomReactToolTip />
+
+            {!item.isGuestSpace && (
               <>
-                <button data-tip="Space settings" className="mr-1">
-                  <HiOutlineDotsHorizontal size={16} />
+                <button data-tip="Add Board">
+                  <HiOutlinePlus size={16} />
                 </button>
                 <CustomReactToolTip />
-
-                {!item.isGuestSpace && (
-                  <>
-                    <button data-tip="Add Board">
-                      <HiOutlinePlus size={16} />
-                    </button>
-                    <CustomReactToolTip />
-                  </>
-                )}
               </>
             )}
+
             {item.isGuestSpace && (
               <div className="icon text-slate-600">
                 <MdGroup data-tip="Guest Space" size={18} />
@@ -104,6 +136,30 @@ const FavoriteItemSpace = ({ item }: Props) => {
           </div>
         </div>
       </CustomNavLink>
+
+      <Options
+        show={showOptions}
+        setShow={setShowOptions}
+        x={lastCoords.x}
+        y={lastCoords.y}
+      >
+        <ul
+          className={`options block bg-white rounded shadow-lg top-0 -left-4`}
+          style={{
+            minWidth: "150px",
+          }}
+        >
+          <li className="p-2 hover:bg-slate-400 rounded-t">Option 1</li>
+          <li className="p-2 hover:bg-slate-400">Option 1</li>
+          <li className="p-2 hover:bg-slate-400">Option 1</li>
+          <li className="p-2 hover:bg-slate-400 rounded-b">Option 1</li>
+          <li className="p-2 hover:bg-slate-400 rounded-b">Option 1</li>
+          <li className="p-2 hover:bg-slate-400 rounded-b">Option 1</li>
+          <li className="p-2 hover:bg-slate-400 rounded-b">Option 1</li>
+          <li className="p-2 hover:bg-slate-400 rounded-b">Option 1</li>
+          <li className="p-2 hover:bg-slate-400 rounded-b">Option 1</li>
+        </ul>
+      </Options>
     </li>
   );
 };
