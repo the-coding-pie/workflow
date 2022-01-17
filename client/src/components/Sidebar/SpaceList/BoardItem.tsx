@@ -1,14 +1,22 @@
 import React, { useRef, useState } from "react";
 import { BoardObj } from "../../../types";
-import { HiOutlineDotsHorizontal } from "react-icons/hi";
+import {
+  HiOutlineCog,
+  HiOutlineDotsHorizontal,
+  HiOutlinePencil,
+  HiOutlineShare,
+  HiOutlineStar,
+  HiOutlineTrash,
+} from "react-icons/hi";
 import { NavLink } from "react-router-dom";
 import { useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { setCurrentActiveSpace } from "../../../redux/features/spaceMenu";
+import { useDispatch } from "react-redux";
 import { setCurrentActiveMenu } from "../../../redux/features/sidebarMenu";
-import { RootState } from "../../../redux/app";
 import CustomReactToolTip from "../../CustomReactToolTip/CustomReactToolTip";
 import Options from "../../Options/Options";
+import OptionsItem from "../../Options/OptionsItem";
+import { BOARD_ROLES } from "../../../types/constants";
+import { setCurrentActiveSpace } from "../../../redux/features/spaceMenu";
 
 interface Props {
   board: BoardObj;
@@ -108,22 +116,80 @@ const BoardItem = ({ board, setShowPlusIcon, setShowBoardOptions }: Props) => {
         x={lastCoords.x}
         y={lastCoords.y}
       >
-        <ul
-          className={`options block bg-white rounded shadow-lg top-0 -left-4`}
-          style={{
-            minWidth: "150px",
-          }}
-        >
-          <li className="p-2 hover:bg-slate-400 rounded-t">Option 1</li>
-          <li className="p-2 hover:bg-slate-400">Option 1</li>
-          <li className="p-2 hover:bg-slate-400">Option 1</li>
-          <li className="p-2 hover:bg-slate-400 rounded-b">Option 1</li>
-          <li className="p-2 hover:bg-slate-400 rounded-b">Option 1</li>
-          <li className="p-2 hover:bg-slate-400 rounded-b">Option 1</li>
-          <li className="p-2 hover:bg-slate-400 rounded-b">Option 1</li>
-          <li className="p-2 hover:bg-slate-400 rounded-b">Option 1</li>
-          <li className="p-2 hover:bg-slate-400 rounded-b">Option 1</li>
-        </ul>
+        {board.role === BOARD_ROLES.VIEWER ? (
+          <>
+            {board.isFavorite ? (
+              <OptionsItem
+                key="Unfavorite"
+                Icon={HiOutlineStar}
+                text="Unfavorite"
+                onClick={() => {}}
+                iconFillColor="#fbbf24"
+                iconColor="#fbbf24"
+              />
+            ) : (
+              <OptionsItem
+                key="Favorite"
+                Icon={HiOutlineStar}
+                text="Favorite"
+                onClick={() => {}}
+              />
+            )}
+          </>
+        ) : (
+          <>
+            {board.isFavorite ? (
+              <OptionsItem
+                key="Unfavorite"
+                Icon={HiOutlineStar}
+                text="Unfavorite"
+                onClick={() => {}}
+                iconFillColor="#fbbf24"
+                iconColor="#fbbf24"
+              />
+            ) : (
+              <OptionsItem
+                key="Favorite"
+                Icon={HiOutlineStar}
+                text="Favorite"
+                onClick={() => {}}
+              />
+            )}
+
+            <OptionsItem
+              key="Invite"
+              Icon={HiOutlineShare}
+              text="Invite"
+              onClick={() => {}}
+            />
+
+            {board.role === BOARD_ROLES.ADMIN && (
+              <OptionsItem
+                key="Rename"
+                Icon={HiOutlinePencil}
+                text="Rename"
+                onClick={() => {}}
+              />
+            )}
+            {board.role === BOARD_ROLES.ADMIN && (
+              <OptionsItem
+                key="Delete"
+                Icon={HiOutlineTrash}
+                text="Delete"
+                iconColor="#f87171"
+                textColor="#f87171"
+                onClick={() => {}}
+              />
+            )}
+
+            <OptionsItem
+              key="Settings"
+              Icon={HiOutlineCog}
+              text="Settings"
+              onClick={() => {}}
+            />
+          </>
+        )}
       </Options>
     </li>
   );

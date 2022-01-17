@@ -2,7 +2,11 @@ import React, { useRef, useState } from "react";
 import { useDispatch } from "react-redux";
 import { FavoriteObj } from "../../../types";
 import Avatar from "react-avatar";
-import { HiOutlineDotsHorizontal, HiOutlinePlus } from "react-icons/hi";
+import {
+  HiOutlineDotsHorizontal,
+  HiOutlinePlus,
+  HiOutlineStar,
+} from "react-icons/hi";
 import CustomNavLink from "../../CustomNavLink/CustomNavLink";
 import { setCurrentActiveSpace } from "../../../redux/features/spaceMenu";
 import { setCurrentActiveMenu } from "../../../redux/features/sidebarMenu";
@@ -10,6 +14,8 @@ import { MdGroup } from "react-icons/md";
 import { useEffect } from "react";
 import CustomReactToolTip from "../../CustomReactToolTip/CustomReactToolTip";
 import Options from "../../Options/Options";
+import { SPACE_ROLES } from "../../../types/constants";
+import OptionsItem from "../../Options/OptionsItem";
 
 interface Props {
   item: FavoriteObj;
@@ -117,7 +123,7 @@ const FavoriteItemSpace = ({ item }: Props) => {
             </button>
             <CustomReactToolTip />
 
-            {!item.isGuestSpace && (
+            {item.role !== SPACE_ROLES.GUEST && (
               <>
                 <button data-tip="Add Board">
                   <HiOutlinePlus size={16} />
@@ -126,7 +132,7 @@ const FavoriteItemSpace = ({ item }: Props) => {
               </>
             )}
 
-            {item.isGuestSpace && (
+            {item.role === SPACE_ROLES.GUEST && (
               <div className="icon text-slate-600">
                 <MdGroup data-tip="Guest Space" size={18} />
 
@@ -143,22 +149,14 @@ const FavoriteItemSpace = ({ item }: Props) => {
         x={lastCoords.x}
         y={lastCoords.y}
       >
-        <ul
-          className={`options block bg-white rounded shadow-lg top-0 -left-4`}
-          style={{
-            minWidth: "150px",
-          }}
-        >
-          <li className="p-2 hover:bg-slate-400 rounded-t">Option 1</li>
-          <li className="p-2 hover:bg-slate-400">Option 1</li>
-          <li className="p-2 hover:bg-slate-400">Option 1</li>
-          <li className="p-2 hover:bg-slate-400 rounded-b">Option 1</li>
-          <li className="p-2 hover:bg-slate-400 rounded-b">Option 1</li>
-          <li className="p-2 hover:bg-slate-400 rounded-b">Option 1</li>
-          <li className="p-2 hover:bg-slate-400 rounded-b">Option 1</li>
-          <li className="p-2 hover:bg-slate-400 rounded-b">Option 1</li>
-          <li className="p-2 hover:bg-slate-400 rounded-b">Option 1</li>
-        </ul>
+        <OptionsItem
+          key="Unfavorite"
+          Icon={HiOutlineStar}
+          text="Unfavorite"
+          onClick={() => {}}
+          iconFillColor="#fbbf24"
+          iconColor="#fbbf24"
+        />
       </Options>
     </li>
   );

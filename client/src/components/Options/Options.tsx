@@ -15,6 +15,13 @@ const Options: React.FC<Props> = ({ children, show, setShow, x, y }) => {
 
   useEffect(() => {
     setIsSet(true);
+
+    document.body.style.overflow = "hidden";
+
+    return () => {
+      document.body.style.overflowX = "hidden";
+      document.body.style.overflowY = "auto";
+    };
   }, []);
 
   const optionsBoxRef = useClose(() => setShow(false));
@@ -35,9 +42,9 @@ const Options: React.FC<Props> = ({ children, show, setShow, x, y }) => {
           ref={optionsBoxRef}
           className="z-50 absolute options block bg-white rounded shadow-lg"
           style={{
-            left: x,
-            top: y,
-            minWidth: "150px"
+            left: x - 20,
+            top: y - 20,
+            minWidth: "150px",
           }}
         >
           {children}

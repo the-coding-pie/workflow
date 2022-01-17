@@ -1,14 +1,13 @@
 import {
-  ADMIN,
   BOARD,
+  BOARD_ROLES,
   CREATE_SPACE_MODAL,
   DEFAULT,
   ERROR,
   INFO,
-  NORMAL,
   SPACE,
+  SPACE_ROLES,
   SUCCESS,
-  VIEWER,
   WARNING,
 } from "./constants";
 
@@ -26,7 +25,10 @@ export interface FavoriteObj {
   name: string;
   spaceId?: string;
   type: typeof SPACE | typeof BOARD;
-  isGuestSpace?: boolean;
+  role:
+    | typeof SPACE_ROLES.ADMIN
+    | typeof SPACE_ROLES.NORMAL
+    | typeof SPACE_ROLES.GUEST;
   icon?: string;
   color?: string;
 }
@@ -35,15 +37,26 @@ export interface SpaceObj {
   _id: string;
   name: string;
   icon: string | null;
-  isGuestSpace: boolean;
+  isFavorite: boolean;
+  role:
+    | typeof SPACE_ROLES.ADMIN
+    | typeof SPACE_ROLES.NORMAL
+    | typeof SPACE_ROLES.GUEST
+    | typeof BOARD_ROLES.ADMIN
+    | typeof BOARD_ROLES.NORMAL
+    | typeof BOARD_ROLES.VIEWER;
   boards: BoardObj[];
 }
 
 export interface BoardObj {
   _id: string;
   name: string;
+  isFavorite: boolean;
   color: string;
-  role: typeof ADMIN | typeof NORMAL | typeof VIEWER,
+  role:
+    | typeof BOARD_ROLES.ADMIN
+    | typeof BOARD_ROLES.NORMAL
+    | typeof BOARD_ROLES.VIEWER;
   img?: string;
   spaceId: string;
 }

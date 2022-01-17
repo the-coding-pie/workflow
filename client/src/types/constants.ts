@@ -12,7 +12,16 @@ export const CREATE_SPACE_MODAL = "CREATE_SPACE_MODAL";
 export const SPACE = "SPACE";
 export const BOARD = "BOARD";
 
-// ROLES
-export const ADMIN = "ADMIN";
-export const NORMAL = "NORMAL";
-export const VIEWER = "VIEWER";
+// SPACE ROLES
+export const SPACE_ROLES = {
+  ADMIN: "ADMIN",
+  NORMAL: "NORMAL",
+  GUEST: "GUEST",
+};
+
+// SPACE ROLES
+export const BOARD_ROLES = {
+  ADMIN: "ADMIN",
+  NORMAL: "NORMAL",
+  VIEWER: "VIEWER",
+};

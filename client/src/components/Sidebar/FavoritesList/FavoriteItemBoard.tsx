@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { BoardObj, FavoriteObj } from "../../../types";
-import { HiOutlineDotsHorizontal } from "react-icons/hi";
+import { HiOutlineDotsHorizontal, HiOutlineStar } from "react-icons/hi";
 import { NavLink } from "react-router-dom";
 import { setCurrentActiveMenu } from "../../../redux/features/sidebarMenu";
 import { useDispatch } from "react-redux";
@@ -8,6 +8,7 @@ import { setCurrentActiveSpace } from "../../../redux/features/spaceMenu";
 import CustomReactToolTip from "../../CustomReactToolTip/CustomReactToolTip";
 import { useRef } from "react";
 import Options from "../../Options/Options";
+import OptionsItem from "../../Options/OptionsItem";
 
 interface Props {
   item: FavoriteObj;
@@ -99,22 +100,14 @@ const FavoriteItemBoard = ({ item }: Props) => {
         x={lastCoords.x}
         y={lastCoords.y}
       >
-        <ul
-          className={`options block bg-white rounded shadow-lg top-0 -left-4`}
-          style={{
-            minWidth: "150px",
-          }}
-        >
-          <li className="p-2 hover:bg-slate-400 rounded-t">Option 1</li>
-          <li className="p-2 hover:bg-slate-400">Option 1</li>
-          <li className="p-2 hover:bg-slate-400">Option 1</li>
-          <li className="p-2 hover:bg-slate-400 rounded-b">Option 1</li>
-          <li className="p-2 hover:bg-slate-400 rounded-b">Option 1</li>
-          <li className="p-2 hover:bg-slate-400 rounded-b">Option 1</li>
-          <li className="p-2 hover:bg-slate-400 rounded-b">Option 1</li>
-          <li className="p-2 hover:bg-slate-400 rounded-b">Option 1</li>
-          <li className="p-2 hover:bg-slate-400 rounded-b">Option 1</li>
-        </ul>
+        <OptionsItem
+          key="Unfavorite"
+          Icon={HiOutlineStar}
+          text="Unfavorite"
+          onClick={() => {}}
+          iconFillColor="#fbbf24"
+          iconColor="#fbbf24"
+        />
       </Options>
     </li>
   );

@@ -7,6 +7,12 @@ import {
   HiOutlineDotsHorizontal,
   HiOutlinePlus,
   HiOutlineStar,
+  HiOutlineShare,
+  HiPencilAlt,
+  HiOutlineTrash,
+  HiCog,
+  HiOutlineCog,
+  HiOutlinePencil,
 } from "react-icons/hi";
 import BoardList from "./BoardList";
 import { useLocation } from "react-router-dom";
@@ -20,6 +26,7 @@ import { setCurrentActiveMenu } from "../../../redux/features/sidebarMenu";
 import CustomReactToolTip from "../../CustomReactToolTip/CustomReactToolTip";
 import Options from "../../Options/Options";
 import OptionsItem from "../../Options/OptionsItem";
+import { SPACE_ROLES } from "../../../types/constants";
 
 interface Props {
   space: SpaceObj;
@@ -192,7 +199,9 @@ const SpaceItem = ({ space }: Props) => {
 
             <button
               className={`${
-                showPlusIcon && !space.isGuestSpace ? "block" : "hidden"
+                showPlusIcon && space.role !== SPACE_ROLES.GUEST
+                  ? "block"
+                  : "hidden"
               }`}
               data-tip="Add Board"
             >
@@ -201,7 +210,7 @@ const SpaceItem = ({ space }: Props) => {
             <CustomReactToolTip />
           </>
 
-          {space.isGuestSpace && (
+          {space.role === SPACE_ROLES.GUEST && (
             <div className="icon text-slate-600">
               <MdGroup
                 data-tip="Guest Space"
@@ -230,24 +239,86 @@ const SpaceItem = ({ space }: Props) => {
         x={lastCoords.x}
         y={lastCoords.y}
       >
-        <OptionsItem
-          key="Add Board"
-          Icon={HiOutlinePlus}
-          text="Add Board"
-          onClick={() => {}}
-        />
-         <OptionsItem
-          key="Favorite"
-          Icon={HiOutlineStar}
-          text="Favorite"
-          onClick={() => {}}
-        />
-         <OptionsItem
-          key="Favorite"
-          Icon={HiOutlineStar}
-          text="Favorite"
-          onClick={() => {}}
-        />
+        {space.role === SPACE_ROLES.GUEST ? (
+          <>
+            {space.isFavorite ? (
+              <OptionsItem
+                key="Unfavorite"
+                Icon={HiOutlineStar}
+                text="Unfavorite"
+                onClick={() => {}}
+                iconFillColor="#fbbf24"
+                iconColor="#fbbf24"
+              />
+            ) : (
+              <OptionsItem
+                key="Favorite"
+                Icon={HiOutlineStar}
+                text="Favorite"
+                onClick={() => {}}
+              />
+            )}
+          </>
+        ) : (
+          <>
+            <OptionsItem
+              key="Add Board"
+              Icon={HiOutlinePlus}
+              text="Add Board"
+              onClick={() => {}}
+            />
+            {space.isFavorite ? (
+              <OptionsItem
+                key="Unfavorite"
+                Icon={HiOutlineStar}
+                text="Unfavorite"
+                onClick={() => {}}
+                iconFillColor="#fbbf24"
+                iconColor="#fbbf24"
+              />
+            ) : (
+              <OptionsItem
+                key="Favorite"
+                Icon={HiOutlineStar}
+                text="Favorite"
+                onClick={() => {}}
+              />
+            )}
+            {space.role === SPACE_ROLES.ADMIN && (
+              <OptionsItem
+                key="Invite"
+                Icon={HiOutlineShare}
+                text="Invite"
+                onClick={() => {}}
+              />
+            )}
+            {space.role === SPACE_ROLES.ADMIN && (
+              <OptionsItem
+                key="Rename"
+                Icon={HiOutlinePencil}
+                text="Rename"
+                onClick={() => {}}
+              />
+            )}
+            {space.role === SPACE_ROLES.ADMIN && (
+              <OptionsItem
+                key="Delete"
+                Icon={HiOutlineTrash}
+                text="Delete"
+                iconColor="#f87171"
+                textColor="#f87171"
+                onClick={() => {}}
+              />
+            )}
+
+            <OptionsItem
+              key="Settings"
+              Icon={HiOutlineCog}
+              text="Settings"
+              onClick={() => {}}
+            />
+          </>
+        )}
       </Options>
     </li>
   );
