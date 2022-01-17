@@ -44,7 +44,7 @@ export interface SpaceObj {
     | typeof SPACE_ROLES.GUEST
     | typeof BOARD_ROLES.ADMIN
     | typeof BOARD_ROLES.NORMAL
-    | typeof BOARD_ROLES.VIEWER;
+    | typeof BOARD_ROLES.OBSERVER;
   boards: BoardObj[];
 }
 
@@ -56,7 +56,7 @@ export interface BoardObj {
   role:
     | typeof BOARD_ROLES.ADMIN
     | typeof BOARD_ROLES.NORMAL
-    | typeof BOARD_ROLES.VIEWER;
+    | typeof BOARD_ROLES.OBSERVER;
   img?: string;
   spaceId: string;
 }

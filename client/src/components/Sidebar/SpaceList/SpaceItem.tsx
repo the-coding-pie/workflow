@@ -27,6 +27,7 @@ import CustomReactToolTip from "../../CustomReactToolTip/CustomReactToolTip";
 import Options from "../../Options/Options";
 import OptionsItem from "../../Options/OptionsItem";
 import { SPACE_ROLES } from "../../../types/constants";
+import OptionsHR from "../../Options/OptionsHR";
 
 interface Props {
   space: SpaceObj;
@@ -284,14 +285,7 @@ const SpaceItem = ({ space }: Props) => {
                 onClick={() => {}}
               />
             )}
-            {space.role === SPACE_ROLES.ADMIN && (
-              <OptionsItem
-                key="Invite"
-                Icon={HiOutlineShare}
-                text="Invite"
-                onClick={() => {}}
-              />
-            )}
+
             {space.role === SPACE_ROLES.ADMIN && (
               <OptionsItem
                 key="Rename"
@@ -300,6 +294,16 @@ const SpaceItem = ({ space }: Props) => {
                 onClick={() => {}}
               />
             )}
+            <OptionsHR />
+            {space.role === SPACE_ROLES.ADMIN && (
+              <OptionsItem
+                key="Invite"
+                Icon={HiOutlineShare}
+                text="Invite"
+                onClick={() => {}}
+              />
+            )}
+
             {space.role === SPACE_ROLES.ADMIN && (
               <OptionsItem
                 key="Delete"
@@ -311,6 +315,7 @@ const SpaceItem = ({ space }: Props) => {
               />
             )}
 
+            <OptionsHR />
             <OptionsItem
               key="Settings"
               Icon={HiOutlineCog}

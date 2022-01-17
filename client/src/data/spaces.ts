@@ -36,7 +36,7 @@ const spaces: SpaceObj[] = [
       },
       {
         _id: "4",
-        role: BOARD_ROLES.VIEWER,
+        role: BOARD_ROLES.OBSERVER,
         name: "Board 2",
         isFavorite: false,
         color: "#5DBF48",
@@ -79,7 +79,7 @@ const spaces: SpaceObj[] = [
       {
         _id: "2",
         name: "Board 2",
-        role: BOARD_ROLES.VIEWER,
+        role: BOARD_ROLES.OBSERVER,
         color: "#5DBF48",
         isFavorite: false,
         spaceId: "1",
@@ -94,7 +94,7 @@ const spaces: SpaceObj[] = [
       },
       {
         _id: "4",
-        role: BOARD_ROLES.VIEWER,
+        role: BOARD_ROLES.OBSERVER,
         name: "Board 2",
         isFavorite: false,
         color: "#5DBF48",

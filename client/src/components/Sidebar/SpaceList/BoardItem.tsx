@@ -17,6 +17,7 @@ import Options from "../../Options/Options";
 import OptionsItem from "../../Options/OptionsItem";
 import { BOARD_ROLES } from "../../../types/constants";
 import { setCurrentActiveSpace } from "../../../redux/features/spaceMenu";
+import OptionsHR from "../../Options/OptionsHR";
 
 interface Props {
   board: BoardObj;
@@ -116,7 +117,7 @@ const BoardItem = ({ board, setShowPlusIcon, setShowBoardOptions }: Props) => {
         x={lastCoords.x}
         y={lastCoords.y}
       >
-        {board.role === BOARD_ROLES.VIEWER ? (
+        {board.role === BOARD_ROLES.OBSERVER ? (
           <>
             {board.isFavorite ? (
               <OptionsItem
@@ -156,13 +157,6 @@ const BoardItem = ({ board, setShowPlusIcon, setShowBoardOptions }: Props) => {
               />
             )}
 
-            <OptionsItem
-              key="Invite"
-              Icon={HiOutlineShare}
-              text="Invite"
-              onClick={() => {}}
-            />
-
             {board.role === BOARD_ROLES.ADMIN && (
               <OptionsItem
                 key="Rename"
@@ -171,6 +165,16 @@ const BoardItem = ({ board, setShowPlusIcon, setShowBoardOptions }: Props) => {
                 onClick={() => {}}
               />
             )}
+
+            <OptionsHR />
+
+            <OptionsItem
+              key="Invite"
+              Icon={HiOutlineShare}
+              text="Invite"
+              onClick={() => {}}
+            />
+
             {board.role === BOARD_ROLES.ADMIN && (
               <OptionsItem
                 key="Delete"
@@ -181,6 +185,8 @@ const BoardItem = ({ board, setShowPlusIcon, setShowBoardOptions }: Props) => {
                 onClick={() => {}}
               />
             )}
+
+            <OptionsHR />
 
             <OptionsItem
               key="Settings"

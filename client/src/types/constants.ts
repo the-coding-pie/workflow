@@ -23,5 +23,5 @@ export const SPACE_ROLES = {
 export const BOARD_ROLES = {
   ADMIN: "ADMIN",
   NORMAL: "NORMAL",
-  VIEWER: "VIEWER",
+  OBSERVER: "OBSERVER",
 };
