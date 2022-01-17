@@ -6,6 +6,7 @@ import {
   HiChevronDown,
   HiOutlineDotsHorizontal,
   HiOutlinePlus,
+  HiOutlineStar,
 } from "react-icons/hi";
 import BoardList from "./BoardList";
 import { useLocation } from "react-router-dom";
@@ -18,6 +19,7 @@ import { useEffect } from "react";
 import { setCurrentActiveMenu } from "../../../redux/features/sidebarMenu";
 import CustomReactToolTip from "../../CustomReactToolTip/CustomReactToolTip";
 import Options from "../../Options/Options";
+import OptionsItem from "../../Options/OptionsItem";
 
 interface Props {
   space: SpaceObj;
@@ -228,22 +230,24 @@ const SpaceItem = ({ space }: Props) => {
         x={lastCoords.x}
         y={lastCoords.y}
       >
-        <ul
-          className={`options block bg-white rounded shadow-lg top-0 -left-4`}
-          style={{
-            minWidth: "150px",
-          }}
-        >
-          <li className="p-2 hover:bg-slate-400 rounded-t">Option 1</li>
-          <li className="p-2 hover:bg-slate-400">Option 1</li>
-          <li className="p-2 hover:bg-slate-400">Option 1</li>
-          <li className="p-2 hover:bg-slate-400 rounded-b">Option 1</li>
-          <li className="p-2 hover:bg-slate-400 rounded-b">Option 1</li>
-          <li className="p-2 hover:bg-slate-400 rounded-b">Option 1</li>
-          <li className="p-2 hover:bg-slate-400 rounded-b">Option 1</li>
-          <li className="p-2 hover:bg-slate-400 rounded-b">Option 1</li>
-          <li className="p-2 hover:bg-slate-400 rounded-b">Option 1</li>
-        </ul>
+        <OptionsItem
+          key="Add Board"
+          Icon={HiOutlinePlus}
+          text="Add Board"
+          onClick={() => {}}
+        />
+         <OptionsItem
+          key="Favorite"
+          Icon={HiOutlineStar}
+          text="Favorite"
+          onClick={() => {}}
+        />
+         <OptionsItem
+          key="Favorite"
+          Icon={HiOutlineStar}
+          text="Favorite"
+          onClick={() => {}}
+        />
       </Options>
     </li>
   );
