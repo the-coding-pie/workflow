@@ -6,6 +6,8 @@ import { checkAllString, getUniqueValues } from "../utils/helpers";
 import validator from "validator";
 import { SPACE_MEMBER_ROLES } from "../types/constants";
 
+// GET /spaces -> get space and its corresponding boards
+
 // POST /spaces -> create a new space
 export const createSpace = async (req: any, res: Response) => {
   try {
@@ -116,7 +118,6 @@ export const createSpace = async (req: any, res: Response) => {
       statusCode: 201,
     });
   } catch (err) {
-    console.log(err);
     res.status(500).send({
       success: false,
       data: {},
