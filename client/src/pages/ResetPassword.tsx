@@ -106,9 +106,6 @@ const ResetPassword = () => {
                 navigate("/forgot-password", { replace: true });
               }
               break;
-            case 401:
-              dispatch(logoutUser());
-              break;
             case 400:
             case 500:
               dispatch(addToast({ kind: ERROR, msg: message }));

@@ -70,7 +70,11 @@ axios.interceptors.response.use(
     }
 
     // if retried request failed with 401 status
-    if (error.response.status === 401 && originalRequest._retry) {
+    if (
+      error.response.status === 401 &&
+      originalRequest._retry &&
+      !originalRequest.url.includes("login")
+    ) {
       // doesn't stops here, but also shows all the toast below due to Promise reject at the bottom
       return store.dispatch(logoutUser());
     }

@@ -82,9 +82,6 @@ const CreateSpaceModal = () => {
           const { message } = response.data;
 
           switch (response.status) {
-            case 401:
-              dispatch(logoutUser());
-              break;
             case 400:
             case 500:
               dispatch(addToast({ kind: ERROR, msg: message }));

@@ -54,7 +54,6 @@ const MainLayout = () => {
   //     const response = error.response;
 
   //     if (response.status === 401) {
-  //       console.log('ye')
   //       dispatch(logoutUser());
   //       return <></>;
   //     }
