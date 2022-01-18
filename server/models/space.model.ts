@@ -24,15 +24,18 @@ const spaceSchema = new mongoose.Schema(
       required: true,
       minlength: 1,
       maxlength: 100,
+      trim: true,
     },
     description: {
       type: String,
       required: false,
       maxlength: 255,
+      trim: true,
     },
     icon: {
       type: String,
       required: false,
+      trim: true,
     },
     boards: {
       type: [

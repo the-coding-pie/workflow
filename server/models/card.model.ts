@@ -8,6 +8,7 @@ const cardSchema = new mongoose.Schema(
       required: true,
       minlength: 1,
       maxlength: 512,
+      trim: true,
     },
     listId: {
       type: mongoose.Schema.Types.ObjectId,
@@ -17,19 +18,23 @@ const cardSchema = new mongoose.Schema(
     description: {
       type: String,
       required: false,
+      trim: true,
     },
     cover: {
       type: String,
       required: false,
-      validator: function (value: string) {
-        return (
-          value.startsWith("#", 0) ||
-          validator.isURL(value, {
-            require_protocol: true,
-          })
-        );
+      validate: {
+        validator: function (value: string) {
+          return (
+            (value.startsWith("#", 0) && value.length === 7) ||
+            validator.isURL(value, {
+              require_protocol: true,
+            })
+          );
+        },
+        message: `Invalid value for cover`,
       },
-      message: `Invalid value for cover`,
+      trim: true,
     },
     creator: {
       type: mongoose.Schema.Types.ObjectId,

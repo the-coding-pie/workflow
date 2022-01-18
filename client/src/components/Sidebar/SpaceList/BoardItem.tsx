@@ -141,32 +141,33 @@ const BoardItem = ({ board, setShowPlusIcon, setShowBoardOptions }: Props) => {
           <>
             {board.isFavorite ? (
               <OptionsItem
-                key="Unfavorite"
+                key="Unfavorite 2"
                 Icon={HiOutlineStar}
-                text="Unfavorite"
+                text="Unfavorite 2"
                 onClick={() => {}}
                 iconFillColor="#fbbf24"
                 iconColor="#fbbf24"
               />
             ) : (
               <OptionsItem
-                key="Favorite"
+                key="Favorite 2"
                 Icon={HiOutlineStar}
-                text="Favorite"
+                text="Favorite 2"
                 onClick={() => {}}
               />
             )}
 
             {board.role === BOARD_ROLES.ADMIN && (
-              <OptionsItem
-                key="Rename"
-                Icon={HiOutlinePencil}
-                text="Rename"
-                onClick={() => {}}
-              />
+              <>
+                <OptionsItem
+                  key="Rename"
+                  Icon={HiOutlinePencil}
+                  text="Rename"
+                  onClick={() => {}}
+                />
+                <OptionsHR />
+              </>
             )}
-
-            <OptionsHR />
 
             <OptionsItem
               key="Invite"
@@ -176,17 +177,18 @@ const BoardItem = ({ board, setShowPlusIcon, setShowBoardOptions }: Props) => {
             />
 
             {board.role === BOARD_ROLES.ADMIN && (
-              <OptionsItem
-                key="Delete"
-                Icon={HiOutlineTrash}
-                text="Delete"
-                iconColor="#f87171"
-                textColor="#f87171"
-                onClick={() => {}}
-              />
+              <>
+                <OptionsItem
+                  key="Delete"
+                  Icon={HiOutlineTrash}
+                  text="Delete"
+                  iconColor="#f87171"
+                  textColor="#f87171"
+                  onClick={() => {}}
+                />
+                <OptionsHR />
+              </>
             )}
-
-            <OptionsHR />
 
             <OptionsItem
               key="Settings"

@@ -244,18 +244,18 @@ const SpaceItem = ({ space }: Props) => {
           <>
             {space.isFavorite ? (
               <OptionsItem
-                key="Unfavorite"
+                key="Unfavorite 2"
                 Icon={HiOutlineStar}
-                text="Unfavorite"
+                text="Unfavorite 2"
                 onClick={() => {}}
                 iconFillColor="#fbbf24"
                 iconColor="#fbbf24"
               />
             ) : (
               <OptionsItem
-                key="Favorite"
+                key="Favorite 2"
                 Icon={HiOutlineStar}
-                text="Favorite"
+                text="Favorite 2"
                 onClick={() => {}}
               />
             )}
@@ -305,17 +305,20 @@ const SpaceItem = ({ space }: Props) => {
             )}
 
             {space.role === SPACE_ROLES.ADMIN && (
-              <OptionsItem
-                key="Delete"
-                Icon={HiOutlineTrash}
-                text="Delete"
-                iconColor="#f87171"
-                textColor="#f87171"
-                onClick={() => {}}
-              />
+              <>
+                <OptionsItem
+                  key="Delete"
+                  Icon={HiOutlineTrash}
+                  text="Delete"
+                  iconColor="#f87171"
+                  textColor="#f87171"
+                  onClick={() => {}}
+                />
+
+                <OptionsHR />
+              </>
             )}
 
-            <OptionsHR />
             <OptionsItem
               key="Settings"
               Icon={HiOutlineCog}

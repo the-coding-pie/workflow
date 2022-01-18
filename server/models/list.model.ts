@@ -7,6 +7,7 @@ const listSchema = new mongoose.Schema(
       required: true,
       minlength: 1,
       maxlength: 512,
+      trim: true,
     },
     boardId: {
       type: mongoose.Schema.Types.ObjectId,

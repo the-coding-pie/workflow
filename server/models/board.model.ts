@@ -2,23 +2,26 @@ import mongoose from "mongoose";
 import validator from "validator";
 import { BOARD_MEMBER_ROLES, BOARD_VISIBILITY } from "../types/constants";
 
-const boardMemberSchema = new mongoose.Schema({
-  memberId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "User",
-    required: true,
+const boardMemberSchema = new mongoose.Schema(
+  {
+    memberId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    },
+    role: {
+      type: String,
+      enum: Object.values(BOARD_MEMBER_ROLES),
+      default: BOARD_MEMBER_ROLES.NORMAL,
+    },
+    adminGrantedRole: {
+      type: String,
+      enum: [...Object.values(BOARD_MEMBER_ROLES)],
+      required: false,
+    },
   },
-  role: {
-    type: String,
-    enum: Object.values(BOARD_MEMBER_ROLES),
-    default: BOARD_MEMBER_ROLES.NORMAL,
-  },
-  adminGrantedRole: {
-    type: String,
-    enum: [...Object.values(BOARD_MEMBER_ROLES), null],
-    default: null,
-  },
-});
+  { _id: false }
+);
 
 const boardSchema = new mongoose.Schema(
   {
@@ -27,11 +30,17 @@ const boardSchema = new mongoose.Schema(
       required: true,
       minlength: 1,
       maxlength: 512,
+      trim: true,
     },
     visibility: {
       type: String,
       enum: Object.values(BOARD_VISIBILITY),
       default: BOARD_VISIBILITY.PUBLIC,
+    },
+    description: {
+      type: String,
+      required: false,
+      trim: true,
     },
     bgImg: {
       type: String,
@@ -44,10 +53,12 @@ const boardSchema = new mongoose.Schema(
         },
         message: `Invalid Image URL`,
       },
+      trim: true,
     },
     color: {
       type: String,
       required: true,
+      trim: true,
     },
     isFavorite: {
       type: Boolean,

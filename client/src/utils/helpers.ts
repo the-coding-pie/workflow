@@ -34,6 +34,7 @@ export const checkTokens = (): boolean => {
         return false;
       }
     }
+    
     // valid token
     return true;
   } catch (e) {
