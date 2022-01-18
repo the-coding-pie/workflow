@@ -80,3 +80,9 @@ export interface ModalObj {
   bgColor?: string;
   textColor?: string;
 }
+
+// select drop down option type
+export interface Option {
+  value: string;
+  label: string;
+}
