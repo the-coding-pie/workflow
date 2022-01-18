@@ -27,11 +27,7 @@ const Login = () => {
 
   const validationSchema = Yup.object({
     email: Yup.string().email("Invalid Email").required("Email is required"),
-    password: Yup.string()
-      .min(8, "Password should be min 8 chars long")
-      .matches(/\d/, "Password must contain at least one number")
-      .matches(/[a-zA-Z]/, "Password must contain at least one letter")
-      .required("Password is required"),
+    password: Yup.string().required("Password is required"),
   });
 
   const handleSubmit = useCallback((user: UserObj) => {
