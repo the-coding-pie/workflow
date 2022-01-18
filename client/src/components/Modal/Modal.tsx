@@ -60,7 +60,7 @@ const Modal = ({
           className={`relative rounded modal flex flex-col`}
           style={{
             minWidth: "34rem",
-            maxWidth: "80%",
+            maxWidth: "97%",
             background: bgColor ? bgColor : "#ffffff",
             color: textColor ? textColor : "inherit",
           }}
@@ -81,7 +81,7 @@ const Modal = ({
             </div>
           )}
 
-          <div className={`${showCloseBtn ? "mr-6" : ""}`}>
+          <div className={`${showCloseBtn ? "mr-4" : ""}`}>
             {/* desctucturing undefinded value inside object, it will ignore */}
             
             {Component !== null && <Component {...modalProps} />}

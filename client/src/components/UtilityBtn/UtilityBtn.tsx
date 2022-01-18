@@ -5,6 +5,7 @@ interface Props {
   Icon: IconType;
   label: string;
   classes?: string;
+  iconSize?: number;
   iconClasses?: string;
   isSubmitting?: boolean;
   onClick: Function;
@@ -15,6 +16,7 @@ const UtilityBtn = ({
   Icon,
   label,
   classes,
+  iconSize = 18,
   iconClasses,
   onClick,
   isSubmitting = false,
@@ -29,14 +31,14 @@ const UtilityBtn = ({
         aria-label={label}
         onClick={(e) => onClick()}
         className={`
-       flex items-center justify-center disabled:opacity-30 mr-2 ${
+       flex items-center justify-center disabled:opacity-30 ${
          isSubmitting === false
            ? `hover:bg-${color}-50 hover:border-${color}-200 hover:text-${color}-600`
            : ``
        }   ${classes}`}
         disabled={isSubmitting ? true : false}
       >
-        <Icon className={`icon ${iconClasses}`} />
+        <Icon size={iconSize} className={`icon ${iconClasses}`} />
       </button>
       {label && (
         <ReactTooltip

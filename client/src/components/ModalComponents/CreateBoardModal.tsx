@@ -37,11 +37,12 @@ const CreateBoardModal = ({ spaceId }: Props) => {
   const boardVisibilityOptions = [
     {
       value: BOARD_VISIBILITY_TYPES.PUBLIC,
-      label: "Public workspace",
+      label: "Public - All members of this workspace can see & edit this board",
     },
     {
       value: BOARD_VISIBILITY_TYPES.PRIVATE,
-      label: "Private Workspace",
+      label:
+        "Private - Board members and workspace admins can see & edit this board",
     },
   ];
 
@@ -99,12 +100,7 @@ const CreateBoardModal = ({ spaceId }: Props) => {
       validationSchema={validationSchema}
       onSubmit={(value) => handleSubmit(value)}
     >
-      <Form
-        className="p-4 pl-8 pb-6 mt-6"
-        style={{
-          maxWidth: "48rem",
-        }}
-      >
+      <Form className="p-4 pl-6 pb-6 mt-6">
         {/* bg & color */}
         <Input
           label="Board title"

@@ -141,18 +141,18 @@ const BoardItem = ({ board, setShowPlusIcon, setShowBoardOptions }: Props) => {
           <>
             {board.isFavorite ? (
               <OptionsItem
-                key="Unfavorite 2"
+                key="Unfavorite"
                 Icon={HiOutlineStar}
-                text="Unfavorite 2"
+                text="Unfavorite"
                 onClick={() => {}}
                 iconFillColor="#fbbf24"
                 iconColor="#fbbf24"
               />
             ) : (
               <OptionsItem
-                key="Favorite 2"
+                key="Favorite"
                 Icon={HiOutlineStar}
-                text="Favorite 2"
+                text="Favorite"
                 onClick={() => {}}
               />
             )}

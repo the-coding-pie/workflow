@@ -66,6 +66,7 @@ const SpaceItem = ({ space }: Props) => {
 
   const ref = useRef<any>(null);
   const optionsBtnRef = useRef<any>(null);
+  const plusBtnRef = useRef<any>(null);
 
   return (
     <li
@@ -94,11 +95,13 @@ const SpaceItem = ({ space }: Props) => {
           // if options menu is closed, and click is not on options menu btn
           if (
             optionsBtnRef.current &&
-            !optionsBtnRef.current.contains(e.target)
+            !optionsBtnRef.current.contains(e.target) &&
+            plusBtnRef.current &&
+            !plusBtnRef.current.contains(e.target)
           ) {
             // when click, if it is in link, open it for the first time
             // no toggle
-            // if it is not on link and not on options btn
+            // if it is not on link and not on options btn, and not on plus btn
             if (ref.current && !ref.current.contains(e.target)) {
               // toggling
               dispatch(
@@ -180,46 +183,45 @@ const SpaceItem = ({ space }: Props) => {
           </div>
         </div>
         <div className="right text-gray-600 flex items-center">
-          <>
-            <button
-              ref={optionsBtnRef}
-              data-tip="Space settings"
-              onClick={({ nativeEvent }) => {
-                setLastCoords({
-                  x: nativeEvent.pageX,
-                  y: nativeEvent.pageY,
-                });
-                setShowOptions(true);
-                setShowPlusIcon(false);
-                setShowIcon(true);
-              }}
-              className={`mr-1 ${showIcon ? "block" : "hidden"}`}
-            >
-              <HiOutlineDotsHorizontal size={16} />
-            </button>
-            <CustomReactToolTip />
+          <button
+            ref={optionsBtnRef}
+            data-tip="Space settings"
+            onClick={({ nativeEvent }) => {
+              setLastCoords({
+                x: nativeEvent.pageX,
+                y: nativeEvent.pageY,
+              });
+              setShowOptions(true);
+              setShowPlusIcon(false);
+              setShowIcon(true);
+            }}
+            className={`mr-1 ${showIcon ? "block" : "hidden"}`}
+          >
+            <HiOutlineDotsHorizontal size={16} />
+          </button>
+          <CustomReactToolTip />
 
-            <button
-              type="button"
-              onClick={() =>
-                dispatch(
-                  showModal({
-                    modalType: CREATE_BOARD_MODAL,
-                    modalTitle: "Create Board",
-                  })
-                )
-              }
-              className={`${
-                showPlusIcon && space.role !== SPACE_ROLES.GUEST
-                  ? "block"
-                  : "hidden"
-              }`}
-              data-tip="Add Board"
-            >
-              <HiOutlinePlus size={16} />
-            </button>
-            <CustomReactToolTip />
-          </>
+          <button
+            type="button"
+            ref={plusBtnRef}
+            onClick={() =>
+              dispatch(
+                showModal({
+                  modalType: CREATE_BOARD_MODAL,
+                  modalTitle: "Create Board",
+                })
+              )
+            }
+            className={`${
+              showPlusIcon && space.role !== SPACE_ROLES.GUEST
+                ? "block"
+                : "hidden"
+            }`}
+            data-tip="Add Board"
+          >
+            <HiOutlinePlus size={16} />
+          </button>
+          <CustomReactToolTip />
 
           {space.role === SPACE_ROLES.GUEST && (
             <div className="icon text-slate-600">
@@ -254,18 +256,18 @@ const SpaceItem = ({ space }: Props) => {
           <>
             {space.isFavorite ? (
               <OptionsItem
-                key="Unfavorite 2"
+                key="Unfavorite"
                 Icon={HiOutlineStar}
-                text="Unfavorite 2"
+                text="Unfavorite"
                 onClick={() => {}}
                 iconFillColor="#fbbf24"
                 iconColor="#fbbf24"
               />
             ) : (
               <OptionsItem
-                key="Favorite 2"
+                key="Favorite"
                 Icon={HiOutlineStar}
-                text="Favorite 2"
+                text="Favorite"
                 onClick={() => {}}
               />
             )}
@@ -276,14 +278,15 @@ const SpaceItem = ({ space }: Props) => {
               key="Add Board"
               Icon={HiOutlinePlus}
               text="Add Board"
-              onClick={() =>
+              onClick={() => {
+                setShowOptions(false);
                 dispatch(
                   showModal({
                     modalType: CREATE_BOARD_MODAL,
                     modalTitle: "Create Board",
                   })
-                )
-              }
+                );
+              }}
             />
             {space.isFavorite ? (
               <OptionsItem

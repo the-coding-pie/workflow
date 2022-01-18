@@ -14,9 +14,8 @@ import { MdGroup } from "react-icons/md";
 import { useEffect } from "react";
 import CustomReactToolTip from "../../CustomReactToolTip/CustomReactToolTip";
 import Options from "../../Options/Options";
-import { CREATE_BOARD_MODAL, SPACE_ROLES } from "../../../types/constants";
+import { SPACE_ROLES } from "../../../types/constants";
 import OptionsItem from "../../Options/OptionsItem";
-import { showModal } from "../../../redux/features/modalSlice";
 
 interface Props {
   item: FavoriteObj;
@@ -123,26 +122,6 @@ const FavoriteItemSpace = ({ item }: Props) => {
               <HiOutlineDotsHorizontal size={16} />
             </button>
             <CustomReactToolTip />
-
-            {item.role !== SPACE_ROLES.GUEST && (
-              <>
-                <button
-                  type="button"
-                  data-tip="Add Board"
-                  onClick={() =>
-                    dispatch(
-                      showModal({
-                        modalType: CREATE_BOARD_MODAL,
-                        modalTitle: "Create Board",
-                      })
-                    )
-                  }
-                >
-                  <HiOutlinePlus size={16} />
-                </button>
-                <CustomReactToolTip />
-              </>
-            )}
 
             {item.role === SPACE_ROLES.GUEST && (
               <div className="icon text-slate-600">
