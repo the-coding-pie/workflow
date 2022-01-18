@@ -26,8 +26,9 @@ import { setCurrentActiveMenu } from "../../../redux/features/sidebarMenu";
 import CustomReactToolTip from "../../CustomReactToolTip/CustomReactToolTip";
 import Options from "../../Options/Options";
 import OptionsItem from "../../Options/OptionsItem";
-import { SPACE_ROLES } from "../../../types/constants";
+import { CREATE_BOARD_MODAL, SPACE_ROLES } from "../../../types/constants";
 import OptionsHR from "../../Options/OptionsHR";
+import { showModal } from "../../../redux/features/modalSlice";
 
 interface Props {
   space: SpaceObj;
@@ -199,6 +200,15 @@ const SpaceItem = ({ space }: Props) => {
             <CustomReactToolTip />
 
             <button
+              type="button"
+              onClick={() =>
+                dispatch(
+                  showModal({
+                    modalType: CREATE_BOARD_MODAL,
+                    modalTitle: "Create Board",
+                  })
+                )
+              }
               className={`${
                 showPlusIcon && space.role !== SPACE_ROLES.GUEST
                   ? "block"
@@ -266,7 +276,14 @@ const SpaceItem = ({ space }: Props) => {
               key="Add Board"
               Icon={HiOutlinePlus}
               text="Add Board"
-              onClick={() => {}}
+              onClick={() =>
+                dispatch(
+                  showModal({
+                    modalType: CREATE_BOARD_MODAL,
+                    modalTitle: "Create Board",
+                  })
+                )
+              }
             />
             {space.isFavorite ? (
               <OptionsItem

@@ -1,8 +1,21 @@
-import React from "react";
+import axios, { AxiosError } from "axios";
+import { Form, Formik } from "formik";
+import React, { useCallback } from "react";
 import { useState } from "react";
+import { useQuery } from "react-query";
 import { useDispatch } from "react-redux";
 import * as Yup from "yup";
+import { Option } from "../../types";
 import { BOARD_VISIBILITY_TYPES } from "../../types/constants";
+import Input from "../FormikComponents/Input";
+import RemoteSelect from "../FormikComponents/RemoteSelect";
+import Select from "../FormikComponents/Select";
+import SubmitBtn from "../FormikComponents/SubmitBtn";
+
+interface SpaceResponseObj {
+  name: string;
+  _id: string;
+}
 
 interface BoardObj {
   spaceId: string;
@@ -20,6 +33,35 @@ const CreateBoardModal = ({ spaceId }: Props) => {
   const dispatch = useDispatch();
 
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const boardVisibilityOptions = [
+    {
+      value: BOARD_VISIBILITY_TYPES.PUBLIC,
+      label: "Public workspace",
+    },
+    {
+      value: BOARD_VISIBILITY_TYPES.PRIVATE,
+      label: "Private Workspace",
+    },
+  ];
+
+  const getMySpaces = async () => {
+    const response = await axios.get("/spaces/mine");
+
+    const { data } = response.data;
+
+    return data.map((space: SpaceResponseObj) => ({
+      value: space._id,
+      label: space.name,
+    }));
+  };
+
+  const { data, isLoading, isFetching, error } = useQuery<
+    Option[] | undefined,
+    any,
+    Option[],
+    string[]
+  >(["getMySpaces"], getMySpaces);
 
   const initialValues: BoardObj = {
     spaceId: "",
@@ -47,7 +89,56 @@ const CreateBoardModal = ({ spaceId }: Props) => {
     ),
   });
 
-  return <div>Create Board</div>;
+  const handleSubmit = useCallback((board: BoardObj) => {
+    console.log(board);
+  }, []);
+
+  return (
+    <Formik
+      initialValues={initialValues}
+      validationSchema={validationSchema}
+      onSubmit={(value) => handleSubmit(value)}
+    >
+      <Form
+        className="p-4 pl-8 pb-6 mt-6"
+        style={{
+          maxWidth: "48rem",
+        }}
+      >
+        {/* bg & color */}
+        <Input
+          label="Board title"
+          id="name"
+          name="name"
+          type="text"
+          autoFocus={true}
+          optional={false}
+        />
+        <RemoteSelect
+          id="space"
+          name="space"
+          label="Workspace"
+          error={error}
+          isFetching={isFetching}
+          isLoading={isLoading}
+          options={data || []}
+          queryKey={["getMySpaces"]}
+          selected={spaceId}
+        />
+
+        <Select
+          id="visibility"
+          name="visibility"
+          label="Visibility"
+          options={boardVisibilityOptions}
+        />
+
+        <div className="buttons w-full flex items-center text-sm">
+          <SubmitBtn text="Create" classes="mb-4" isSubmitting={isSubmitting} />
+        </div>
+      </Form>
+    </Formik>
+  );
 };
 
 export default CreateBoardModal;

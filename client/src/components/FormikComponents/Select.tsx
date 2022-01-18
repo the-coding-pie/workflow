@@ -17,7 +17,7 @@ const Select = ({
   label,
   id,
   name,
-  options,
+  options = [],
   selected,
   classes,
   inline,
@@ -27,7 +27,18 @@ const Select = ({
   const [field, meta, helpers] = useField(name);
 
   useEffect(() => {
-    !selected && options.length > 0 && helpers.setValue(options[0].value);
+    if (options.length > 0) {
+      const exists = selected
+        ? options.find((o) => o.value === selected)
+        : undefined;
+
+      // if selected is given and it is also found in the given options
+      if (exists) {
+        helpers.setValue(exists.value);
+      } else {
+        helpers.setValue(options[0].value);
+      }
+    }
   }, [options]);
 
   return (
@@ -44,13 +55,14 @@ const Select = ({
           {label}
         </label>
         <select
+          disabled={options.length === 0}
           {...field}
           {...props}
           className={`border ${
             meta.touched && meta.error
-              ? "border-red-400 dark:border-red-400"
-              : "border-coolGray-200 dark:border-coolGray-600"
-          } w-full`}
+              ? "border-red-400 "
+              : "border-coolGray-200 "
+          }`}
         >
           {options.map((option) => (
             <option key={option.value} value={option.value}>

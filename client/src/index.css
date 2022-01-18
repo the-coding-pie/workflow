@@ -93,6 +93,10 @@ body {
     border-width: 1.4px;
     @apply outline-none rounded px-2 py-1.5 mb-0.5 bg-slate-100 w-full;
   }
+
+  .form-group select {
+    @apply bg-slate-100 px-2 py-1.5 rounded outline-none w-full;
+  }
 }
 
 @layer utilities {

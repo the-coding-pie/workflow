@@ -17,22 +17,16 @@ const MainLayout = () => {
 
   // get current user info
   const getCurrentUser = async () => {
-    try {
-      const response = await axios.get(`/users/getCurrentUser`);
-      const { data } = response.data;
+    const response = await axios.get(`/users/getCurrentUser`);
+    const { data } = response.data;
 
-      return data;
-    } catch (error) {
-      throw error;
-    }
+    return data;
   };
 
-  const { data, error } = useQuery<
-    UserObj | undefined,
-    AxiosError,
-    UserObj,
-    string[]
-  >(["getCurrentUser"], getCurrentUser);
+  const { data, error } = useQuery<UserObj | undefined, any, UserObj, string[]>(
+    ["getCurrentUser"],
+    getCurrentUser
+  );
 
   useEffect(() => {
     if (data) {
