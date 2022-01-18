@@ -111,7 +111,7 @@ const spaces: SpaceObj[] = [
     ],
   },
   {
-    _id: "3",
+    _id: "7",
     name: "Newman",
     role: SPACE_ROLES.ADMIN,
     isFavorite: false,
