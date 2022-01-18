@@ -1,6 +1,10 @@
 import React from "react";
 
-const CreateBoardModal = () => {
+interface Props {
+  spaceId?: string;
+}
+
+const CreateBoardModal = ({ spaceId }: Props) => {
   return <div>Create Board</div>;
 };
 

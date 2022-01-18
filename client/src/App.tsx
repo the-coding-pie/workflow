@@ -69,11 +69,11 @@ axios.interceptors.response.use(
       store.dispatch(logoutUser());
     }
 
-    // // if retried request failed with 401 status
-    // if (error.response.status === 401 && originalRequest._retry) {
-    //   // doesn't stops here, but also shows all the toast below due to Promise reject at the bottom
-    //   return store.dispatch(logoutUser());
-    // }
+    // if retried request failed with 401 status
+    if (error.response.status === 401 && originalRequest._retry) {
+      // doesn't stops here, but also shows all the toast below due to Promise reject at the bottom
+      return store.dispatch(logoutUser());
+    }
 
     if (
       error.response.status === 401 &&
@@ -176,7 +176,6 @@ const App = () => {
           />
         </Routes>
       </BrowserRouter>
-      
     </div>
   );
 };

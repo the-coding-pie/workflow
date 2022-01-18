@@ -1,4 +1,4 @@
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 import React, { useEffect } from "react";
 import { useQuery } from "react-query";
 import { useDispatch, useSelector } from "react-redux";
@@ -17,16 +17,22 @@ const MainLayout = () => {
 
   // get current user info
   const getCurrentUser = async () => {
-    const response = await axios.get(`/users/getCurrentUser`);
-    const { data } = response.data;
+    try {
+      const response = await axios.get(`/users/getCurrentUser`);
+      const { data } = response.data;
 
-    return data;
+      return data;
+    } catch (error) {
+      throw error;
+    }
   };
 
-  const { data, error } = useQuery<UserObj | undefined, any, UserObj, string[]>(
-    ["getCurrentUser"],
-    getCurrentUser
-  );
+  const { data, error } = useQuery<
+    UserObj | undefined,
+    AxiosError,
+    UserObj,
+    string[]
+  >(["getCurrentUser"], getCurrentUser);
 
   useEffect(() => {
     if (data) {
@@ -43,14 +49,17 @@ const MainLayout = () => {
     }
   }, [data]);
 
-  if (error && error.response) {
-    const response = error.response;
+  // if (error) {
+  //   if (error.response) {
+  //     const response = error.response;
 
-    if (response.status === 401) {
-      dispatch(logoutUser());
-      return <></>;
-    }
-  }
+  //     if (response.status === 401) {
+  //       console.log('ye')
+  //       dispatch(logoutUser());
+  //       return <></>;
+  //     }
+  //   }
+  // }
 
   if (user) {
     if (user.emailVerified === true) {
