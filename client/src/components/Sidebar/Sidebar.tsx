@@ -13,7 +13,7 @@ import SpaceList from "./SpaceList/SpaceList";
 import { useDispatch, useSelector } from "react-redux";
 import { hideSidebar } from "../../redux/features/sidebarSlice";
 import { showModal } from "../../redux/features/modalSlice";
-import { CREATE_SPACE_MODAL } from "../../types/constants";
+import { CREATE_BOARD_MODAL, CREATE_SPACE_MODAL } from "../../types/constants";
 import FavoritesList from "./FavoritesList/FavoritesList";
 import { useRef } from "react";
 import { RootState } from "../../redux/app";
@@ -48,7 +48,10 @@ const Sidebar = () => {
             onClick={() =>
               dispatch(
                 showModal({
-                  modalType: CREATE_SPACE_MODAL,
+                  modalType: CREATE_BOARD_MODAL,
+                  modalProps: {
+                    name: 'dd'
+                  },
                 })
               )
             }

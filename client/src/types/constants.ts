@@ -7,6 +7,7 @@ export const DEFAULT = "DEFAULT";
 
 // modal types
 export const CREATE_SPACE_MODAL = "CREATE_SPACE_MODAL";
+export const CREATE_BOARD_MODAL = "CREATE_BOARD_MODAL";
 
 // types
 export const SPACE = "SPACE";

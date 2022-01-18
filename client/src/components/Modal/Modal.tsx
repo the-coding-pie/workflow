@@ -4,7 +4,8 @@ import { useDispatch } from "react-redux";
 import useEscClose from "../../hooks/useEscClose";
 import { hideModal } from "../../redux/features/modalSlice";
 import { ModalObj } from "../../types";
-import { CREATE_SPACE_MODAL } from "../../types/constants";
+import { CREATE_BOARD_MODAL, CREATE_SPACE_MODAL } from "../../types/constants";
+import CreateBoardModal from "../ModalComponents/CreateBoardModal";
 import CreateSpaceModal from "../ModalComponents/CreateSpaceModal";
 
 interface Props extends ModalObj {}
@@ -25,11 +26,14 @@ const Modal = ({
 
   const ref = useEscClose(() => handleClose());
 
-  let Component = null;
+  let Component: React.FC<any> | null = null;
 
   switch (modalType) {
     case CREATE_SPACE_MODAL:
       Component = CreateSpaceModal;
+      break;
+    case CREATE_BOARD_MODAL:
+      Component = CreateBoardModal;
       break;
     default:
       Component = null;
@@ -78,7 +82,9 @@ const Modal = ({
           )}
 
           <div className={`${showCloseBtn ? "mr-6" : ""}`}>
-            {Component !== null && <Component {...{ ...modalProps }} />}
+            {/* desctucturing undefinded value inside object, it will ignore */}
+            
+            {Component !== null && <Component {...modalProps} />}
           </div>
         </div>
         <div className="empty-space pb-14"></div>

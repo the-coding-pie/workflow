@@ -1,6 +1,7 @@
 import {
   BOARD,
   BOARD_ROLES,
+  CREATE_BOARD_MODAL,
   CREATE_SPACE_MODAL,
   DEFAULT,
   ERROR,
@@ -72,8 +73,8 @@ export interface ToastObj {
 }
 
 export interface ModalObj {
-  modalType: typeof CREATE_SPACE_MODAL | null;
-  modalProps?: any;
+  modalType: typeof CREATE_SPACE_MODAL | typeof CREATE_BOARD_MODAL | null;
+  modalProps?: object;
   modalTitle?: string;
   showCloseBtn?: boolean;
   bgColor?: string;
