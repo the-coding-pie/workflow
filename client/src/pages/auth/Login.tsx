@@ -6,9 +6,10 @@ import ErrorBox from "../../components/FormikComponents/ErrorBox";
 import SubmitBtn from "../../components/FormikComponents/SubmitBtn";
 import { Link } from "react-router-dom";
 import { useDispatch } from "react-redux";
-import axios, { AxiosError } from "axios";
+import { AxiosError } from "axios";
 import { loginUser } from "../../redux/features/authSlice";
 import GoogleAuthBtn from "../../components/GoogleAuth/GoogleAuthBtn";
+import axiosInstance from "../../axiosInstance";
 
 interface UserObj {
   email: string;
@@ -33,7 +34,7 @@ const Login = () => {
   const handleSubmit = useCallback((user: UserObj) => {
     setIsSubmitting(true);
 
-    axios
+    axiosInstance
       .post(`/auth/login`, user, {
         headers: {
           ContentType: "application/json",

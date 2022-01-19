@@ -50,7 +50,7 @@ const Modal = ({
 
   return (
     <div
-      className="backdrop fixed top-0 bottom-0 left-0 right-0 z-50 flex items-center justify-center w-full h-full overflow-y-auto m-auto bg-black bg-opacity-60"
+      className="backdrop fixed top-0 bottom-0 left-0 right-0 z-50 flex items-center justify-center w-full h-full overflow-y-auto overflow-x-hidden m-auto bg-black bg-opacity-60"
       style={{
         maxHeight: "100vh",
       }}
@@ -60,7 +60,7 @@ const Modal = ({
           className={`relative rounded modal flex flex-col`}
           style={{
             minWidth: "34rem",
-            maxWidth: "97%",
+            maxWidth: "70%",
             background: bgColor ? bgColor : "#ffffff",
             color: textColor ? textColor : "inherit",
           }}

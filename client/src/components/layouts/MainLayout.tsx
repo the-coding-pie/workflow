@@ -1,11 +1,10 @@
-import axios, { AxiosError } from "axios";
 import React, { useEffect } from "react";
 import { useQuery } from "react-query";
 import { useDispatch, useSelector } from "react-redux";
-import { Outlet } from "react-router-dom";
+import axiosInstance from "../../axiosInstance";
 import EmailNotVerified from "../../pages/EmailNotVerified";
 import { RootState } from "../../redux/app";
-import { logoutUser, setCurrentUser } from "../../redux/features/authSlice";
+import { setCurrentUser } from "../../redux/features/authSlice";
 import { UserObj } from "../../types";
 import DefaultLayout from "./DefaultLayout";
 
@@ -17,7 +16,7 @@ const MainLayout = () => {
 
   // get current user info
   const getCurrentUser = async () => {
-    const response = await axios.get(`/users/getCurrentUser`);
+    const response = await axiosInstance.get(`/users/getCurrentUser`);
     const { data } = response.data;
 
     return data;

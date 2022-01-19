@@ -32,3 +32,13 @@ export const BOARD_VISIBILITY_TYPES = {
   PUBLIC: "PUBLIC",
   PRIVATE: "PRIVATE",
 };
+
+// BOARD BG COLORS
+export const BOARD_COLORS = [
+  "#cdb4db",
+  "#ffafcc",
+  "#a2d2ff",
+  "#ff595e",
+  "#ffca3a",
+  "#90be6d",
+];

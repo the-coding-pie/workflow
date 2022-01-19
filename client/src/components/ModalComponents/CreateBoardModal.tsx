@@ -1,12 +1,13 @@
-import axios, { AxiosError } from "axios";
 import { Form, Formik } from "formik";
 import React, { useCallback } from "react";
 import { useState } from "react";
 import { useQuery } from "react-query";
 import { useDispatch } from "react-redux";
 import * as Yup from "yup";
+import axiosInstance from "../../axiosInstance";
 import { Option } from "../../types";
 import { BOARD_VISIBILITY_TYPES } from "../../types/constants";
+import BoardBackground from "../FormikComponents/BoardBackground";
 import Input from "../FormikComponents/Input";
 import RemoteSelect from "../FormikComponents/RemoteSelect";
 import Select from "../FormikComponents/Select";
@@ -47,7 +48,7 @@ const CreateBoardModal = ({ spaceId }: Props) => {
   ];
 
   const getMySpaces = async () => {
-    const response = await axios.get("/spaces/mine");
+    const response = await axiosInstance.get("/spaces/mine");
 
     const { data } = response.data;
 
@@ -100,8 +101,10 @@ const CreateBoardModal = ({ spaceId }: Props) => {
       validationSchema={validationSchema}
       onSubmit={(value) => handleSubmit(value)}
     >
-      <Form className="p-4 pl-6 pb-6 mt-6">
+      <Form className="p-4 pl-6 pb-6 mt-4">
         {/* bg & color */}
+        <BoardBackground label="Background" fieldNames={["bgImg", "color"]} />
+
         <Input
           label="Board title"
           id="name"

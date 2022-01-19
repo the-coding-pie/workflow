@@ -1,9 +1,10 @@
-import axios, { AxiosError } from "axios";
+import { AxiosError } from "axios";
 import { Form, Formik } from "formik";
 import React, { useCallback, useState } from "react";
 import { useDispatch } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
 import * as Yup from "yup";
+import axiosInstance from "../axiosInstance";
 import Input from "../components/FormikComponents/Input";
 import SubmitBtn from "../components/FormikComponents/SubmitBtn";
 import { addToast } from "../redux/features/toastSlice";
@@ -32,7 +33,7 @@ const ForgotPassword = () => {
   const handleSubmit = useCallback((emailObj: EmailObj) => {
     setIsSubmitting(true);
 
-    axios
+    axiosInstance
       .post(`/accounts/forgot-password`, emailObj, {
         headers: {
           ContentType: "application/json",

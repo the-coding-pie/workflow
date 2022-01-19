@@ -1,9 +1,10 @@
-import axios, { AxiosError } from "axios";
+import { AxiosError } from "axios";
 import { Form, Formik } from "formik";
 import React, { useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
 import * as Yup from "yup";
+import axiosInstance from "../axiosInstance";
 import ErrorBox from "../components/FormikComponents/ErrorBox";
 import Input from "../components/FormikComponents/Input";
 import SubmitBtn from "../components/FormikComponents/SubmitBtn";
@@ -74,7 +75,7 @@ const ResetPassword = () => {
   const handleSubmit = useCallback((passwordObj: PasswordObj) => {
     setIsSubmitting(true);
 
-    axios
+    axiosInstance
       .post(`/accounts/reset-password/${token}`, passwordObj)
       .then((response) => {
         const { data } = response.data;

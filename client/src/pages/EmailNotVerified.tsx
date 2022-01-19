@@ -1,6 +1,6 @@
-import axios from "axios";
 import React, { useCallback } from "react";
 import { useDispatch } from "react-redux";
+import axiosInstance from "../axiosInstance";
 import { logoutUser } from "../redux/features/authSlice";
 import { addToast } from "../redux/features/toastSlice";
 import { ERROR, SUCCESS } from "../types/constants";
@@ -9,7 +9,7 @@ const EmailNotVerified = () => {
   const dispatch = useDispatch();
 
   const resendEmail = useCallback(() => {
-    axios
+    axiosInstance
       .post(`/email/resend-verify`)
       .then((response) => {
         const { message } = response.data;

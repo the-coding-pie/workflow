@@ -62,8 +62,13 @@ body {
   display: none; /* for Chrome, Safari, and Opera */
 }
 
+#invisible-scrollbar::-webkit-scrollbar {
+  display: none; /* for Chrome, Safari, and Opera */
+}
+
 ::-webkit-scrollbar {
   width: 8px;
+  height: 8px;
   @apply bg-gray-200 rounded;
 }
 

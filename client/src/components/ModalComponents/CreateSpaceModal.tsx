@@ -6,7 +6,7 @@ import Input from "../FormikComponents/Input";
 import NextBtn from "../FormikComponents/NextBtn";
 import TextArea from "../FormikComponents/TextArea";
 import debounce from "debounce-promise";
-import axios, { AxiosError } from "axios";
+import { AxiosError } from "axios";
 import CustomOption from "../CustomOption/CustomOption";
 import SelectDropDownAsync from "../FormikComponents/SelectDropDownAsync";
 import SubmitBtn from "../FormikComponents/SubmitBtn";
@@ -14,6 +14,7 @@ import { addToast } from "../../redux/features/toastSlice";
 import { hideModal } from "../../redux/features/modalSlice";
 import { ERROR } from "../../types/constants";
 import { logoutUser } from "../../redux/features/authSlice";
+import axiosInstance from "../../axiosInstance";
 
 interface SpaceObj {
   name: string;
@@ -61,7 +62,7 @@ const CreateSpaceModal = () => {
       members: space.members.map((m) => m.value),
     };
 
-    axios
+    axiosInstance
       .post(`/spaces`, value, {
         headers: {
           ContentType: "application/json",
@@ -104,7 +105,7 @@ const CreateSpaceModal = () => {
 
   const searchUsers = async (query: string) => {
     if (query) {
-      const response = await axios.get(`/users/search?q=${query}`);
+      const response = await axiosInstance.get(`/users/search?q=${query}`);
 
       const { data } = response.data;
 
