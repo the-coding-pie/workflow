@@ -117,17 +117,22 @@ const FavoriteItemSpace = ({ item }: Props) => {
               }}
               ref={optionsBtnRef}
               data-tip="Space settings"
+              data-for="space-settings"
               className={`mr-1 ${showIcon ? "block" : "hidden"}`}
             >
               <HiOutlineDotsHorizontal size={16} />
             </button>
-            <CustomReactToolTip />
+            <CustomReactToolTip id="space-settings" />
 
             {item.role === SPACE_ROLES.GUEST && (
               <div className="icon text-slate-600">
-                <MdGroup data-tip="Guest Space" size={18} />
+                <MdGroup
+                  data-for="guest-space"
+                  data-tip="Guest Space"
+                  size={18}
+                />
 
-                <CustomReactToolTip />
+                <CustomReactToolTip id="guest-space" />
               </div>
             )}
           </div>

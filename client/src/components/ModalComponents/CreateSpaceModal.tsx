@@ -133,9 +133,9 @@ const CreateSpaceModal = () => {
       onSubmit={(values) => handleSubmit(values)}
     >
       <Form
-        className="p-4 pl-8 pb-6 mt-6"
+        className="p-4 pl-8 pb-6 mr-4 mt-6"
         style={{
-          maxWidth: "48rem",
+          minWidth: "34rem",
         }}
       >
         {isFirstPage ? (

@@ -92,6 +92,7 @@ const BoardItem = ({ board, setShowPlusIcon, setShowBoardOptions }: Props) => {
 
         <div className="right text-gray-600 flex items-center">
           <button
+            data-for="board-settings-board"
             onClick={({ nativeEvent }) => {
               setLastCoords({
                 x: nativeEvent.pageX,
@@ -107,7 +108,7 @@ const BoardItem = ({ board, setShowPlusIcon, setShowBoardOptions }: Props) => {
           >
             <HiOutlineDotsHorizontal size={16} />
           </button>
-          <CustomReactToolTip />
+          <CustomReactToolTip id="board-settings-board" />
         </div>
       </NavLink>
 

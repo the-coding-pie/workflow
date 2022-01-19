@@ -42,6 +42,7 @@ const Sidebar = () => {
       button: (
         <>
           <button
+            data-for="create-space"
             data-tip="Create Space"
             ref={ref}
             className="text-gray-600"
@@ -55,7 +56,7 @@ const Sidebar = () => {
           >
             <HiOutlinePlus size={15} />
           </button>
-          <CustomReactToolTip />
+          <CustomReactToolTip id="create-space" />
         </>
       ),
       component: <SpaceList />,

@@ -78,10 +78,7 @@ const CreateBoardModal = ({ spaceId }: Props) => {
     name: Yup.string()
       .max(512, "Board name should be less than or equal to 512 chars")
       .required("Board name is required"),
-    bgImg: Yup.string().matches(
-      /((https?):\/\/)?(www.)?[a-z0-9]+(\.[a-z]{2,}){1,3}(#?\/?[a-zA-Z0-9#]+)*\/?(\?[a-zA-Z0-9-_]+=[a-zA-Z0-9-%]+&?)?$/,
-      "Invalid url for image"
-    ),
+    bgImg: Yup.string(),
     color: Yup.string()
       .matches(/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/, "Invalid color hex code")
       .required("Color is required"),
@@ -99,9 +96,14 @@ const CreateBoardModal = ({ spaceId }: Props) => {
     <Formik
       initialValues={initialValues}
       validationSchema={validationSchema}
-      onSubmit={(value) => handleSubmit(value)}
+      onSubmit={(values) => handleSubmit(values)}
     >
-      <Form className="p-4 pl-6 pb-6 mt-4">
+      <Form
+        className="p-4 pl-6 pb-6 mt-4 mr-2"
+        style={{
+          maxWidth: "34rem",
+        }}
+      >
         {/* bg & color */}
         <BoardBackground label="Background" fieldNames={["bgImg", "color"]} />
 

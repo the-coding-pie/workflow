@@ -76,6 +76,7 @@ const FavoriteItemBoard = ({ item }: Props) => {
 
         <div className="right text-gray-600 flex items-center">
           <button
+            data-for="board-settings"
             onClick={({ nativeEvent }) => {
               setLastCoords({
                 x: nativeEvent.pageX,
@@ -90,7 +91,7 @@ const FavoriteItemBoard = ({ item }: Props) => {
           >
             <HiOutlineDotsHorizontal size={16} />
           </button>
-          <CustomReactToolTip />
+          <CustomReactToolTip id="board-settings" />
         </div>
       </NavLink>
 

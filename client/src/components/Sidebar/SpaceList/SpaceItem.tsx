@@ -186,6 +186,7 @@ const SpaceItem = ({ space }: Props) => {
           <button
             ref={optionsBtnRef}
             data-tip="Space settings"
+            data-for="space-settings-space"
             onClick={({ nativeEvent }) => {
               setLastCoords({
                 x: nativeEvent.pageX,
@@ -199,7 +200,7 @@ const SpaceItem = ({ space }: Props) => {
           >
             <HiOutlineDotsHorizontal size={16} />
           </button>
-          <CustomReactToolTip />
+          <CustomReactToolTip id="space-settings-space" />
 
           <button
             type="button"
@@ -218,20 +219,22 @@ const SpaceItem = ({ space }: Props) => {
                 : "hidden"
             }`}
             data-tip="Add Board"
+            data-for="add-board-space"
           >
             <HiOutlinePlus size={16} />
           </button>
-          <CustomReactToolTip />
+          <CustomReactToolTip id="add-board-space" />
 
           {space.role === SPACE_ROLES.GUEST && (
             <div className="icon text-slate-600">
               <MdGroup
+                data-for="guest-space-space"
                 data-tip="Guest Space"
                 className="outline-none"
                 size={18}
               />
 
-              <CustomReactToolTip />
+              <CustomReactToolTip id="guest-space-space" />
             </div>
           )}
         </div>
