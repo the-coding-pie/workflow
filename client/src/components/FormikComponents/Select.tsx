@@ -27,7 +27,7 @@ const Select = ({
   const [field, meta, helpers] = useField(name);
 
   useEffect(() => {
-    if (options.length > 0) {
+    if (options.length > 0 && !field.value) {
       const exists = selected
         ? options.find((o) => o.value === selected)
         : undefined;
