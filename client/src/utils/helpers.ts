@@ -1,4 +1,4 @@
-import jwt_decode, { JwtPayload } from "jwt-decode";
+import jwtDecode, { JwtPayload } from "jwt-decode";
 
 export const checkTokens = (): boolean => {
   try {
@@ -10,19 +10,61 @@ export const checkTokens = (): boolean => {
     }
 
     // first check, if you have a valid access_token
-    // decode the token
-    const atoken = jwt_decode(accessToken as string) as JwtPayload;
-    let exp = null;
+    if (accessToken) {
+      // accessToken may be invalid, or expired, or no refreshToken or refreshToken present or refreshToken may be invalid
+      try {
+        // decode the token
+        // invalid or malformed token will throw error
+        const atoken = jwtDecode<JwtPayload>(accessToken as string);
+        let exp = null;
 
-    if (atoken && atoken?.exp) {
-      exp = atoken.exp;
-    }
+        if (atoken && atoken?.exp) {
+          exp = atoken.exp;
+        }
 
-    // if no exp date or expired exp date
-    if (!exp || exp < new Date().getTime() / 1000) {
-      // invalid accessToken
-      // now check for refreshToken
-      const rtoken = jwt_decode(refreshToken as string) as JwtPayload;
+        // if no exp date or expired exp date
+        if (!exp || exp < new Date().getTime() / 1000) {
+          // invalid accessToken
+          // now check for refreshToken
+          if (refreshToken) {
+            const rtoken = jwtDecode<JwtPayload>(refreshToken as string);
+            let exp = null;
+
+            if (rtoken && rtoken?.exp) {
+              exp = rtoken.exp;
+            }
+
+            // if no exp date or expired exp date
+            if (!exp || exp < new Date().getTime() / 1000) {
+              return false;
+            }
+          } else {
+            return false;
+          }
+        }
+      } catch {
+        // invalid accessToken
+        // now check for refreshToken
+        if (refreshToken) {
+          const rtoken = jwtDecode<JwtPayload>(refreshToken as string);
+          let exp = null;
+
+          if (rtoken && rtoken?.exp) {
+            exp = rtoken.exp;
+          }
+
+          // if no exp date or expired exp date
+          if (!exp || exp < new Date().getTime() / 1000) {
+            return false;
+          }
+        } else {
+          return false;
+        }
+      }
+    } else {
+      // we have refreshToken
+      // check if refreshToken exists or not
+      const rtoken = jwtDecode<JwtPayload>(refreshToken as string);
       let exp = null;
 
       if (rtoken && rtoken?.exp) {
@@ -34,7 +76,7 @@ export const checkTokens = (): boolean => {
         return false;
       }
     }
-    
+
     // valid token
     return true;
   } catch (e) {

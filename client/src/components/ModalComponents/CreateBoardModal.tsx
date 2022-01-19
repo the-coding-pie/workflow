@@ -1,3 +1,4 @@
+import { AxiosError } from "axios";
 import { Form, Formik } from "formik";
 import React, { useCallback } from "react";
 import { useState } from "react";
@@ -5,8 +6,10 @@ import { useQuery } from "react-query";
 import { useDispatch } from "react-redux";
 import * as Yup from "yup";
 import axiosInstance from "../../axiosInstance";
+import { hideModal } from "../../redux/features/modalSlice";
+import { addToast } from "../../redux/features/toastSlice";
 import { Option } from "../../types";
-import { BOARD_VISIBILITY_TYPES } from "../../types/constants";
+import { BOARD_VISIBILITY_TYPES, ERROR } from "../../types/constants";
 import BoardBackground from "../FormikComponents/BoardBackground";
 import Input from "../FormikComponents/Input";
 import RemoteSelect from "../FormikComponents/RemoteSelect";
@@ -88,9 +91,48 @@ const CreateBoardModal = ({ spaceId }: Props) => {
     ),
   });
 
-  const handleSubmit = useCallback((board: BoardObj) => {
-    console.log(board);
-  }, []);
+  const handleSubmit = (board: BoardObj) => {
+    axiosInstance
+      .post(`/boards`, board, {
+        headers: {
+          ContentType: "application/json",
+        },
+      })
+      .then((response) => {
+        setIsSubmitting(false);
+
+        dispatch(hideModal());
+        // update existing board cache react query
+      })
+      .catch((error: AxiosError) => {
+        setIsSubmitting(false);
+
+        if (error.response) {
+          const response = error.response;
+          const { message } = response.data;
+
+          switch (response.status) {
+            case 400:
+            case 403:
+            case 404:
+            case 500:
+              dispatch(addToast({ kind: ERROR, msg: message }));
+              break;
+            default:
+              dispatch(
+                addToast({ kind: ERROR, msg: "Oops, something went wrong" })
+              );
+              break;
+          }
+        } else if (error.request) {
+          dispatch(
+            addToast({ kind: ERROR, msg: "Oops, something went wrong" })
+          );
+        } else {
+          dispatch(addToast({ kind: ERROR, msg: `Error: ${error.message}` }));
+        }
+      });
+  };
 
   return (
     <Formik

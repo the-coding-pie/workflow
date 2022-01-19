@@ -17,9 +17,9 @@ const combinedReducer = combineReducers({
 
 // empty store when logout
 const rootReducer = (state: any, action: any) => {
-  if (action.type === "auth/logoutUser") {
-    state = undefined;
-  }
+  // if (action.type === "auth/logoutUser") {
+  //   state = undefined;
+  // }
 
   return combinedReducer(state, action);
 };

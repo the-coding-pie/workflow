@@ -95,6 +95,8 @@ axiosInstance.interceptors.response.use(
             store.dispatch(setAccessToken(accessToken));
 
             processQueue(null, accessToken);
+            // attach accessToken to the originalRequest
+            originalRequest.headers["Authorization"] = `Bearer ${accessToken}`;
             resolve(axios(originalRequest));
           })
           .catch((error) => {
