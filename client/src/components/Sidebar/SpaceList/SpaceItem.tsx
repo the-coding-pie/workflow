@@ -210,6 +210,9 @@ const SpaceItem = ({ space }: Props) => {
                 showModal({
                   modalType: CREATE_BOARD_MODAL,
                   modalTitle: "Create Board",
+                  modalProps: {
+                    spaceId: space._id,
+                  },
                 })
               )
             }
@@ -246,6 +249,7 @@ const SpaceItem = ({ space }: Props) => {
           setShowBoardOptions={setShowBoardOptions}
           setShowPlusIcon={setShowPlusIcon}
           boards={space.boards}
+          spaceId={space._id}
         />
       </div>
 
@@ -287,6 +291,9 @@ const SpaceItem = ({ space }: Props) => {
                   showModal({
                     modalType: CREATE_BOARD_MODAL,
                     modalTitle: "Create Board",
+                    modalProps: {
+                      spaceId: space._id,
+                    },
                   })
                 );
               }}

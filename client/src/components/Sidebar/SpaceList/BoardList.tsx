@@ -6,12 +6,18 @@ import { CREATE_BOARD_MODAL } from "../../../types/constants";
 import BoardItem from "./BoardItem";
 
 interface Props {
+  spaceId: string;
   boards: BoardObj[];
   setShowPlusIcon: React.Dispatch<React.SetStateAction<boolean>>;
   setShowBoardOptions: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-const BoardList = ({ boards, setShowPlusIcon, setShowBoardOptions }: Props) => {
+const BoardList = ({
+  spaceId,
+  boards,
+  setShowPlusIcon,
+  setShowBoardOptions,
+}: Props) => {
   const dispatch = useDispatch();
 
   return (
@@ -35,6 +41,9 @@ const BoardList = ({ boards, setShowPlusIcon, setShowBoardOptions }: Props) => {
                 showModal({
                   modalType: CREATE_BOARD_MODAL,
                   modalTitle: "Create Board",
+                  modalProps: {
+                    spaceId: spaceId,
+                  },
                 })
               )
             }

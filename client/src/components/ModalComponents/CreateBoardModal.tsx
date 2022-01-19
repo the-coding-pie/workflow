@@ -116,8 +116,8 @@ const CreateBoardModal = ({ spaceId }: Props) => {
           optional={false}
         />
         <RemoteSelect
-          id="space"
-          name="space"
+          id="spaceId"
+          name="spaceId"
           label="Workspace"
           error={error}
           isFetching={isFetching}

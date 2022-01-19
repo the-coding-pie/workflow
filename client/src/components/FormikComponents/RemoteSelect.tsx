@@ -71,7 +71,7 @@ const RemoteSelect = ({
           <select
             {...field}
             {...props}
-            disabled={isFetching && options.length === 0}
+            disabled={isLoading && options.length === 0}
             className={`border ${
               meta.touched && meta.error
                 ? "border-red-400"

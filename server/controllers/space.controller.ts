@@ -126,3 +126,33 @@ export const createSpace = async (req: any, res: Response) => {
     });
   }
 };
+
+// GET /spaces/mine -> get all spaces in which the user is either an admin/normal member
+export const getSpacesMine = async (req: any, res: Response) => {
+  try {
+    const mySpaces = await Space.find({
+      members: {
+        $elemMatch: {
+          memberId: req.user._id,
+          role: {
+            $in: [SPACE_MEMBER_ROLES.ADMIN, SPACE_MEMBER_ROLES.NORMAL],
+          },
+        },
+      },
+    }).select("_id name");
+
+    res.send({
+      success: true,
+      data: mySpaces,
+      message: "",
+      statusCode: 200,
+    });
+  } catch (err) {
+    res.status(500).send({
+      success: false,
+      data: {},
+      message: "Oops, something went wrong!",
+      statusCode: 500,
+    });
+  }
+};

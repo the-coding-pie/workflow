@@ -42,13 +42,14 @@ const BoardBackground = ({ label, fieldNames, classes }: Props) => {
   );
 
   useEffect(() => {
+    // if data(bgImg response data) is there and currentChoosen is not a color
     if (data && !colors.includes(currentChoosen)) {
       setCurrentChoosen(data[0].urls.regular);
     } else {
       setCurrentChoosen(currentChoosen);
     }
   }, [data]);
-  
+
   useEffect(() => {
     if (currentChoosen.startsWith("#")) {
       // it is a color
@@ -90,8 +91,8 @@ const BoardBackground = ({ label, fieldNames, classes }: Props) => {
 
       <div id="background">
         <div className="mb-6 bg-images h-16">
-          {isLoading || isFetching || error ? (
-            isLoading || isFetching ? (
+          {isFetching || error ? (
+            isFetching ? (
               <div className="w-full flex items-center justify-center">
                 <svg
                   className="animate-spin h-8 w-8 text-white"
@@ -134,6 +135,7 @@ const BoardBackground = ({ label, fieldNames, classes }: Props) => {
                   return (
                     <button
                       type="button"
+                      key={image.id}
                       aria-label="background images"
                       onClick={() => {
                         setCurrentChoosen(image.urls.regular);
@@ -159,7 +161,7 @@ const BoardBackground = ({ label, fieldNames, classes }: Props) => {
           )}
         </div>
 
-        <div className="colors flex items-center overflow-x-auto w-full pb-1">
+        <div className="colors flex items-center overflow-x-auto w-full pb-1.5">
           {colors.map((color) => (
             <button
               type="button"
