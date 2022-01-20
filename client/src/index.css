@@ -39,7 +39,6 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   word-wrap: break-word !important;
-  @apply bg-stone-100 text-gray-800;
 }
 
 .noselect {
@@ -77,6 +76,12 @@ body {
 
 ::-webkit-scrollbar-thumb {
   @apply bg-gray-400 border-2 border-gray-300 rounded;
+}
+
+@layer base {
+  body {
+    @apply bg-stone-100 text-gray-800;
+  }
 }
 
 @layer components {
