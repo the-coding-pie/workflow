@@ -20,7 +20,7 @@ const SpaceList = () => {
     return data;
   };
 
-  const { data, isLoading, isFetching, error } = useQuery<
+  const { data, isLoading, error } = useQuery<
     SpaceObj[] | undefined,
     any,
     SpaceObj[],
@@ -28,23 +28,37 @@ const SpaceList = () => {
   >(["getSpaces"], getSpaces);
 
   if (error) {
-    <div className="w-full h-full flex items-center text-sm">
-      <span>Unable to get data!</span>
-      <UtilityBtn
-        iconSize={24}
-        Icon={HiOutlineRefresh}
-        label="Retry"
-        iconClasses={isFetching ? "animate-spin" : ""}
-        onClick={() => {
-          queryClient.invalidateQueries(["getSpaces"]);
+    return (
+      <div
+        className="w-full flex items-center justify-center text-sm"
+        style={{
+          height: "25rem",
         }}
-      />
-    </div>;
+      >
+        <div className="flex items-center justify-center">
+          <span className="mr-1">Unable to get data. </span>
+          <button
+            type="button"
+            className="text-primary"
+            onClick={() => {
+              queryClient.invalidateQueries(["getSpaces"]);
+            }}
+          >
+            Retry
+          </button>
+        </div>
+      </div>
+    );
   }
 
   if (isLoading) {
     return (
-      <div className="w-full h-full flex items-center justify-center">
+      <div
+        className="w-full flex items-center justify-center"
+        style={{
+          height: "25rem",
+        }}
+      >
         <svg
           className="animate-spin h-8 w-8 text-white"
           xmlns="http://www.w3.org/2000/svg"
@@ -76,7 +90,7 @@ const SpaceList = () => {
           return <SpaceItem key={space._id} space={space} />;
         })
       ) : (
-        <li className="px-6 pl-8 text-sm py-1">
+        <li className="px-6 pl-8 text-sm py-1 pt-2">
           Start a
           <button
             type="button"

@@ -4,11 +4,12 @@ import { Outlet, useParams } from "react-router-dom";
 import spaces from "../../data/spaces";
 import Avatar from "react-avatar";
 import { HiOutlineLockClosed, HiOutlinePencil } from "react-icons/hi";
+import { SPACE_ROLES } from "../../types/constants";
 
 const SpaceLayout = () => {
   const { id } = useParams();
 
-  const space = spaces.find((s) => s._id === id);
+  const space = spaces[0];
 
   if (!space) {
     return <Navigate to="/404" replace={true} />;
@@ -45,7 +46,7 @@ const SpaceLayout = () => {
               <span>Private</span>
             </p>
           </div>
-          {!space.isGuestSpace && (
+          {space.role !== SPACE_ROLES.GUEST && (
             <button className="bg-violet-200 px-1 py-0.5 rounded text-sm">
               <HiOutlinePencil size={18} />
             </button>
@@ -65,7 +66,7 @@ const SpaceLayout = () => {
               Boards
             </NavLink>
           </li>
-          {space.isGuestSpace ? (
+          {space.role === SPACE_ROLES.GUEST ? (
             <>
               <li className="w-18">
                 <div className="text-base mr-6 font-medium text-gray-400 cursor-not-allowed noselect">
