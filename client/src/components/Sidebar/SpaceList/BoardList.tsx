@@ -28,7 +28,10 @@ const BoardList = ({
             setShowBoardOptions={setShowBoardOptions}
             setShowPlusIcon={setShowPlusIcon}
             key={b._id}
-            board={b}
+            board={{
+              ...b,
+              spaceId: spaceId,
+            }}
           />
         ))
       ) : (

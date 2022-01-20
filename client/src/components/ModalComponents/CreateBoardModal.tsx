@@ -2,7 +2,7 @@ import { AxiosError } from "axios";
 import { Form, Formik } from "formik";
 import React, { useCallback } from "react";
 import { useState } from "react";
-import { useQuery } from "react-query";
+import { useQuery, useQueryClient } from "react-query";
 import { useDispatch } from "react-redux";
 import * as Yup from "yup";
 import axiosInstance from "../../axiosInstance";
@@ -35,6 +35,7 @@ interface Props {
 
 const CreateBoardModal = ({ spaceId }: Props) => {
   const dispatch = useDispatch();
+  const queryClient = useQueryClient();
 
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -66,7 +67,10 @@ const CreateBoardModal = ({ spaceId }: Props) => {
     any,
     Option[],
     string[]
-  >(["getMySpaces"], getMySpaces);
+  >(["getMySpaces"], getMySpaces, {
+    staleTime: 0,
+    cacheTime: 0,
+  });
 
   const initialValues: BoardObj = {
     spaceId: "",
@@ -99,6 +103,36 @@ const CreateBoardModal = ({ spaceId }: Props) => {
         },
       })
       .then((response) => {
+        const { data } = response.data;
+
+        // update existing spaces list
+        queryClient.setQueryData([`getSpaces`], (oldData: any) => {
+          if (data.spaceId) {
+            return oldData.map((space: any) => {
+              if (space._id === data.spaceId) {
+                return {
+                  ...space,
+                  boards: [
+                    ...space.boards,
+                    {
+                      _id: data._id,
+                      isMember: data.isMember,
+                      name: data.name,
+                      visibility: data.visibility,
+                      isFavorite: data.isFavorite,
+                      color: data.color,
+                      role: data.role,
+                    },
+                  ],
+                };
+              }
+              return space;
+            });
+          } else {
+            return oldData;
+          }
+        });
+
         setIsSubmitting(false);
 
         dispatch(hideModal());

@@ -1,5 +1,6 @@
 import { FormikErrors, useFormikContext } from "formik";
 import React from "react";
+import { useEffect } from "react";
 
 interface Props {
   text: string;
@@ -25,6 +26,25 @@ const containsError = (
 
 const NextBtn = ({ text, classes, fieldsOnPage, onClick }: Props) => {
   const { errors, dirty } = useFormikContext();
+
+  const handler = (e: any) => {
+    if (e.type === "keydown") {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        if (!containsError(errors, fieldsOnPage) && dirty) {
+          onClick();
+        }
+      }
+    }
+  };
+
+  useEffect(() => {
+    document.addEventListener("keydown", handler, false);
+
+    return () => {
+      document.removeEventListener("keydown", handler, false);
+    };
+  }, [errors, dirty]);
 
   return (
     <button

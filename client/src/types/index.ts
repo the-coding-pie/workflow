@@ -60,7 +60,7 @@ export interface BoardObj {
     | typeof BOARD_ROLES.ADMIN
     | typeof BOARD_ROLES.NORMAL
     | typeof BOARD_ROLES.OBSERVER;
-  img?: string;
+  bgImg?: string;
   spaceId: string;
 }
 

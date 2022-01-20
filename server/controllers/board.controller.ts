@@ -159,7 +159,17 @@ export const createBoard = async (req: any, res: Response) => {
 
     res.status(201).send({
       success: true,
-      data: {},
+      data: {
+        _id: newBoard._id,
+        isMember: true,
+        visibility: newBoard.visibility,
+        isFavorite: newBoard.isFavorite,
+        color: newBoard.color,
+        bgImg: newBoard.bgImg,
+        name: newBoard.name,
+        role: BOARD_MEMBER_ROLES.ADMIN,
+        spaceId: newBoard.spaceId,
+      },
       message: "New board has been created!",
       statusCode: 201,
     });
