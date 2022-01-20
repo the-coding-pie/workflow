@@ -317,14 +317,16 @@ const SpaceItem = ({ space }: Props) => {
             )}
 
             {space.role === SPACE_ROLES.ADMIN && (
-              <OptionsItem
-                key="Rename"
-                Icon={HiOutlinePencil}
-                text="Rename"
-                onClick={() => {}}
-              />
+              <>
+                <OptionsItem
+                  key="Rename"
+                  Icon={HiOutlinePencil}
+                  text="Rename"
+                  onClick={() => {}}
+                />
+                <OptionsHR />
+              </>
             )}
-            <OptionsHR />
             {space.role === SPACE_ROLES.ADMIN && (
               <OptionsItem
                 key="Invite"
@@ -346,15 +348,14 @@ const SpaceItem = ({ space }: Props) => {
                 />
 
                 <OptionsHR />
+                <OptionsItem
+                  key="Settings"
+                  Icon={HiOutlineCog}
+                  text="Settings"
+                  onClick={() => {}}
+                />
               </>
             )}
-
-            <OptionsItem
-              key="Settings"
-              Icon={HiOutlineCog}
-              text="Settings"
-              onClick={() => {}}
-            />
           </>
         )}
       </Options>

@@ -48,7 +48,7 @@ const userSchema = new mongoose.Schema(
     },
     password: {
       type: String,
-      required: function () {
+      required: function (): boolean {
         return !this.isOAuth;
       },
       minlength: 8,

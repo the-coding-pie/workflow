@@ -7,6 +7,27 @@ import validator from "validator";
 import { SPACE_MEMBER_ROLES } from "../types/constants";
 
 // GET /spaces -> get space and its corresponding boards
+export const getSpaces = async (req: any, res: Response) => {
+  try {
+    // find all spaces in which i am an admin/normal/guest
+    const allSpaces = await Space.find({
+      members: {
+        $elemMatch: {
+          memberId: req.user._id,
+        },
+      },
+    });
+
+    console.log(allSpaces);
+  } catch (err) {
+    res.status(500).send({
+      success: false,
+      data: {},
+      message: "Oops, something went wrong!",
+      statusCode: 500,
+    });
+  }
+};
 
 // POST /spaces -> create a new space
 export const createSpace = async (req: any, res: Response) => {
