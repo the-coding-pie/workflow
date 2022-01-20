@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from "react-redux";
 import axiosInstance from "../../axiosInstance";
 import EmailNotVerified from "../../pages/EmailNotVerified";
 import { RootState } from "../../redux/app";
-import { setCurrentUser } from "../../redux/features/authSlice";
+import { logoutUser, setCurrentUser } from "../../redux/features/authSlice";
 import { UserObj } from "../../types";
 import DefaultLayout from "./DefaultLayout";
 

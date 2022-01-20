@@ -73,7 +73,7 @@ axiosInstance.interceptors.response.use(
           failedQueue.push({ resolve, reject });
         })
           .then(() => {
-            return axios(originalRequest);
+            return axiosInstance(originalRequest);
           })
           .catch((err) => {
             return Promise.reject(err);
@@ -84,7 +84,7 @@ axiosInstance.interceptors.response.use(
       isRefreshing = true;
 
       return new Promise(function (resolve, reject) {
-        axios
+        axiosInstance
           .post(`${BASE_URL}/auth/refresh`, {
             refreshToken: store.getState().auth.refreshToken,
           })
@@ -97,7 +97,7 @@ axiosInstance.interceptors.response.use(
             processQueue(null, accessToken);
             // attach accessToken to the originalRequest
             originalRequest.headers["Authorization"] = `Bearer ${accessToken}`;
-            resolve(axios(originalRequest));
+            resolve(axiosInstance(originalRequest));
           })
           .catch((error) => {
             processQueue(error, null);
