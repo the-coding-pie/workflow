@@ -80,7 +80,7 @@ const Sidebar = () => {
         </button>
       </header>
 
-      <main className="flex-1" id="sidebar">
+      <main className="flex-1 mb-1" id="sidebar">
         <nav className="border-b pb-3">
           <SidebarLink to="/" Icon={VscHome} text="Home" />
           <SidebarLink
@@ -119,7 +119,11 @@ const Sidebar = () => {
                     );
                   }
                 }}
-                className={`flex items-center px-2 py-3 w-full justify-between noselect hover:bg-secondary cursor-pointer`}
+                className={`flex items-center px-2 py-3 w-full justify-between noselect ${
+                  currentActiveMenu === m.id
+                    ? "bg-secondary"
+                    : "hover:bg-secondary"
+                }  cursor-pointer sticky top-0 left-0 right-0 z-40 bg-white`}
               >
                 <div className="left flex items-center">
                   <div className="icon mr-2">

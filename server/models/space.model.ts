@@ -47,6 +47,10 @@ const spaceSchema = new mongoose.Schema(
       ],
       default: [],
     },
+    isFavorite: {
+      type: Boolean,
+      default: false,
+    },
     members: {
       type: [spaceMemberSchema],
       default: [],

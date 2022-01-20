@@ -1,6 +1,7 @@
 import {
   BOARD,
   BOARD_ROLES,
+  BOARD_VISIBILITY_TYPES,
   CREATE_BOARD_MODAL,
   CREATE_SPACE_MODAL,
   DEFAULT,
@@ -42,18 +43,19 @@ export interface SpaceObj {
   role:
     | typeof SPACE_ROLES.ADMIN
     | typeof SPACE_ROLES.NORMAL
-    | typeof SPACE_ROLES.GUEST
-    | typeof BOARD_ROLES.ADMIN
-    | typeof BOARD_ROLES.NORMAL
-    | typeof BOARD_ROLES.OBSERVER;
+    | typeof SPACE_ROLES.GUEST;
   boards: BoardObj[];
 }
 
 export interface BoardObj {
   _id: string;
   name: string;
+  isMember: boolean;
   isFavorite: boolean;
   color: string;
+  visibility:
+    | typeof BOARD_VISIBILITY_TYPES.PRIVATE
+    | typeof BOARD_VISIBILITY_TYPES.PUBLIC;
   role:
     | typeof BOARD_ROLES.ADMIN
     | typeof BOARD_ROLES.NORMAL

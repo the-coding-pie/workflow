@@ -4,7 +4,12 @@ import Space from "../models/space.model";
 import User from "../models/user.model";
 import { checkAllString, getUniqueValues } from "../utils/helpers";
 import validator from "validator";
-import { SPACE_MEMBER_ROLES } from "../types/constants";
+import {
+  BOARD_MEMBER_ROLES,
+  BOARD_VISIBILITY,
+  SPACE_MEMBER_ROLES,
+} from "../types/constants";
+import { isAfter, isEqual } from "date-fns";
 
 // GET /spaces -> get space and its corresponding boards
 export const getSpaces = async (req: any, res: Response) => {
@@ -16,9 +21,196 @@ export const getSpaces = async (req: any, res: Response) => {
           memberId: req.user._id,
         },
       },
+    })
+      .select("_id name icon isFavorite")
+      .lean()
+      .populate("members")
+      .populate({
+        path: "boards",
+        select: "_id name isFavorite color members visibility createdAt",
+      })
+      .sort({ createdAt: 1 });
+
+    const neededSpaceDetails = allSpaces.map((space: any) => {
+      // find current user's role in this space role
+      const role = space.members.find(
+        (m: any) => m.memberId.toString() === req.user._id.toString()
+      ).role;
+
+      // split boards into two -> current user is actual member, not actual member
+      const myBoards = space.boards.filter((board: any) =>
+        board.members
+          .map((m: any) => m.memberId.toString())
+          .includes(req.user._id.toString())
+      );
+      // boards other than i am part of
+      const notMyBoards = space.boards.filter(
+        (board: any) =>
+          !myBoards
+            .map((b: any) => b._id.toString())
+            .includes(board._id.toString())
+      );
+
+      // if current user is admin of space, show them all boards, board role determine -> take corresponding role from boards which he is member of + set isMember=true and for rest of the boards, give his role=ADMIN + set isMember=false
+      if (role === SPACE_MEMBER_ROLES.ADMIN) {
+        const totalBoards = [
+          ...myBoards.map((b: any) => ({
+            _id: b._id,
+            name: b.name,
+            isMember: true,
+            color: b.color,
+            visibility: b.visibility,
+            isFavorite: b.isFavorite,
+            createdAt: b.createdAt,
+            role: b.members.find(
+              (board: any) =>
+                board.memberId.toString() === req.user._id.toString()
+            ).role,
+          })),
+          ...notMyBoards.map((b: any) => ({
+            _id: b._id,
+            name: b.name,
+            visibility: b.visibility,
+            isFavorite: b.isFavorite,
+            createdAt: b.createdAt,
+            isMember: false,
+            color: b.color,
+            role: BOARD_MEMBER_ROLES.ADMIN,
+          })),
+        ].sort(function (a: any, b: any) {
+          // Turn your strings into dates, and then subtract them
+          // to get a value that is either negative, positive, or zero.
+          return isEqual(b.createdAt, a.createdAt)
+            ? 0
+            : isAfter(b.createdAt, a.createdAt)
+            ? -1
+            : 1;
+        });
+
+        return {
+          _id: space._id,
+          name: space.name,
+          role: role,
+          isFavorite: space.isFavorite,
+          icon: space.icon,
+          boards: totalBoards.map((b: any) => {
+            return {
+              _id: b._id,
+              name: b.name,
+              isMember: b.isMember,
+              color: b.color,
+              visibility: b.visibility,
+              isFavorite: b.isFavorite,
+              role: b.role
+            }
+          }),
+        };
+      } else if (role === SPACE_MEMBER_ROLES.NORMAL) {
+        // if current user is normal user in space, find all board which he is part of and take corresponding roles from them + set isMember = true, then take only public boards from otherBoards and set role=NORMAL + set isMember=false
+        const totalBoards = [
+          ...myBoards.map((b: any) => ({
+            _id: b._id,
+            name: b.name,
+            isMember: true,
+            visibility: b.visibility,
+            isFavorite: b.isFavorite,
+            color: b.color,
+            role: b.members.find(
+              (board: any) =>
+                board.memberId.toString() === req.user._id.toString()
+            ).role,
+          })),
+          ...notMyBoards
+            .filter((b: any) => b.visibility === BOARD_VISIBILITY.PUBLIC)
+            .map((b: any) => ({
+              _id: b._id,
+              name: b.name,
+              isMember: false,
+              visibility: b.visibility,
+              isFavorite: b.isFavorite,
+              color: b.color,
+              role: BOARD_MEMBER_ROLES.NORMAL,
+            })),
+        ].sort(function (a: any, b: any) {
+          // Turn your strings into dates, and then subtract them
+          // to get a value that is either negative, positive, or zero.
+          return isEqual(b.createdAt, a.createdAt)
+            ? 0
+            : isAfter(b.createdAt, a.createdAt)
+            ? -1
+            : 1;
+        });
+
+        return {
+          _id: space._id,
+          name: space.name,
+          isFavorite: space.isFavorite,
+          role: role,
+          icon: space.icon,
+          boards: totalBoards.map((b: any) => {
+            return {
+              _id: b._id,
+              name: b.name,
+              isMember: b.isMember,
+              color: b.color,
+              visibility: b.visibility,
+              isFavorite: b.isFavorite,
+              role: b.role
+            }
+          }),
+        };
+      } else if (role === SPACE_MEMBER_ROLES.GUEST) {
+        // if current user is guest user in space, find all board which he is part of and take corresponding roles from them + set isMember = true, that's it
+        const totalBoards = [
+          ...myBoards.map((b: any) => ({
+            _id: b._id,
+            name: b.name,
+            isMember: true,
+            visibility: b.visibility,
+            isFavorite: b.isFavorite,
+            color: b.color,
+            role: b.members.find(
+              (board: any) =>
+                board.memberId.toString() === req.user._id.toString()
+            ).role,
+          })),
+        ].sort(function (a: any, b: any) {
+          // Turn your strings into dates, and then subtract them
+          // to get a value that is either negative, positive, or zero.
+          return isEqual(b.createdAt, a.createdAt)
+            ? 0
+            : isAfter(b.createdAt, a.createdAt)
+            ? -1
+            : 1;
+        });
+
+        return {
+          _id: space._id,
+          name: space.name,
+          role: role,
+          isFavorite: space.isFavorite,
+          icon: space.icon,
+          boards: totalBoards.map((b: any) => {
+            return {
+              _id: b._id,
+              name: b.name,
+              isMember: b.isMember,
+              color: b.color,
+              visibility: b.visibility,
+              isFavorite: b.isFavorite,
+              role: b.role
+            }
+          }),
+        };
+      }
     });
 
-    console.log(allSpaces);
+    res.send({
+      success: true,
+      data: neededSpaceDetails,
+      message: "",
+      statusCode: 200,
+    });
   } catch (err) {
     res.status(500).send({
       success: false,
@@ -134,7 +326,14 @@ export const createSpace = async (req: any, res: Response) => {
 
     res.status(201).send({
       success: true,
-      data: {},
+      data: {
+        _id: newSpace._id,
+        name: newSpace.name,
+        role: SPACE_MEMBER_ROLES.ADMIN,
+        isFavorite: newSpace.isFavorite,
+        icon: newSpace.icon,
+        boards: [],
+      },
       message: "Space created successfully",
       statusCode: 201,
     });

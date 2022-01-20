@@ -15,6 +15,7 @@ import { hideModal } from "../../redux/features/modalSlice";
 import { ERROR } from "../../types/constants";
 import { logoutUser } from "../../redux/features/authSlice";
 import axiosInstance from "../../axiosInstance";
+import { useQueryClient } from "react-query";
 
 interface SpaceObj {
   name: string;
@@ -30,6 +31,7 @@ interface UserObj {
 
 const CreateSpaceModal = () => {
   const dispatch = useDispatch();
+  const queryClient = useQueryClient();
 
   const [isFirstPage, setIsFirstPage] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -69,11 +71,16 @@ const CreateSpaceModal = () => {
         },
       })
       .then((response) => {
+        const { data } = response.data;
+
+        // update existing spaces list
+        queryClient.setQueryData([`getSpaces`], (oldData: any) => {
+          return [...oldData, data];
+        });
+
         setIsSubmitting(false);
 
         dispatch(hideModal());
-
-        // update existing spaces list
       })
       .catch((error: AxiosError) => {
         setIsSubmitting(false);

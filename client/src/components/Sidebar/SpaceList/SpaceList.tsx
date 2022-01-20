@@ -1,17 +1,78 @@
+import { HiOutlineRefresh } from "react-icons/hi";
+import { useQuery, useQueryClient } from "react-query";
 import { useDispatch } from "react-redux";
+import axiosInstance from "../../../axiosInstance";
 import spaces from "../../../data/spaces";
 import { showModal } from "../../../redux/features/modalSlice";
 import { SpaceObj } from "../../../types";
 import { CREATE_SPACE_MODAL } from "../../../types/constants";
+import UtilityBtn from "../../UtilityBtn/UtilityBtn";
 import SpaceItem from "./SpaceItem";
 
 const SpaceList = () => {
   const dispatch = useDispatch();
+  const queryClient = useQueryClient();
+
+  const getSpaces = async () => {
+    const response = await axiosInstance.get(`/spaces`);
+    const { data } = response.data;
+
+    return data;
+  };
+
+  const { data, isLoading, isFetching, error } = useQuery<
+    SpaceObj[] | undefined,
+    any,
+    SpaceObj[],
+    string[]
+  >(["getSpaces"], getSpaces);
+
+  if (error) {
+    <div className="w-full h-full flex items-center text-sm">
+      <span>Unable to get data!</span>
+      <UtilityBtn
+        iconSize={24}
+        Icon={HiOutlineRefresh}
+        label="Retry"
+        iconClasses={isFetching ? "animate-spin" : ""}
+        onClick={() => {
+          queryClient.invalidateQueries(["getSpaces"]);
+        }}
+      />
+    </div>;
+  }
+
+  if (isLoading) {
+    return (
+      <div className="w-full h-full flex items-center justify-center">
+        <svg
+          className="animate-spin h-8 w-8 text-white"
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+        >
+          <circle
+            className="text-primary"
+            cx="12"
+            cy="12"
+            r="10"
+            stroke="currentColor"
+            strokeWidth="4"
+          ></circle>
+          <path
+            className="opacity-75"
+            fill="currentColor"
+            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+          ></path>
+        </svg>
+      </div>
+    );
+  }
 
   return (
     <ul className="space-list pb-2">
-      {spaces.length > 0 ? (
-        spaces.map((space: SpaceObj) => {
+      {data && data.length > 0 ? (
+        data.map((space) => {
           return <SpaceItem key={space._id} space={space} />;
         })
       ) : (
