@@ -41,11 +41,19 @@ const Options: React.FC<Props> = ({ children, show, setShow, x, y }) => {
         <ul
           ref={optionsBoxRef}
           className="z-50 absolute options block bg-white rounded shadow-lg"
-          style={{
-            left: x - 20,
-            top: y - 20,
-            minWidth: "150px",
-          }}
+          style={
+            y > window.innerHeight / 2 + 20
+              ? {
+                  left: x - 20,
+                  bottom: window.innerHeight - y - 7,
+                  minWidth: "150px",
+                }
+              : {
+                  left: x - 20,
+                  top: y - 20,
+                  minWidth: "150px",
+                }
+          }
         >
           {children}
         </ul>
