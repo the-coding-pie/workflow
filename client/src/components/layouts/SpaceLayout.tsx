@@ -9,7 +9,7 @@ import { SPACE_ROLES } from "../../types/constants";
 const SpaceLayout = () => {
   const { id } = useParams();
 
-  const space = spaces[0];
+  const space = spaces[1];
 
   if (!space) {
     return <Navigate to="/404" replace={true} />;

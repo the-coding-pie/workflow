@@ -16,3 +16,7 @@ export const BOARD_MEMBER_ROLES = {
   NORMAL: "NORMAL",
   OBSERVER: "OBSERVER",
 };
+
+// favorite obj types
+export const SPACE = "SPACE";
+export const BOARD = "BOARD";

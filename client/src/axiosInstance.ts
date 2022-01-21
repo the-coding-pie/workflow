@@ -14,6 +14,7 @@ axiosInstance.interceptors.request.use(
   (config: any) => {
     // bottom line is required, if you are using react-query or something similar
     if (config.headers["Authorization"]) {
+      console.log("yes")
       config.headers["Authorization"] = null;
     }
     config.headers["Authorization"] =
@@ -95,8 +96,6 @@ axiosInstance.interceptors.response.use(
             store.dispatch(setAccessToken(accessToken));
 
             processQueue(null, accessToken);
-            // attach accessToken to the originalRequest
-            originalRequest.headers["Authorization"] = `Bearer ${accessToken}`;
             resolve(axiosInstance(originalRequest));
           })
           .catch((error) => {

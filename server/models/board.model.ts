@@ -60,10 +60,6 @@ const boardSchema = new mongoose.Schema(
       required: true,
       trim: true,
     },
-    isFavorite: {
-      type: Boolean,
-      default: false,
-    },
     spaceId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Space",

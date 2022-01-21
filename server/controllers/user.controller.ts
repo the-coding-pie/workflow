@@ -53,6 +53,8 @@ export const deleteCurrentUser = async (req: any, res: Response) => {
     await ForgotPassword.deleteOne({ userId: user._id });
     await RefreshToken.deleteOne({ userId: user._id });
 
+    // remove all things related to this user -> PENDING
+
     await User.deleteOne({ _id: user._id });
 
     res.send({

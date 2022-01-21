@@ -95,7 +95,7 @@ const CreateBoardModal = ({ spaceId }: Props) => {
     ),
   });
 
-  const handleSubmit = (board: BoardObj) => {
+  const handleSubmit = useCallback((board: BoardObj) => {
     axiosInstance
       .post(`/boards`, board, {
         headers: {
@@ -166,7 +166,7 @@ const CreateBoardModal = ({ spaceId }: Props) => {
           dispatch(addToast({ kind: ERROR, msg: `Error: ${error.message}` }));
         }
       });
-  };
+  }, []);
 
   return (
     <Formik
