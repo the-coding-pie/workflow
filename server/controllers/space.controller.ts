@@ -35,11 +35,14 @@ export const getSpaces = async (req: any, res: Response) => {
       .sort({ createdAt: 1 });
 
     const neededSpaceDetails = allSpaces.map(async (space: any) => {
-      const isFavorite = await Favorite.findOne({
+      const isFavorite = (await Favorite.findOne({
         resourceId: space._id,
         userId: req.user._id,
         type: SPACE,
-      });
+      }))
+        ? true
+        : false;
+
       // find current user's role in this space role
       const role = space.members.find(
         (m: any) => m.memberId.toString() === req.user._id.toString()
@@ -62,37 +65,45 @@ export const getSpaces = async (req: any, res: Response) => {
       // if current user is admin of space, show them all boards, board role determine -> take corresponding role from boards which he is member of + set isMember=true and for rest of the boards, give his role=ADMIN + set isMember=false
       if (role === SPACE_MEMBER_ROLES.ADMIN) {
         const totalBoards = [
-          ...myBoards.map(async (b: any) => ({
-            _id: b._id,
-            name: b.name,
-            isMember: true,
-            color: b.color,
-            visibility: b.visibility,
-            isFavorite: await Favorite.findOne({
-              resourceId: b._id,
-              userId: req.user._id,
-              type: BOARD,
-            }),
-            createdAt: b.createdAt,
-            role: b.members.find(
-              (board: any) =>
-                board.memberId.toString() === req.user._id.toString()
-            ).role,
-          })),
-          ...notMyBoards.map(async (b: any) => ({
-            _id: b._id,
-            name: b.name,
-            visibility: b.visibility,
-            isFavorite: await Favorite.findOne({
-              resourceId: b._id,
-              userId: req.user._id,
-              type: BOARD,
-            }),
-            createdAt: b.createdAt,
-            isMember: false,
-            color: b.color,
-            role: BOARD_MEMBER_ROLES.ADMIN,
-          })),
+          ...(await Promise.all(
+            myBoards.map(async (b: any) => ({
+              _id: b._id,
+              name: b.name,
+              isMember: true,
+              color: b.color,
+              visibility: b.visibility,
+              isFavorite: (await Favorite.findOne({
+                resourceId: b._id,
+                userId: req.user._id,
+                type: BOARD,
+              }))
+                ? true
+                : false,
+              createdAt: b.createdAt,
+              role: b.members.find(
+                (board: any) =>
+                  board.memberId.toString() === req.user._id.toString()
+              ).role,
+            }))
+          )),
+          ...(await Promise.all(
+            notMyBoards.map(async (b: any) => ({
+              _id: b._id,
+              name: b.name,
+              visibility: b.visibility,
+              isFavorite: (await Favorite.findOne({
+                resourceId: b._id,
+                userId: req.user._id,
+                type: BOARD,
+              }))
+                ? true
+                : false,
+              createdAt: b.createdAt,
+              isMember: false,
+              color: b.color,
+              role: BOARD_MEMBER_ROLES.ADMIN,
+            }))
+          )),
         ].sort(function (a: any, b: any) {
           // Turn your strings into dates, and then subtract them
           // to get a value that is either negative, positive, or zero.
@@ -107,7 +118,7 @@ export const getSpaces = async (req: any, res: Response) => {
           _id: space._id,
           name: space.name,
           role: role,
-          isFavorite: space.isFavorite,
+          isFavorite: isFavorite,
           icon: space.icon,
           boards: totalBoards.map((b: any) => {
             return {
@@ -124,37 +135,45 @@ export const getSpaces = async (req: any, res: Response) => {
       } else if (role === SPACE_MEMBER_ROLES.NORMAL) {
         // if current user is normal user in space, find all board which he is part of and take corresponding roles from them + set isMember = true, then take only public boards from otherBoards and set role=NORMAL + set isMember=false
         const totalBoards = [
-          ...myBoards.map(async (b: any) => ({
-            _id: b._id,
-            name: b.name,
-            isMember: true,
-            visibility: b.visibility,
-            isFavorite: await Favorite.findOne({
-              resourceId: b._id,
-              userId: req.user._id,
-              type: BOARD,
-            }),
-            color: b.color,
-            role: b.members.find(
-              (board: any) =>
-                board.memberId.toString() === req.user._id.toString()
-            ).role,
-          })),
-          ...notMyBoards
-            .filter((b: any) => b.visibility === BOARD_VISIBILITY.PUBLIC)
-            .map(async (b: any) => ({
+          ...(await Promise.all(
+            myBoards.map(async (b: any) => ({
               _id: b._id,
               name: b.name,
-              isMember: false,
+              isMember: true,
               visibility: b.visibility,
-              isFavorite: await Favorite.findOne({
+              isFavorite: (await Favorite.findOne({
                 resourceId: b._id,
                 userId: req.user._id,
                 type: BOARD,
-              }),
+              }))
+                ? true
+                : false,
               color: b.color,
-              role: BOARD_MEMBER_ROLES.NORMAL,
-            })),
+              role: b.members.find(
+                (board: any) =>
+                  board.memberId.toString() === req.user._id.toString()
+              ).role,
+            }))
+          )),
+          ...(await Promise.all(
+            notMyBoards
+              .filter((b: any) => b.visibility === BOARD_VISIBILITY.PUBLIC)
+              .map(async (b: any) => ({
+                _id: b._id,
+                name: b.name,
+                isMember: false,
+                visibility: b.visibility,
+                isFavorite: (await Favorite.findOne({
+                  resourceId: b._id,
+                  userId: req.user._id,
+                  type: BOARD,
+                }))
+                  ? true
+                  : false,
+                color: b.color,
+                role: BOARD_MEMBER_ROLES.NORMAL,
+              }))
+          )),
         ].sort(function (a: any, b: any) {
           // Turn your strings into dates, and then subtract them
           // to get a value that is either negative, positive, or zero.
@@ -186,22 +205,26 @@ export const getSpaces = async (req: any, res: Response) => {
       } else if (role === SPACE_MEMBER_ROLES.GUEST) {
         // if current user is guest user in space, find all board which he is part of and take corresponding roles from them + set isMember = true, that's it
         const totalBoards = [
-          ...myBoards.map(async (b: any) => ({
-            _id: b._id,
-            name: b.name,
-            isMember: true,
-            visibility: b.visibility,
-            isFavorite: await Favorite.findOne({
-              resourceId: b._id,
-              userId: req.user._id,
-              type: BOARD,
-            }),
-            color: b.color,
-            role: b.members.find(
-              (board: any) =>
-                board.memberId.toString() === req.user._id.toString()
-            ).role,
-          })),
+          ...(await Promise.all(
+            myBoards.map(async (b: any) => ({
+              _id: b._id,
+              name: b.name,
+              isMember: true,
+              visibility: b.visibility,
+              isFavorite: (await Favorite.findOne({
+                resourceId: b._id,
+                userId: req.user._id,
+                type: BOARD,
+              }))
+                ? true
+                : false,
+              color: b.color,
+              role: b.members.find(
+                (board: any) =>
+                  board.memberId.toString() === req.user._id.toString()
+              ).role,
+            }))
+          )),
         ].sort(function (a: any, b: any) {
           // Turn your strings into dates, and then subtract them
           // to get a value that is either negative, positive, or zero.
@@ -235,7 +258,7 @@ export const getSpaces = async (req: any, res: Response) => {
 
     res.send({
       success: true,
-      data: neededSpaceDetails,
+      data: await Promise.all(neededSpaceDetails),
       message: "",
       statusCode: 200,
     });
