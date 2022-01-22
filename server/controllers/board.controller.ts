@@ -93,15 +93,17 @@ export const createBoard = async (req: any, res: Response) => {
     }
 
     // make sure spaceId is valid, and the current user is either a space admin/normal user
-    const space = await Space.findOne({ _id: spaceId });
+    const space = await Space.findOne({
+      _id: spaceId,
+      members: {
+        $elemMatch: {
+          memberId: req.user._id,
+        },
+      },
+    });
 
     // if there is no space, or if the current user is not a part of the space, simply return 404
-    if (
-      !space ||
-      !space.members
-        .map((m: any) => m.memberId.toString())
-        .includes(req.user._id.toString())
-    ) {
+    if (!space) {
       return res.status(404).send({
         success: false,
         data: {},

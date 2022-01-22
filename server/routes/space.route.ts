@@ -10,5 +10,9 @@ spaceRouter.get("/", authMiddleware, spaceController.getSpaces);
 spaceRouter.post("/", authMiddleware, spaceController.createSpace);
 // Protected(Auth) GET /spaces/mine -> gets all the spaces in which current user is either an admin/normal member
 spaceRouter.get("/mine", authMiddleware, spaceController.getSpacesMine);
+// Protected(Auth) GET /spaces/:id/info -> get space info
+spaceRouter.get("/:id/info", authMiddleware, spaceController.getSpaceInfo);
+// Protected(Auth) GET /spaces/:id/boards -> get all space boards according to user role
+spaceRouter.get("/:id/boards", authMiddleware, spaceController.getAllBoards);
 
 export default spaceRouter;

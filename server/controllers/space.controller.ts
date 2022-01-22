@@ -14,7 +14,7 @@ import {
 import { isAfter, isEqual } from "date-fns";
 import Favorite from "../models/favorite.model";
 
-// GET /spaces -> get space and its corresponding boards
+// GET /spaces -> get space and its corresponding boards (for sidebar)
 export const getSpaces = async (req: any, res: Response) => {
   try {
     // find all spaces in which i am an admin/normal/guest
@@ -25,9 +25,8 @@ export const getSpaces = async (req: any, res: Response) => {
         },
       },
     })
-      .select("_id name icon")
+      .select("_id name icon members")
       .lean()
-      .populate("members")
       .populate({
         path: "boards",
         select: "_id name color members visibility createdAt",
@@ -150,6 +149,7 @@ export const getSpaces = async (req: any, res: Response) => {
                 isFavorite: favorite ? true : false,
                 favoriteId: favorite && favorite._id,
                 color: b.color,
+                createdAt: b.createdAt,
                 role: b.members.find(
                   (board: any) =>
                     board.memberId.toString() === req.user._id.toString()
@@ -174,6 +174,7 @@ export const getSpaces = async (req: any, res: Response) => {
                   visibility: b.visibility,
                   isFavorite: favorite ? true : false,
                   favoriteId: favorite && favorite._id,
+                  createdAt: b.createdAt,
                   color: b.color,
                   role: BOARD_MEMBER_ROLES.NORMAL,
                 };
@@ -220,6 +221,7 @@ export const getSpaces = async (req: any, res: Response) => {
                 visibility: b.visibility,
                 isFavorite: favorite ? true : false,
                 favoriteId: favorite && favorite._id,
+                createdAt: b.createdAt,
                 color: b.color,
                 role: b.members.find(
                   (board: any) =>
@@ -413,6 +415,340 @@ export const getSpacesMine = async (req: any, res: Response) => {
     res.send({
       success: true,
       data: mySpaces,
+      message: "",
+      statusCode: 200,
+    });
+  } catch (err) {
+    res.status(500).send({
+      success: false,
+      data: {},
+      message: "Oops, something went wrong!",
+      statusCode: 500,
+    });
+  }
+};
+
+// GET /spaces/:id/info
+export const getSpaceInfo = async (req: any, res: Response) => {
+  try {
+    const { id } = req.params;
+
+    if (!id) {
+      return res.status(400).send({
+        success: false,
+        data: {},
+        message: "space _id is required",
+        statusCode: 400,
+      });
+    } else if (!mongoose.isValidObjectId(id)) {
+      return res.status(400).send({
+        success: false,
+        data: {},
+        message: "Invalid space _id",
+        statusCode: 400,
+      });
+    }
+
+    // to get a space's information, you must be a member in it
+    const space = await Space.findOne({
+      _id: id,
+      members: {
+        $elemMatch: {
+          memberId: req.user._id,
+        },
+      },
+    })
+      .lean()
+      .select("_id icon name members description");
+
+    if (!space) {
+      return res.status(404).send({
+        success: false,
+        data: {},
+        message: "Space not found!",
+        statusCode: 404,
+      });
+    }
+    const favorite = await Favorite.findOne({
+      resourceId: space._id,
+      userId: req.user._id,
+      type: SPACE,
+    });
+
+    res.send({
+      success: true,
+      data: {
+        _id: space._id,
+        icon: space.icon,
+        name: space.name,
+        role: space.members.find(
+          (m: any) => m.memberId.toString() === req.user._id.toString()
+        ).role,
+        description: space.description,
+        isFavorite: favorite ? true : false,
+        favoriteId: favorite && favorite._id,
+      },
+      message: "",
+      statusCode: 200,
+    });
+  } catch (err) {
+    res.status(500).send({
+      success: false,
+      data: {},
+      message: "Oops, something went wrong!",
+      statusCode: 500,
+    });
+  }
+};
+
+// GET /spaces/:id/boards -> get all the boards under the space
+export const getAllBoards = async (req: any, res: Response) => {
+  try {
+    const { id } = req.params;
+
+    if (!id) {
+      return res.status(400).send({
+        success: false,
+        data: {},
+        message: "space _id is required",
+        statusCode: 400,
+      });
+    } else if (!mongoose.isValidObjectId(id)) {
+      return res.status(400).send({
+        success: false,
+        data: {},
+        message: "Invalid space _id",
+        statusCode: 400,
+      });
+    }
+
+    // to get a space's information, you must be a member in it
+    const space = await Space.findOne({
+      _id: id,
+      members: {
+        $elemMatch: {
+          memberId: req.user._id,
+        },
+      },
+    })
+      .lean()
+      .select("_id icon name members boards")
+      .populate({
+        path: "boards",
+        select: "_id name color bgImg members visibility createdAt",
+      });
+
+    if (!space) {
+      return res.status(404).send({
+        success: false,
+        data: {},
+        message: "Space not found!",
+        statusCode: 404,
+      });
+    }
+
+    let boards = [];
+
+    // the user is able to see that space, so
+    // find current user's role in this space role
+    const role = space.members.find(
+      (m: any) => m.memberId.toString() === req.user._id.toString()
+    ).role;
+
+    // split boards into two -> current user is actual member, not actual member
+    const myBoards = space.boards.filter((board: any) =>
+      board.members
+        .map((m: any) => m.memberId.toString())
+        .includes(req.user._id.toString())
+    );
+    // boards other than i am part of
+    const notMyBoards = space.boards.filter(
+      (board: any) =>
+        !myBoards
+          .map((b: any) => b._id.toString())
+          .includes(board._id.toString())
+    );
+
+    // if current user is admin of space, show them all boards, board role determine -> take corresponding role from boards which he is member of + set isMember=true and for rest of the boards, give his role=ADMIN + set isMember=false
+    if (role === SPACE_MEMBER_ROLES.ADMIN) {
+      const totalBoards = [
+        ...(await Promise.all(
+          myBoards.map(async (b: any) => {
+            const favorite = await Favorite.findOne({
+              resourceId: b._id,
+              userId: req.user._id,
+              type: BOARD,
+            });
+
+            return {
+              _id: b._id,
+              name: b.name,
+              isMember: true,
+              color: b.color,
+              bgImg: b.bgImg,
+              visibility: b.visibility,
+              isFavorite: favorite ? true : false,
+              favoriteId: favorite && favorite._id,
+              createdAt: b.createdAt,
+              role: b.members.find(
+                (board: any) =>
+                  board.memberId.toString() === req.user._id.toString()
+              ).role,
+            };
+          })
+        )),
+        ...(await Promise.all(
+          notMyBoards.map(async (b: any) => {
+            const favorite = await Favorite.findOne({
+              resourceId: b._id,
+              userId: req.user._id,
+              type: BOARD,
+            });
+
+            return {
+              _id: b._id,
+              name: b.name,
+              visibility: b.visibility,
+              bgImg: b.bgImg,
+              isFavorite: favorite ? true : false,
+              favoriteId: favorite && favorite._id,
+              createdAt: b.createdAt,
+              isMember: false,
+              color: b.color,
+              role: BOARD_MEMBER_ROLES.ADMIN,
+            };
+          })
+        )),
+      ].sort(function (a: any, b: any) {
+        // Turn your strings into dates, and then subtract them
+        // to get a value that is either negative, positive, or zero.
+        return isEqual(b.createdAt, a.createdAt)
+          ? 0
+          : isAfter(b.createdAt, a.createdAt)
+          ? -1
+          : 1;
+      });
+
+      boards = totalBoards.map((b: any) => {
+        delete b.createdAt;
+
+        return b;
+      });
+    } else if (role === SPACE_MEMBER_ROLES.NORMAL) {
+      // if current user is normal user in space, find all board which he is part of and take corresponding roles from them + set isMember = true, then take only public boards from otherBoards and set role=NORMAL + set isMember=false
+      const totalBoards = [
+        ...(await Promise.all(
+          myBoards.map(async (b: any) => {
+            const favorite = await Favorite.findOne({
+              resourceId: b._id,
+              userId: req.user._id,
+              type: BOARD,
+            });
+
+            return {
+              _id: b._id,
+              name: b.name,
+              isMember: true,
+              visibility: b.visibility,
+              bgImg: b.bgImg,
+              isFavorite: favorite ? true : false,
+              favoriteId: favorite && favorite._id,
+              color: b.color,
+              createdAt: b.createdAt,
+              role: b.members.find(
+                (board: any) =>
+                  board.memberId.toString() === req.user._id.toString()
+              ).role,
+            };
+          })
+        )),
+        ...(await Promise.all(
+          notMyBoards
+            .filter((b: any) => b.visibility === BOARD_VISIBILITY.PUBLIC)
+            .map(async (b: any) => {
+              const favorite = await Favorite.findOne({
+                resourceId: b._id,
+                userId: req.user._id,
+                type: BOARD,
+              });
+
+              return {
+                _id: b._id,
+                name: b.name,
+                isMember: false,
+                visibility: b.visibility,
+                bgImg: b.bgImg,
+                createdAt: b.createdAt,
+                isFavorite: favorite ? true : false,
+                favoriteId: favorite && favorite._id,
+                color: b.color,
+                role: BOARD_MEMBER_ROLES.NORMAL,
+              };
+            })
+        )),
+      ].sort(function (a: any, b: any) {
+        // Turn your strings into dates, and then subtract them
+        // to get a value that is either negative, positive, or zero.
+        return isEqual(b.createdAt, a.createdAt)
+          ? 0
+          : isAfter(b.createdAt, a.createdAt)
+          ? -1
+          : 1;
+      });
+
+      boards = totalBoards.map((b: any) => {
+        delete b.createdAt;
+
+        return b;
+      });
+    } else if (role === SPACE_MEMBER_ROLES.GUEST) {
+      // if current user is guest user in space, find all board which he is part of and take corresponding roles from them + set isMember = true, that's it
+      const totalBoards = [
+        ...(await Promise.all(
+          myBoards.map(async (b: any) => {
+            const favorite = await Favorite.findOne({
+              resourceId: b._id,
+              userId: req.user._id,
+              type: BOARD,
+            });
+
+            return {
+              _id: b._id,
+              name: b.name,
+              isMember: true,
+              visibility: b.visibility,
+              bgImg: b.bgImg,
+              isFavorite: favorite ? true : false,
+              favoriteId: favorite && favorite._id,
+              createdAt: b.createdAt,
+              color: b.color,
+              role: b.members.find(
+                (board: any) =>
+                  board.memberId.toString() === req.user._id.toString()
+              ).role,
+            };
+          })
+        )),
+      ].sort(function (a: any, b: any) {
+        // Turn your strings into dates, and then subtract them
+        // to get a value that is either negative, positive, or zero.
+        return isEqual(b.createdAt, a.createdAt)
+          ? 0
+          : isAfter(b.createdAt, a.createdAt)
+          ? -1
+          : 1;
+      });
+
+      boards = totalBoards.map((b: any) => {
+        delete b.createdAt;
+
+        return b;
+      });
+    }
+
+    res.send({
+      success: true,
+      data: boards,
       message: "",
       statusCode: 200,
     });
