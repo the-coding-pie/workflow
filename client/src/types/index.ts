@@ -25,7 +25,8 @@ export interface UserObj {
 export interface FavoriteObj {
   _id: string;
   name: string;
-  resourceId?: string;
+  resourceId: string;
+  spaceId?: string;
   type: typeof SPACE | typeof BOARD;
   spaceRole?:
     | typeof SPACE_ROLES.ADMIN
@@ -43,6 +44,7 @@ export interface SpaceObj {
   name: string;
   icon: string | null;
   isFavorite: boolean;
+  favoriteId?: string;
   role:
     | typeof SPACE_ROLES.ADMIN
     | typeof SPACE_ROLES.NORMAL
@@ -55,6 +57,7 @@ export interface BoardObj {
   name: string;
   isMember: boolean;
   isFavorite: boolean;
+  favoriteId?: string;
   color: string;
   visibility:
     | typeof BOARD_VISIBILITY_TYPES.PRIVATE

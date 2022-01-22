@@ -35,13 +35,11 @@ export const getSpaces = async (req: any, res: Response) => {
       .sort({ createdAt: 1 });
 
     const neededSpaceDetails = allSpaces.map(async (space: any) => {
-      const isFavorite = (await Favorite.findOne({
+      const favorite = await Favorite.findOne({
         resourceId: space._id,
         userId: req.user._id,
         type: SPACE,
-      }))
-        ? true
-        : false;
+      });
 
       // find current user's role in this space role
       const role = space.members.find(
@@ -66,43 +64,49 @@ export const getSpaces = async (req: any, res: Response) => {
       if (role === SPACE_MEMBER_ROLES.ADMIN) {
         const totalBoards = [
           ...(await Promise.all(
-            myBoards.map(async (b: any) => ({
-              _id: b._id,
-              name: b.name,
-              isMember: true,
-              color: b.color,
-              visibility: b.visibility,
-              isFavorite: (await Favorite.findOne({
+            myBoards.map(async (b: any) => {
+              const favorite = await Favorite.findOne({
                 resourceId: b._id,
                 userId: req.user._id,
                 type: BOARD,
-              }))
-                ? true
-                : false,
-              createdAt: b.createdAt,
-              role: b.members.find(
-                (board: any) =>
-                  board.memberId.toString() === req.user._id.toString()
-              ).role,
-            }))
+              });
+
+              return {
+                _id: b._id,
+                name: b.name,
+                isMember: true,
+                color: b.color,
+                visibility: b.visibility,
+                isFavorite: favorite ? true : false,
+                favoriteId: favorite && favorite._id,
+                createdAt: b.createdAt,
+                role: b.members.find(
+                  (board: any) =>
+                    board.memberId.toString() === req.user._id.toString()
+                ).role,
+              };
+            })
           )),
           ...(await Promise.all(
-            notMyBoards.map(async (b: any) => ({
-              _id: b._id,
-              name: b.name,
-              visibility: b.visibility,
-              isFavorite: (await Favorite.findOne({
+            notMyBoards.map(async (b: any) => {
+              const favorite = await Favorite.findOne({
                 resourceId: b._id,
                 userId: req.user._id,
                 type: BOARD,
-              }))
-                ? true
-                : false,
-              createdAt: b.createdAt,
-              isMember: false,
-              color: b.color,
-              role: BOARD_MEMBER_ROLES.ADMIN,
-            }))
+              });
+
+              return {
+                _id: b._id,
+                name: b.name,
+                visibility: b.visibility,
+                isFavorite: favorite ? true : false,
+                favoriteId: favorite && favorite._id,
+                createdAt: b.createdAt,
+                isMember: false,
+                color: b.color,
+                role: BOARD_MEMBER_ROLES.ADMIN,
+              };
+            })
           )),
         ].sort(function (a: any, b: any) {
           // Turn your strings into dates, and then subtract them
@@ -118,61 +122,62 @@ export const getSpaces = async (req: any, res: Response) => {
           _id: space._id,
           name: space.name,
           role: role,
-          isFavorite: isFavorite,
+          isFavorite: favorite ? true : false,
+          favoriteId: favorite && favorite._id,
           icon: space.icon,
           boards: totalBoards.map((b: any) => {
-            return {
-              _id: b._id,
-              name: b.name,
-              isMember: b.isMember,
-              color: b.color,
-              visibility: b.visibility,
-              isFavorite: b.isFavorite,
-              role: b.role,
-            };
+            delete b.createdAt;
+
+            return b;
           }),
         };
       } else if (role === SPACE_MEMBER_ROLES.NORMAL) {
         // if current user is normal user in space, find all board which he is part of and take corresponding roles from them + set isMember = true, then take only public boards from otherBoards and set role=NORMAL + set isMember=false
         const totalBoards = [
           ...(await Promise.all(
-            myBoards.map(async (b: any) => ({
-              _id: b._id,
-              name: b.name,
-              isMember: true,
-              visibility: b.visibility,
-              isFavorite: (await Favorite.findOne({
+            myBoards.map(async (b: any) => {
+              const favorite = await Favorite.findOne({
                 resourceId: b._id,
                 userId: req.user._id,
                 type: BOARD,
-              }))
-                ? true
-                : false,
-              color: b.color,
-              role: b.members.find(
-                (board: any) =>
-                  board.memberId.toString() === req.user._id.toString()
-              ).role,
-            }))
+              });
+
+              return {
+                _id: b._id,
+                name: b.name,
+                isMember: true,
+                visibility: b.visibility,
+                isFavorite: favorite ? true : false,
+                favoriteId: favorite && favorite._id,
+                color: b.color,
+                role: b.members.find(
+                  (board: any) =>
+                    board.memberId.toString() === req.user._id.toString()
+                ).role,
+              };
+            })
           )),
           ...(await Promise.all(
             notMyBoards
               .filter((b: any) => b.visibility === BOARD_VISIBILITY.PUBLIC)
-              .map(async (b: any) => ({
-                _id: b._id,
-                name: b.name,
-                isMember: false,
-                visibility: b.visibility,
-                isFavorite: (await Favorite.findOne({
+              .map(async (b: any) => {
+                const favorite = await Favorite.findOne({
                   resourceId: b._id,
                   userId: req.user._id,
                   type: BOARD,
-                }))
-                  ? true
-                  : false,
-                color: b.color,
-                role: BOARD_MEMBER_ROLES.NORMAL,
-              }))
+                });
+
+                return {
+                  _id: b._id,
+                  name: b.name,
+                  isMember: false,
+                  visibility: b.visibility,
+                  isFavorite: favorite ? true : false,
+                  favoriteId: favorite && favorite._id,
+                  color: b.color,
+                  role: BOARD_MEMBER_ROLES.NORMAL,
+                };
+              })
           )),
         ].sort(function (a: any, b: any) {
           // Turn your strings into dates, and then subtract them
@@ -187,43 +192,41 @@ export const getSpaces = async (req: any, res: Response) => {
         return {
           _id: space._id,
           name: space.name,
-          isFavorite: isFavorite,
+          isFavorite: favorite ? true : false,
+          favoriteId: favorite && favorite._id,
           role: role,
           icon: space.icon,
           boards: totalBoards.map((b: any) => {
-            return {
-              _id: b._id,
-              name: b.name,
-              isMember: b.isMember,
-              color: b.color,
-              visibility: b.visibility,
-              isFavorite: b.isFavorite,
-              role: b.role,
-            };
+            delete b.createdAt;
+
+            return b;
           }),
         };
       } else if (role === SPACE_MEMBER_ROLES.GUEST) {
         // if current user is guest user in space, find all board which he is part of and take corresponding roles from them + set isMember = true, that's it
         const totalBoards = [
           ...(await Promise.all(
-            myBoards.map(async (b: any) => ({
-              _id: b._id,
-              name: b.name,
-              isMember: true,
-              visibility: b.visibility,
-              isFavorite: (await Favorite.findOne({
+            myBoards.map(async (b: any) => {
+              const favorite = await Favorite.findOne({
                 resourceId: b._id,
                 userId: req.user._id,
                 type: BOARD,
-              }))
-                ? true
-                : false,
-              color: b.color,
-              role: b.members.find(
-                (board: any) =>
-                  board.memberId.toString() === req.user._id.toString()
-              ).role,
-            }))
+              });
+
+              return {
+                _id: b._id,
+                name: b.name,
+                isMember: true,
+                visibility: b.visibility,
+                isFavorite: favorite ? true : false,
+                favoriteId: favorite && favorite._id,
+                color: b.color,
+                role: b.members.find(
+                  (board: any) =>
+                    board.memberId.toString() === req.user._id.toString()
+                ).role,
+              };
+            })
           )),
         ].sort(function (a: any, b: any) {
           // Turn your strings into dates, and then subtract them
@@ -239,18 +242,13 @@ export const getSpaces = async (req: any, res: Response) => {
           _id: space._id,
           name: space.name,
           role: role,
-          isFavorite: isFavorite,
+          isFavorite: favorite ? true : false,
+          favoriteId: favorite && favorite._id,
           icon: space.icon,
           boards: totalBoards.map((b: any) => {
-            return {
-              _id: b._id,
-              name: b.name,
-              isMember: b.isMember,
-              color: b.color,
-              visibility: b.visibility,
-              isFavorite: b.isFavorite,
-              role: b.role,
-            };
+            delete b.createdAt;
+
+            return b;
           }),
         };
       }

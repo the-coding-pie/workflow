@@ -91,6 +91,7 @@ export const getMyFavorites = async (req: any, res: Response) => {
         _id: favorite._id,
         name: b.name,
         resourceId: b._id,
+        spaceId: b.spaceId._id,
         type: BOARD,
         boardVisibility: b.visibility,
         color: b.color,
@@ -219,7 +220,7 @@ export const addToFavorite = async (req: any, res: Response) => {
 
       return res.status(201).send({
         success: true,
-        data: {},
+        data: newFav._id,
         message: "Space added to favorite",
         statusCode: 201,
       });
@@ -337,7 +338,7 @@ export const addToFavorite = async (req: any, res: Response) => {
 
     return res.status(201).send({
       success: true,
-      data: {},
+      data: newFav._id,
       message: "Board added to favorite",
       statusCode: 201,
     });

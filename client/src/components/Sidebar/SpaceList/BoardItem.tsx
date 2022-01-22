@@ -1,5 +1,5 @@
-import React, { useRef, useState } from "react";
-import { BoardObj } from "../../../types";
+import React, { useCallback, useRef, useState } from "react";
+import { BoardObj, SpaceObj } from "../../../types";
 import {
   HiOutlineCog,
   HiOutlineDotsHorizontal,
@@ -15,9 +15,13 @@ import { setCurrentActiveMenu } from "../../../redux/features/sidebarMenu";
 import CustomReactToolTip from "../../CustomReactToolTip/CustomReactToolTip";
 import Options from "../../Options/Options";
 import OptionsItem from "../../Options/OptionsItem";
-import { BOARD_ROLES } from "../../../types/constants";
+import { BOARD_ROLES, ERROR } from "../../../types/constants";
 import { setCurrentActiveSpace } from "../../../redux/features/spaceMenu";
 import OptionsHR from "../../Options/OptionsHR";
+import { AxiosError } from "axios";
+import { useQueryClient } from "react-query";
+import axiosInstance from "../../../axiosInstance";
+import { addToast } from "../../../redux/features/toastSlice";
 
 interface Props {
   board: BoardObj;
@@ -27,6 +31,7 @@ interface Props {
 
 const BoardItem = ({ board, setShowPlusIcon, setShowBoardOptions }: Props) => {
   const dispatch = useDispatch();
+  const queryClient = useQueryClient();
 
   const [showIcon, setShowIcon] = useState(false);
   const [showOptions, setShowOptions] = useState(false);
@@ -51,6 +56,129 @@ const BoardItem = ({ board, setShowPlusIcon, setShowBoardOptions }: Props) => {
   }, [showOptions]);
 
   const optionsBtnRef = useRef<any>(null);
+
+  const addToFavorite = useCallback((boardId: string) => {
+    axiosInstance
+      .post(`/favorites`, {
+        boardId: boardId,
+      })
+      .then((response) => {
+        setShowOptions(false);
+
+        const { data } = response.data;
+
+        if (response.status === 201) {
+          queryClient.setQueryData(["getSpaces"], (oldData: any) => {
+            return oldData.map((d: SpaceObj) => {
+              return {
+                ...d,
+                boards: d.boards.map((b: BoardObj) => {
+                  if (b._id === boardId) {
+                    return {
+                      ...b,
+                      isFavorite: true,
+                      favoriteId: data,
+                    };
+                  }
+
+                  return b;
+                }),
+              };
+            });
+          });
+
+          queryClient.invalidateQueries(["getFavorites"]);
+        }
+      })
+      .catch((error: AxiosError) => {
+        setShowOptions(false);
+
+        if (error.response) {
+          const response = error.response;
+          const { message } = response.data;
+
+          switch (response.status) {
+            case 400:
+            case 404:
+            case 500:
+              dispatch(addToast({ kind: ERROR, msg: message }));
+              break;
+            default:
+              dispatch(
+                addToast({ kind: ERROR, msg: "Oops, something went wrong" })
+              );
+              break;
+          }
+        } else if (error.request) {
+          dispatch(
+            addToast({ kind: ERROR, msg: "Oops, something went wrong" })
+          );
+        } else {
+          dispatch(addToast({ kind: ERROR, msg: `Error: ${error.message}` }));
+        }
+      });
+  }, []);
+
+  const removeFavorite = useCallback((favId: string, boardId: string) => {
+    axiosInstance
+      .delete(`/favorites/${favId}`)
+      .then((response) => {
+        setShowOptions(false);
+
+        queryClient.setQueryData(["getFavorites"], (oldData: any) => {
+          if (oldData) {
+            return oldData.filter((fav: any) => fav._id.toString() !== favId);
+          }
+          return oldData;
+        });
+
+        queryClient.setQueryData(["getSpaces"], (oldData: any) => {
+          return oldData.map((d: SpaceObj) => {
+            return {
+              ...d,
+              boards: d.boards.map((b: BoardObj) => {
+                if (b._id === boardId) {
+                  return {
+                    ...b,
+                    isFavorite: false,
+                    favoriteId: null,
+                  };
+                }
+
+                return b;
+              }),
+            };
+          });
+        });
+      })
+      .catch((error: AxiosError) => {
+        setShowOptions(false);
+
+        if (error.response) {
+          const response = error.response;
+          const { message } = response.data;
+
+          switch (response.status) {
+            case 400:
+            case 404:
+            case 500:
+              dispatch(addToast({ kind: ERROR, msg: message }));
+              break;
+            default:
+              dispatch(
+                addToast({ kind: ERROR, msg: "Oops, something went wrong" })
+              );
+              break;
+          }
+        } else if (error.request) {
+          dispatch(
+            addToast({ kind: ERROR, msg: "Oops, something went wrong" })
+          );
+        } else {
+          dispatch(addToast({ kind: ERROR, msg: `Error: ${error.message}` }));
+        }
+      });
+  }, []);
 
   return (
     <li className="board-item">
@@ -125,7 +253,7 @@ const BoardItem = ({ board, setShowPlusIcon, setShowBoardOptions }: Props) => {
                 key="Unfavorite"
                 Icon={HiOutlineStar}
                 text="Unfavorite"
-                onClick={() => {}}
+                onClick={() => removeFavorite(board.favoriteId!, board._id)}
                 iconFillColor="#fbbf24"
                 iconColor="#fbbf24"
               />
@@ -134,7 +262,7 @@ const BoardItem = ({ board, setShowPlusIcon, setShowBoardOptions }: Props) => {
                 key="Favorite"
                 Icon={HiOutlineStar}
                 text="Favorite"
-                onClick={() => {}}
+                onClick={() => addToFavorite(board._id)}
               />
             )}
           </>
@@ -145,7 +273,7 @@ const BoardItem = ({ board, setShowPlusIcon, setShowBoardOptions }: Props) => {
                 key="Unfavorite"
                 Icon={HiOutlineStar}
                 text="Unfavorite"
-                onClick={() => {}}
+                onClick={() => removeFavorite(board.favoriteId!, board._id)}
                 iconFillColor="#fbbf24"
                 iconColor="#fbbf24"
               />
@@ -154,7 +282,7 @@ const BoardItem = ({ board, setShowPlusIcon, setShowBoardOptions }: Props) => {
                 key="Favorite"
                 Icon={HiOutlineStar}
                 text="Favorite"
-                onClick={() => {}}
+                onClick={() => addToFavorite(board._id)}
               />
             )}
 

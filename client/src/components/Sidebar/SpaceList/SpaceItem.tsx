@@ -8,9 +8,7 @@ import {
   HiOutlinePlus,
   HiOutlineStar,
   HiOutlineShare,
-  HiPencilAlt,
   HiOutlineTrash,
-  HiCog,
   HiOutlineCog,
   HiOutlinePencil,
 } from "react-icons/hi";
@@ -26,9 +24,18 @@ import { setCurrentActiveMenu } from "../../../redux/features/sidebarMenu";
 import CustomReactToolTip from "../../CustomReactToolTip/CustomReactToolTip";
 import Options from "../../Options/Options";
 import OptionsItem from "../../Options/OptionsItem";
-import { CREATE_BOARD_MODAL, SPACE_ROLES } from "../../../types/constants";
+import {
+  CREATE_BOARD_MODAL,
+  ERROR,
+  SPACE_ROLES,
+} from "../../../types/constants";
 import OptionsHR from "../../Options/OptionsHR";
 import { showModal } from "../../../redux/features/modalSlice";
+import { useCallback } from "react";
+import axiosInstance from "../../../axiosInstance";
+import { useQueryClient } from "react-query";
+import { AxiosError } from "axios";
+import { addToast } from "../../../redux/features/toastSlice";
 
 interface Props {
   space: SpaceObj;
@@ -36,6 +43,8 @@ interface Props {
 
 const SpaceItem = ({ space }: Props) => {
   const dispatch = useDispatch();
+  const queryClient = useQueryClient();
+
   const { currentActiveSpace } = useSelector(
     (state: RootState) => state.spaceMenu
   );
@@ -67,6 +76,120 @@ const SpaceItem = ({ space }: Props) => {
   const ref = useRef<any>(null);
   const optionsBtnRef = useRef<any>(null);
   const plusBtnRef = useRef<any>(null);
+
+  const addToFavorite = useCallback((spaceId: string) => {
+    axiosInstance
+      .post(`/favorites`, {
+        spaceId: spaceId,
+      })
+      .then((response) => {
+        setShowOptions(false);
+
+        const { data } = response.data;
+
+        if (response.status === 201) {
+          queryClient.setQueryData(["getSpaces"], (oldData: any) => {
+            return oldData.map((d: SpaceObj) => {
+              if (d._id === spaceId) {
+                return {
+                  ...d,
+                  isFavorite: true,
+                  favoriteId: data,
+                };
+              }
+
+              return d;
+            });
+          });
+
+          queryClient.invalidateQueries(["getFavorites"]);
+        }
+      })
+      .catch((error: AxiosError) => {
+        setShowOptions(false);
+
+        if (error.response) {
+          const response = error.response;
+          const { message } = response.data;
+
+          switch (response.status) {
+            case 400:
+            case 404:
+            case 500:
+              dispatch(addToast({ kind: ERROR, msg: message }));
+              break;
+            default:
+              dispatch(
+                addToast({ kind: ERROR, msg: "Oops, something went wrong" })
+              );
+              break;
+          }
+        } else if (error.request) {
+          dispatch(
+            addToast({ kind: ERROR, msg: "Oops, something went wrong" })
+          );
+        } else {
+          dispatch(addToast({ kind: ERROR, msg: `Error: ${error.message}` }));
+        }
+      });
+  }, []);
+
+  const removeFavorite = useCallback((favId: string, spaceId: string) => {
+    axiosInstance
+      .delete(`/favorites/${favId}`)
+      .then((response) => {
+        setShowOptions(false);
+
+        queryClient.setQueryData(["getFavorites"], (oldData: any) => {
+          if (oldData) {
+            return oldData.filter((fav: any) => fav._id.toString() !== favId);
+          }
+
+          return oldData;
+        });
+
+        queryClient.setQueryData(["getSpaces"], (oldData: any) => {
+          return oldData.map((d: SpaceObj) => {
+            if (d._id === spaceId) {
+              return {
+                ...d,
+                isFavorite: false,
+                favoriteId: null,
+              };
+            }
+
+            return d;
+          });
+        });
+      })
+      .catch((error: AxiosError) => {
+        setShowOptions(false);
+
+        if (error.response) {
+          const response = error.response;
+          const { message } = response.data;
+
+          switch (response.status) {
+            case 400:
+            case 404:
+            case 500:
+              dispatch(addToast({ kind: ERROR, msg: message }));
+              break;
+            default:
+              dispatch(
+                addToast({ kind: ERROR, msg: "Oops, something went wrong" })
+              );
+              break;
+          }
+        } else if (error.request) {
+          dispatch(
+            addToast({ kind: ERROR, msg: "Oops, something went wrong" })
+          );
+        } else {
+          dispatch(addToast({ kind: ERROR, msg: `Error: ${error.message}` }));
+        }
+      });
+  }, []);
 
   return (
     <li
@@ -266,7 +389,7 @@ const SpaceItem = ({ space }: Props) => {
                 key="Unfavorite"
                 Icon={HiOutlineStar}
                 text="Unfavorite"
-                onClick={() => {}}
+                onClick={() => removeFavorite(space.favoriteId!, space._id)}
                 iconFillColor="#fbbf24"
                 iconColor="#fbbf24"
               />
@@ -275,7 +398,7 @@ const SpaceItem = ({ space }: Props) => {
                 key="Favorite"
                 Icon={HiOutlineStar}
                 text="Favorite"
-                onClick={() => {}}
+                onClick={() => addToFavorite(space._id)}
               />
             )}
           </>
@@ -303,7 +426,7 @@ const SpaceItem = ({ space }: Props) => {
                 key="Unfavorite"
                 Icon={HiOutlineStar}
                 text="Unfavorite"
-                onClick={() => {}}
+                onClick={() => removeFavorite(space.favoriteId!, space._id)}
                 iconFillColor="#fbbf24"
                 iconColor="#fbbf24"
               />
@@ -312,7 +435,7 @@ const SpaceItem = ({ space }: Props) => {
                 key="Favorite"
                 Icon={HiOutlineStar}
                 text="Favorite"
-                onClick={() => {}}
+                onClick={() => addToFavorite(space._id)}
               />
             )}
 

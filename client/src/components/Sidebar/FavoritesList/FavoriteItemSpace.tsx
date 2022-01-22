@@ -1,6 +1,6 @@
-import React, { useRef, useState } from "react";
+import React, { useCallback, useRef, useState } from "react";
 import { useDispatch } from "react-redux";
-import { FavoriteObj } from "../../../types";
+import { FavoriteObj, SpaceObj } from "../../../types";
 import Avatar from "react-avatar";
 import {
   HiOutlineDotsHorizontal,
@@ -14,8 +14,12 @@ import { MdGroup } from "react-icons/md";
 import { useEffect } from "react";
 import CustomReactToolTip from "../../CustomReactToolTip/CustomReactToolTip";
 import Options from "../../Options/Options";
-import { SPACE_ROLES } from "../../../types/constants";
+import { ERROR, SPACE_ROLES } from "../../../types/constants";
 import OptionsItem from "../../Options/OptionsItem";
+import axiosInstance from "../../../axiosInstance";
+import { AxiosError } from "axios";
+import { addToast } from "../../../redux/features/toastSlice";
+import { useQueryClient } from "react-query";
 
 interface Props {
   item: FavoriteObj;
@@ -23,6 +27,7 @@ interface Props {
 
 const FavoriteItemSpace = ({ item }: Props) => {
   const dispatch = useDispatch();
+  const queryClient = useQueryClient();
 
   const [showIcon, setShowIcon] = useState(false);
   const [showOptions, setShowOptions] = useState(false);
@@ -41,6 +46,67 @@ const FavoriteItemSpace = ({ item }: Props) => {
 
   const optionsBtnRef = useRef<any>(null);
 
+  const removeFavorite = useCallback((favId: string, spaceId: string) => {
+    axiosInstance
+      .delete(`/favorites/${favId}`)
+      .then((response) => {
+        setShowOptions(false);
+
+        queryClient.setQueryData(["getFavorites"], (oldData: any) => {
+          if (oldData) {
+            return oldData.filter((fav: any) => fav._id.toString() !== favId);
+          }
+
+          return oldData;
+        });
+
+        queryClient.setQueryData(["getSpaces"], (oldData: any) => {
+          if (oldData) {
+            return oldData.map((d: SpaceObj) => {
+              if (d._id === spaceId) {
+                return {
+                  ...d,
+                  isFavorite: false,
+                  favoriteId: null,
+                };
+              }
+
+              return d;
+            });
+          }
+
+          return oldData;
+        });
+      })
+      .catch((error: AxiosError) => {
+        setShowOptions(false);
+
+        if (error.response) {
+          const response = error.response;
+          const { message } = response.data;
+
+          switch (response.status) {
+            case 400:
+            case 404:
+            case 500:
+              dispatch(addToast({ kind: ERROR, msg: message }));
+              break;
+            default:
+              dispatch(
+                addToast({ kind: ERROR, msg: "Oops, something went wrong" })
+              );
+              break;
+          }
+        } else if (error.request) {
+          dispatch(
+            addToast({ kind: ERROR, msg: "Oops, something went wrong" })
+          );
+        } else {
+          dispatch(addToast({ kind: ERROR, msg: `Error: ${error.message}` }));
+        }
+      });
+  }, []);
+
   return (
     <li
       className="fav-space-item noselect"
@@ -50,12 +116,12 @@ const FavoriteItemSpace = ({ item }: Props) => {
     >
       <CustomNavLink
         showUnderline={false}
-        to={`/s/${item._id}/boards`}
+        to={`/s/${item.resourceId}/boards`}
         fn={setIsCurrentSpace}
         list={[
-          `/s/${item._id}/boards`,
-          `/s/${item._id}/members`,
-          `/s/${item._id}/settings`,
+          `/s/${item.resourceId}/boards`,
+          `/s/${item.resourceId}/members`,
+          `/s/${item.resourceId}/settings`,
         ]}
         onClick={(e: any) => {
           if (
@@ -65,7 +131,7 @@ const FavoriteItemSpace = ({ item }: Props) => {
             e.preventDefault();
           } else {
             dispatch(setCurrentActiveMenu(1));
-            dispatch(setCurrentActiveSpace(item._id));
+            dispatch(setCurrentActiveSpace(item.resourceId));
           }
         }}
       >
@@ -124,7 +190,7 @@ const FavoriteItemSpace = ({ item }: Props) => {
             </button>
             <CustomReactToolTip id="space-settings" />
 
-            {item.role === SPACE_ROLES.GUEST && (
+            {item.spaceRole === SPACE_ROLES.GUEST && (
               <div className="icon text-slate-600">
                 <MdGroup
                   data-for="guest-space"
@@ -149,7 +215,7 @@ const FavoriteItemSpace = ({ item }: Props) => {
           key="Unfavorite"
           Icon={HiOutlineStar}
           text="Unfavorite"
-          onClick={() => {}}
+          onClick={() => removeFavorite(item._id, item.resourceId)}
           iconFillColor="#fbbf24"
           iconColor="#fbbf24"
         />

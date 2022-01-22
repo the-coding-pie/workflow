@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from "react";
-import { BoardObj, FavoriteObj } from "../../../types";
+import React, { useCallback, useEffect, useState } from "react";
+import { BoardObj, FavoriteObj, SpaceObj } from "../../../types";
 import { HiOutlineDotsHorizontal, HiOutlineStar } from "react-icons/hi";
 import { NavLink } from "react-router-dom";
 import { setCurrentActiveMenu } from "../../../redux/features/sidebarMenu";
@@ -9,6 +9,11 @@ import CustomReactToolTip from "../../CustomReactToolTip/CustomReactToolTip";
 import { useRef } from "react";
 import Options from "../../Options/Options";
 import OptionsItem from "../../Options/OptionsItem";
+import { addToast } from "../../../redux/features/toastSlice";
+import { ERROR } from "../../../types/constants";
+import { AxiosError } from "axios";
+import { useQueryClient } from "react-query";
+import axiosInstance from "../../../axiosInstance";
 
 interface Props {
   item: FavoriteObj;
@@ -16,6 +21,8 @@ interface Props {
 
 const FavoriteItemBoard = ({ item }: Props) => {
   const dispatch = useDispatch();
+  const queryClient = useQueryClient();
+
   const [showIcon, setShowIcon] = useState(false);
   const [showOptions, setShowOptions] = useState(false);
 
@@ -33,6 +40,72 @@ const FavoriteItemBoard = ({ item }: Props) => {
 
   const optionsBtnRef = useRef<any>(null);
 
+  const removeFavorite = useCallback((favId: string, boardId: string) => {
+    axiosInstance
+      .delete(`/favorites/${favId}`)
+      .then((response) => {
+        setShowOptions(false);
+
+        queryClient.setQueryData(["getFavorites"], (oldData: any) => {
+          if (oldData) {
+            return oldData.filter((fav: any) => fav._id.toString() !== favId);
+          }
+
+          return oldData;
+        });
+
+        queryClient.setQueryData(["getSpaces"], (oldData: any) => {
+          if (oldData) {
+            return oldData.map((d: SpaceObj) => {
+              return {
+                ...d,
+                boards: d.boards.map((b: BoardObj) => {
+                  if (b._id === boardId) {
+                    return {
+                      ...b,
+                      isFavorite: false,
+                      favoriteId: null,
+                    };
+                  }
+
+                  return b;
+                }),
+              };
+            });
+          }
+
+          return oldData;
+        });
+      })
+      .catch((error: AxiosError) => {
+        setShowOptions(false);
+
+        if (error.response) {
+          const response = error.response;
+          const { message } = response.data;
+
+          switch (response.status) {
+            case 400:
+            case 404:
+            case 500:
+              dispatch(addToast({ kind: ERROR, msg: message }));
+              break;
+            default:
+              dispatch(
+                addToast({ kind: ERROR, msg: "Oops, something went wrong" })
+              );
+              break;
+          }
+        } else if (error.request) {
+          dispatch(
+            addToast({ kind: ERROR, msg: "Oops, something went wrong" })
+          );
+        } else {
+          dispatch(addToast({ kind: ERROR, msg: `Error: ${error.message}` }));
+        }
+      });
+  }, []);
+
   return (
     <li className="fav-board-item">
       <NavLink
@@ -46,10 +119,10 @@ const FavoriteItemBoard = ({ item }: Props) => {
             e.preventDefault();
           } else {
             dispatch(setCurrentActiveMenu(1));
-            dispatch(setCurrentActiveSpace(item._id));
+            dispatch(setCurrentActiveSpace(item.spaceId!));
           }
         }}
-        to={`/b/${item._id}`}
+        to={`/b/${item.resourceId}`}
         className={({ isActive }) => {
           setIsCurrentBoard(isActive);
 
@@ -105,7 +178,7 @@ const FavoriteItemBoard = ({ item }: Props) => {
           key="Unfavorite"
           Icon={HiOutlineStar}
           text="Unfavorite"
-          onClick={() => {}}
+          onClick={() => removeFavorite(item._id, item.resourceId)}
           iconFillColor="#fbbf24"
           iconColor="#fbbf24"
         />
