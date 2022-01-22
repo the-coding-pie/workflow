@@ -33,7 +33,7 @@ export const getMyFavorites = async (req: any, res: Response) => {
       },
     })
       .lean()
-      .select("_id name members icon color");
+      .select("_id name members icon");
 
     // pick only the boards which the current user is part of
     let boards = await Board.find({
@@ -181,7 +181,9 @@ export const addToFavorite = async (req: any, res: Response) => {
             memberId: req.user._id,
           },
         },
-      });
+      })
+        .lean()
+        .select("_id name members icon");
 
       if (!space) {
         return res.status(404).send({
@@ -195,7 +197,7 @@ export const addToFavorite = async (req: any, res: Response) => {
       // such a space exists and current user is currently member
       // check if current user already added this space to favorite
       const alreadySpaceFav = await Favorite.findOne({
-        resourceId: spaceId,
+        resourceId: space._id,
         type: SPACE,
         userId: req.user._id,
       });
@@ -220,7 +222,16 @@ export const addToFavorite = async (req: any, res: Response) => {
 
       return res.status(201).send({
         success: true,
-        data: newFav._id,
+        data: {
+          _id: newFav._id,
+          name: space.name,
+          resourceId: space._id,
+          type: SPACE,
+          spaceRole: space.members.find(
+            (m: any) => m.memberId.toString() === req.user._id.toString()
+          ).role,
+          icon: space.icon,
+        },
         message: "Space added to favorite",
         statusCode: 201,
       });
@@ -245,7 +256,7 @@ export const addToFavorite = async (req: any, res: Response) => {
     // if you are a space normal -> only public board
     // if you are a space guest -> this won't happen (because you are already not a member of this board)
     const board = await Board.findOne({ _id: boardId })
-      .select("_id members visibility spaceId")
+      .select("_id name members color members visibility spaceId")
       .populate({
         path: "spaceId",
         select: "_id members",
@@ -313,7 +324,7 @@ export const addToFavorite = async (req: any, res: Response) => {
     // such a board exists and current user can see this board
     // check if current user already added this board to favorite
     const alreadyBoardFav = await Favorite.findOne({
-      resourceId: boardId,
+      resourceId: board._id,
       type: BOARD,
       userId: req.user._id,
     });
@@ -338,7 +349,15 @@ export const addToFavorite = async (req: any, res: Response) => {
 
     return res.status(201).send({
       success: true,
-      data: newFav._id,
+      data: {
+        _id: newFav._id,
+        name: board.name,
+        resourceId: board._id,
+        spaceId: board.spaceId._id,
+        type: BOARD,
+        boardVisibility: board.visibility,
+        color: board.color,
+      },
       message: "Board added to favorite",
       statusCode: 201,
     });

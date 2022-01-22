@@ -94,7 +94,7 @@ const SpaceItem = ({ space }: Props) => {
                 return {
                   ...d,
                   isFavorite: true,
-                  favoriteId: data,
+                  favoriteId: data._id,
                 };
               }
 
@@ -102,7 +102,13 @@ const SpaceItem = ({ space }: Props) => {
             });
           });
 
-          queryClient.invalidateQueries(["getFavorites"]);
+          queryClient.setQueryData(["getFavorites"], (oldData: any) => {
+            if (oldData) {
+              return [...oldData, data];
+            }
+
+            return oldData;
+          });
         }
       })
       .catch((error: AxiosError) => {

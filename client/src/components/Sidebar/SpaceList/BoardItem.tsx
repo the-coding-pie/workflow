@@ -77,7 +77,7 @@ const BoardItem = ({ board, setShowPlusIcon, setShowBoardOptions }: Props) => {
                     return {
                       ...b,
                       isFavorite: true,
-                      favoriteId: data,
+                      favoriteId: data._id,
                     };
                   }
 
@@ -87,7 +87,13 @@ const BoardItem = ({ board, setShowPlusIcon, setShowBoardOptions }: Props) => {
             });
           });
 
-          queryClient.invalidateQueries(["getFavorites"]);
+          queryClient.setQueryData(["getFavorites"], (oldData: any) => {
+            if (oldData) {
+              return [...oldData, data];
+            }
+
+            return oldData;
+          });
         }
       })
       .catch((error: AxiosError) => {
