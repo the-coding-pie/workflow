@@ -9,23 +9,116 @@ import {
   SPACE_MEMBER_ROLES,
   BOARD_VISIBILITY,
 } from "../types/constants";
+import { isEqual } from "date-fns";
+import isAfter from "date-fns/isAfter";
 
 // GET /favorites
 export const getMyFavorites = async (req: any, res: Response) => {
   try {
-    const favorites = await Favorite.find({ userId: req.user._id });
+    const favorites = await Favorite.find({ userId: req.user._id }).lean();
 
     // filter out the favorites which currently doesn't applies to me
     const favoriteSpaces = favorites.filter((f: any) => f.type === SPACE);
     const favoriteBoards = favorites.filter((f: any) => f.type === BOARD);
 
-    // check if i am a member of this space currently
-    favoriteSpaces.map((fs: any) => {
-      await Space.findOne({ _id: fs.resourceId })
+    // filter out the favorites in which the user is still a part of the space or board
+
+    // pick only the spaces which the current user is part of
+    const spaces = await Space.find({
+      _id: { $in: favoriteSpaces.map((f: any) => f.resourceId) },
+      members: {
+        $elemMatch: {
+          memberId: req.user._id,
+        },
+      },
     })
+      .lean()
+      .select("_id name members icon color");
+
+    // pick only the boards which the current user is part of
+    let boards = await Board.find({
+      _id: { $in: favoriteBoards.map((f: any) => f.resourceId) },
+    })
+      .lean()
+      .select("_id name color members visibility spaceId")
+      .populate({
+        path: "spaceId",
+        select: "_id members",
+      });
+
+    // check if user is part of board, if not check if he is part of space as an ADMIN / NORMAL, if NORMAL user, then make sure the board is PUBLIC
+    boards = boards.filter(
+      (b: any) =>
+        b.members
+          .map((m: any) => m.memberId.toString())
+          .includes(req.user._id.toString()) ||
+        b.spaceId.members.find(
+          (m: any) =>
+            m.memberId.toString() === req.user._id.toString() &&
+            m.role === SPACE_MEMBER_ROLES.ADMIN
+        ) ||
+        (b.spaceId.members.find(
+          (m: any) =>
+            m.memberId.toString() === req.user._id.toString() &&
+            m.role === SPACE_MEMBER_ROLES.NORMAL
+        ) &&
+          b.visibility === BOARD_VISIBILITY.PUBLIC)
+    );
+
+    const finalSpaces = spaces.map((s: any) => {
+      const favorite = favoriteSpaces.find(
+        (f: any) => f.resourceId.toString() === s._id.toString()
+      );
+
+      return {
+        _id: favorite._id,
+        name: s.name,
+        resourceId: s._id,
+        type: SPACE,
+        spaceRole: s.members.find(
+          (m: any) => m.memberId.toString() === req.user._id.toString()
+        ).role,
+        icon: s.icon,
+        createdAt: favorite.createdAt,
+      };
+    });
+    const finalBoards = boards.map((b: any) => {
+      const favorite = favoriteBoards.find(
+        (f: any) => f.resourceId.toString() === b._id.toString()
+      );
+
+      return {
+        _id: favorite._id,
+        name: b.name,
+        resourceId: b._id,
+        type: BOARD,
+        boardVisibility: b.visibility,
+        color: b.color,
+        createdAt: favorite.createdAt,
+      };
+    });
+    const finalResults = [...finalSpaces, ...finalBoards].sort(function (
+      a: any,
+      b: any
+    ) {
+      // Turn your strings into dates, and then subtract them
+      // to get a value that is either negative, positive, or zero.
+      return isEqual(b.createdAt, a.createdAt)
+        ? 0
+        : isAfter(b.createdAt, a.createdAt)
+        ? -1
+        : 1;
+    });
+
     res.send({
       success: true,
-      data: {},
+      data: finalResults.map((f: any) => {
+        delete f.createdAt;
+
+        return {
+          ...f,
+        };
+      }),
       message: "",
       statusCode: 200,
     });

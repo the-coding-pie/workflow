@@ -25,12 +25,15 @@ export interface UserObj {
 export interface FavoriteObj {
   _id: string;
   name: string;
-  spaceId?: string;
+  resourceId?: string;
   type: typeof SPACE | typeof BOARD;
-  role:
+  spaceRole?:
     | typeof SPACE_ROLES.ADMIN
     | typeof SPACE_ROLES.NORMAL
     | typeof SPACE_ROLES.GUEST;
+  boardVisibility?:
+    | typeof BOARD_VISIBILITY_TYPES.PRIVATE
+    | typeof BOARD_VISIBILITY_TYPES.PUBLIC;
   icon?: string;
   color?: string;
 }
