@@ -47,11 +47,7 @@ const FavoriteItemBoard = ({ item }: Props) => {
         setShowOptions(false);
 
         queryClient.setQueryData(["getFavorites"], (oldData: any) => {
-          if (oldData) {
-            return oldData.filter((fav: any) => fav._id.toString() !== favId);
-          }
-
-          return oldData;
+          return oldData.filter((fav: any) => fav._id.toString() !== favId);
         });
 
         queryClient.setQueryData(["getSpaces"], (oldData: any) => {
