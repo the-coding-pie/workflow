@@ -25,7 +25,7 @@ const DefaultLayout = () => {
       <div className="flex">
         <Sidebar />
 
-        <main className={`main w-full ${show ? "ml-60" : ""} transition-all`}>
+        <main className={`main w-full ${show ? "ml-60" : ""}`}>
           <Header />
           <div>
             <Suspense fallback={<div>Loading...</div>}>
