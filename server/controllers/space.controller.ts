@@ -1002,4 +1002,169 @@ export const addAMember = async (req: any, res: Response) => {
   }
 };
 
-// PUT /spaces/:id/members/
+// PUT /spaces/:id/members/:memberId -> update the user role in this space
+export const updateMemberRole = async (req: any, res: Response) => {
+  try {
+    const { id, memberId } = req.params;
+    const { newRole } = req.body;
+
+    if (!id) {
+      return res.status(400).send({
+        success: false,
+        data: {},
+        message: "space _id is required",
+        statusCode: 400,
+      });
+    } else if (!mongoose.isValidObjectId(id)) {
+      return res.status(400).send({
+        success: false,
+        data: {},
+        message: "Invalid space _id",
+        statusCode: 400,
+      });
+    }
+
+    if (!memberId) {
+      return res.status(400).send({
+        success: false,
+        data: {},
+        message: "memberId is required",
+        statusCode: 400,
+      });
+    } else if (!mongoose.isValidObjectId(memberId)) {
+      return res.status(400).send({
+        success: false,
+        data: {},
+        message: "Invalid memberId",
+        statusCode: 400,
+      });
+    }
+
+    // validation for new role
+    if (!newRole) {
+      return res.status(400).send({
+        success: false,
+        data: {},
+        message: "newRole is required",
+        statusCode: 400,
+      });
+    } else if (
+      ![SPACE_MEMBER_ROLES.ADMIN, SPACE_MEMBER_ROLES.NORMAL].includes(newRole)
+    ) {
+      return res.status(400).send({
+        success: false,
+        data: {},
+        message: "newRole should be either ADMIN or NORMAL",
+        statusCode: 400,
+      });
+    }
+
+    // now we have space _id & memberId & newRole
+    // check if the space if valid + the current user is atleast a member in it
+    const space = await Space.findOne({
+      _id: id,
+      members: {
+        $elemMatch: {
+          memberId: req.user._id,
+        },
+      },
+    })
+      .lean()
+      .select("_id members");
+
+    if (!space) {
+      return res.status(404).send({
+        success: false,
+        data: {},
+        message: "Space not found!",
+        statusCode: 404,
+      });
+    }
+
+    // to add a new member, space ADMIN can only do that
+    const role = space.members.find(
+      (m: any) => m.memberId.toString() === req.user._id.toString()
+    ).role;
+
+    if (role !== SPACE_MEMBER_ROLES.ADMIN) {
+      return res.status(403).send({
+        success: false,
+        data: {},
+        message: "You don't have permission to perform this action",
+        statusCode: 403,
+      });
+    }
+
+    // you reached here so you are an ADMIN
+    // check if such a member exist in this space
+    const targetMember = space.members.find(
+      (m: any) => m.memberId.toString() === memberId
+    );
+
+    if (!targetMember) {
+      // such a user doesn't exists in this space
+      return res.status(400).send({
+        success: false,
+        data: {},
+        message: "Such a member doesn't exists in this space",
+        statusCode: 400,
+      });
+    }
+
+    // such a member exists in this space, and you are the ADMIN also
+    // that member which you are trying to change role can be either one of two persons -> the current user/you(ADMIN) or other user(ADMIN/NORMAL/GUEST)
+    // we can consider GUEST user as well (flexible endpoint)
+
+    // if you are trying to change your own role to something rather than ADMIN
+    // and if you are the only ADMIN existing in the space -> block the OP
+    if (
+      req.user._id.toString() === targetMember.memberId.toString() &&
+      newRole !== SPACE_MEMBER_ROLES.ADMIN &&
+      space.members.filter((m: any) => m.role === SPACE_MEMBER_ROLES.ADMIN)
+        .length === 1
+    ) {
+      return res.status(400).send({
+        success: false,
+        data: {},
+        message:
+          "You can’t change your role because there must be at least one admin.",
+        statusCode: 400,
+      });
+    }
+
+    // if you are now trying to change the the role of any user(including yours) to the same existing one
+    if (newRole === targetMember.role) {
+      return res.send({
+        success: true,
+        data: {},
+        message: "The newRole is the already existing role. Nothing to change.",
+        statusCode: 200,
+      });
+    }
+
+    // 100% Operation allowed
+    // possibles -> you are trying to change your own role/someone elses role to a "new role" which is either ADMIN/NORMAL
+    // allow that
+    space.members = space.members.map((m: any) => {
+      if (m.memberId.toString() === targetMember.memberId.toString()) {
+        return {
+          ...m,
+          role: [SPACE_MEMBER_ROLES.ADMIN, SPACE_MEMBER_ROLES.NORMAL].find(
+            (r: any) => r === newRole
+          ),
+        };
+      }
+
+      return m;
+    });
+
+    await space.save();
+  } catch (err) {
+    res.status(500).send({
+      success: false,
+      data: {},
+      message: "Oops, something went wrong!",
+      statusCode: 500,
+    });
+  }
+};

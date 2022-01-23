@@ -20,5 +20,7 @@ spaceRouter.get(
   authMiddleware,
   spaceController.getAllSpaceMembers
 );
+// Protected(Auth) POST /spaces/:id/members -> add a member to space
+spaceRouter.post("/:id/members", authMiddleware, spaceController.addAMember);
 
 export default spaceRouter;
