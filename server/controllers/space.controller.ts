@@ -1175,38 +1175,42 @@ export const updateMemberRole = async (req: any, res: Response) => {
 
     // upgrade -> to ADMIN
     if (newRole === SPACE_MEMBER_ROLES.ADMIN) {
-      await boards.map(async (b: any) => {
-        b.members = b.members.map((m: any) => {
-          if (m.memberId === targetMember.memberId) {
-            return {
-              ...m,
-              role: BOARD_MEMBER_ROLES.ADMIN,
-            };
-          }
-          return m;
-        });
+      await Promise.all(
+        boards.map(async (b: any) => {
+          b.members = b.members.map((m: any) => {
+            if (m.memberId === targetMember.memberId) {
+              return {
+                ...m,
+                role: BOARD_MEMBER_ROLES.ADMIN,
+              };
+            }
+            return m;
+          });
 
-        await b.save();
-      });
+          await b.save();
+        })
+      );
     } else if (
       newRole === SPACE_MEMBER_ROLES.NORMAL &&
       targetMember.role !== SPACE_MEMBER_ROLES.GUEST
     ) {
       // downgrade from ADMIN to NORMAL
       // update this user's board role in every board he is member of to the fallbackRole and save
-      await boards.map(async (b: any) => {
-        b.members = b.members.map((m: any) => {
-          if (m.memberId === targetMember.memberId) {
-            return {
-              ...m,
-              role: m.fallbackRole,
-            };
-          }
-          return m;
-        });
+      await Promise.all(
+        boards.map(async (b: any) => {
+          b.members = b.members.map((m: any) => {
+            if (m.memberId === targetMember.memberId) {
+              return {
+                ...m,
+                role: m.fallbackRole,
+              };
+            }
+            return m;
+          });
 
-        await b.save();
-      });
+          await b.save();
+        })
+      );
     }
 
     return res.send({
