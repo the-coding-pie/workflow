@@ -851,3 +851,155 @@ export const getAllSpaceMembers = async (req: any, res: Response) => {
     });
   }
 };
+
+// POST /spaces/:id/members -> to add a new member, only space admin can do this
+export const addAMember = async (req: any, res: Response) => {
+  try {
+    const { id } = req.params;
+    const { memberId } = req.body;
+
+    if (!id) {
+      return res.status(400).send({
+        success: false,
+        data: {},
+        message: "space _id is required",
+        statusCode: 400,
+      });
+    } else if (!mongoose.isValidObjectId(id)) {
+      return res.status(400).send({
+        success: false,
+        data: {},
+        message: "Invalid space _id",
+        statusCode: 400,
+      });
+    }
+
+    if (!memberId) {
+      return res.status(400).send({
+        success: false,
+        data: {},
+        message: "memberId is required",
+        statusCode: 400,
+      });
+    } else if (!mongoose.isValidObjectId(memberId)) {
+      return res.status(400).send({
+        success: false,
+        data: {},
+        message: "Invalid memberId",
+        statusCode: 400,
+      });
+    }
+
+    // now we have space _id & memberId
+    // check if the space if valid + the current user is atleast a member in it
+    const space = await Space.findOne({
+      _id: id,
+      members: {
+        $elemMatch: {
+          memberId: req.user._id,
+        },
+      },
+    })
+      .lean()
+      .select("_id members");
+
+    if (!space) {
+      return res.status(404).send({
+        success: false,
+        data: {},
+        message: "Space not found!",
+        statusCode: 404,
+      });
+    }
+
+    // to add a new member, space ADMIN can only do that
+    const role = space.members.find(
+      (m: any) => m.memberId.toString() === req.user._id.toString()
+    ).role;
+
+    if (role !== SPACE_MEMBER_ROLES.ADMIN) {
+      return res.status(403).send({
+        success: false,
+        data: {},
+        message: "You don't have permission to invite member(s)",
+        statusCode: 403,
+      });
+    }
+
+    // you are an ADMIN on this space
+    // check the given memberId is valid
+    // check the given memberId already exists
+    const alreadyMember = space.members.find(
+      (m: any) => m.memberId.toString() === memberId
+    );
+
+    if (alreadyMember && alreadyMember.role !== SPACE_MEMBER_ROLES.GUEST) {
+      return res.status(409).send({
+        success: false,
+        data: {},
+        message: "Member already a part of this space",
+        statusCode: 409,
+      });
+    }
+
+    // if he is already a guest user in this space, make him normal user
+    if (alreadyMember && alreadyMember.role === SPACE_MEMBER_ROLES.GUEST) {
+      // upgrade his role to NORMAL
+      space.members = space.members.map((m: any) => {
+        if (m.memberId.toString() === memberId) {
+          return {
+            ...m,
+            role: SPACE_MEMBER_ROLES.NORMAL,
+          };
+        }
+
+        return m;
+      });
+
+      await space.save();
+
+      return res.send({
+        success: true,
+        data: {},
+        message: "Member added to the space",
+        statusCode: 200,
+      });
+    }
+
+    // check if memberId is valid
+    const member = await User.findOne({ _id: memberId });
+
+    if (member) {
+      return res.status(400).send({
+        success: false,
+        data: {},
+        message: "User with that memberId doesn't exists",
+        statusCode: 400,
+      });
+    }
+
+    // add that member to the space
+    space.members.push({
+      memberId: member._id,
+      role: SPACE_MEMBER_ROLES.NORMAL,
+    });
+
+    await space.save();
+
+    return res.send({
+      success: true,
+      data: {},
+      message: "Member added to the space",
+      statusCode: 200,
+    });
+  } catch (err) {
+    res.status(500).send({
+      success: false,
+      data: {},
+      message: "Oops, something went wrong!",
+      statusCode: 500,
+    });
+  }
+};
+
+// PUT /spaces/:id/members/
