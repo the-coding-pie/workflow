@@ -25,7 +25,7 @@ export const getSpaces = async (req: any, res: Response) => {
         },
       },
     })
-      .select("_id name icon members")
+      .select("_id name icon members createdAt")
       .lean()
       .populate({
         path: "boards",
@@ -532,7 +532,7 @@ export const getAllBoards = async (req: any, res: Response) => {
       },
     })
       .lean()
-      .select("_id icon name members boards")
+      .select("_id members boards")
       .populate({
         path: "boards",
         select: "_id name color bgImg members visibility createdAt",
@@ -749,6 +749,96 @@ export const getAllBoards = async (req: any, res: Response) => {
     res.send({
       success: true,
       data: boards,
+      message: "",
+      statusCode: 200,
+    });
+  } catch (err) {
+    res.status(500).send({
+      success: false,
+      data: {},
+      message: "Oops, something went wrong!",
+      statusCode: 500,
+    });
+  }
+};
+
+// GET /spaces/:id/members -> get all space members
+export const getAllSpaceMembers = async (req: any, res: Response) => {
+  try {
+    const { id } = req.params;
+
+    if (!id) {
+      return res.status(400).send({
+        success: false,
+        data: {},
+        message: "space _id is required",
+        statusCode: 400,
+      });
+    } else if (!mongoose.isValidObjectId(id)) {
+      return res.status(400).send({
+        success: false,
+        data: {},
+        message: "Invalid space _id",
+        statusCode: 400,
+      });
+    }
+
+    // to get a space's information, you must be a member in it
+    const space = await Space.findOne({
+      _id: id,
+      members: {
+        $elemMatch: {
+          memberId: req.user._id,
+        },
+      },
+    })
+      .lean()
+      .select("_id members");
+
+    if (!space) {
+      return res.status(404).send({
+        success: false,
+        data: {},
+        message: "Space not found!",
+        statusCode: 404,
+      });
+    }
+
+    // only give this information if current user is either an ADMIN or NORMAL
+    const role = space.members.find(
+      (m: any) => m.memberId.toString() === req.user._id.toString()
+    ).role;
+
+    // if he is a GUEST
+    if (![SPACE_MEMBER_ROLES.ADMIN, SPACE_MEMBER_ROLES.NORMAL].includes(role)) {
+      return res.status(403).send({
+        success: false,
+        data: {},
+        message: "You don't have permission to access",
+        statusCode: 403,
+      });
+    }
+
+    const sortedMembers = space.members.sort(function (a: any, b: any) {
+      // Turn your strings into dates, and then subtract them
+      // to get a value that is either negative, positive, or zero.
+      return isEqual(b.createdAt, a.createdAt)
+        ? 0
+        : isAfter(b.createdAt, a.createdAt)
+        ? -1
+        : 1;
+    });
+
+    const rearrangedMembers = [
+      ...sortedMembers.filter((m: any) => m.role === SPACE_MEMBER_ROLES.ADMIN),
+      ...sortedMembers.filter((m: any) => m.role === SPACE_MEMBER_ROLES.NORMAL),
+      ...sortedMembers.filter((m: any) => m.role === SPACE_MEMBER_ROLES.GUEST),
+    ];
+
+    // if you reached this far, you may be an ADMIN or a NORMAL user
+    res.send({
+      success: true,
+      data: rearrangedMembers,
       message: "",
       statusCode: 200,
     });

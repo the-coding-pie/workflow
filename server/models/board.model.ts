@@ -20,7 +20,7 @@ const boardMemberSchema = new mongoose.Schema(
       required: false,
     },
   },
-  { _id: false }
+  { _id: false, timestamps: true }
 );
 
 const boardSchema = new mongoose.Schema(

@@ -14,7 +14,7 @@ const spaceMemberSchema = new mongoose.Schema(
       default: SPACE_MEMBER_ROLES.NORMAL,
     },
   },
-  { _id: false }
+  { _id: false, timestamps: true }
 );
 
 const spaceSchema = new mongoose.Schema(
