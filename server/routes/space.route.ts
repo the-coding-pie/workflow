@@ -28,5 +28,18 @@ spaceRouter.put(
   authMiddleware,
   spaceController.updateMemberRole
 );
+// Protected(Auth) DELETE /spaces/:id/members/:memberId -> remove the member from this space and remove him from all his boards in this space
+spaceRouter.delete(
+  "/:id/members/:memberId",
+  authMiddleware,
+  spaceController.removeMember
+);
+
+// Protected(Auth) DELETE /spaces/:id/members -> leave from space
+spaceRouter.delete(
+  "/:id/members",
+  authMiddleware,
+  spaceController.leaveFromSpace
+);
 
 export default spaceRouter;

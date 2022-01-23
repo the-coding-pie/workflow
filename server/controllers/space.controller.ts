@@ -1175,48 +1175,342 @@ export const updateMemberRole = async (req: any, res: Response) => {
 
     // upgrade -> to ADMIN
     if (newRole === SPACE_MEMBER_ROLES.ADMIN) {
-      await Promise.all(
-        boards.map(async (b: any) => {
-          b.members = b.members.map((m: any) => {
-            if (m.memberId === targetMember.memberId) {
-              return {
-                ...m,
-                role: BOARD_MEMBER_ROLES.ADMIN,
-              };
-            }
-            return m;
-          });
+      for (const b of boards) {
+        b.members = b.members.map((m: any) => {
+          if (m.memberId === targetMember.memberId) {
+            return {
+              ...m,
+              role: BOARD_MEMBER_ROLES.ADMIN,
+            };
+          }
+          return m;
+        });
 
-          await b.save();
-        })
-      );
+        await b.save();
+      }
     } else if (
       newRole === SPACE_MEMBER_ROLES.NORMAL &&
       targetMember.role !== SPACE_MEMBER_ROLES.GUEST
     ) {
       // downgrade from ADMIN to NORMAL
       // update this user's board role in every board he is member of to the fallbackRole and save
-      await Promise.all(
-        boards.map(async (b: any) => {
-          b.members = b.members.map((m: any) => {
-            if (m.memberId === targetMember.memberId) {
-              return {
-                ...m,
-                role: m.fallbackRole,
-              };
-            }
-            return m;
-          });
+      for (const b of boards) {
+        b.members = b.members.map((m: any) => {
+          if (m.memberId === targetMember.memberId) {
+            return {
+              ...m,
+              role: m.fallbackRole,
+            };
+          }
+          return m;
+        });
 
-          await b.save();
-        })
-      );
+        await b.save();
+      }
     }
 
-    return res.send({
+    res.send({
       success: true,
       data: {},
       message: "Role updated successfully.",
+      statusCode: 200,
+    });
+  } catch (err) {
+    res.status(500).send({
+      success: false,
+      data: {},
+      message: "Oops, something went wrong!",
+      statusCode: 500,
+    });
+  }
+};
+
+// DELETE /spaces/:id/members/:memberId -> remove the member from this space and remove him from all his boards in this space
+export const removeMember = async (req: any, res: Response) => {
+  try {
+    const { id, memberId } = req.params;
+
+    if (!id) {
+      return res.status(400).send({
+        success: false,
+        data: {},
+        message: "space _id is required",
+        statusCode: 400,
+      });
+    } else if (!mongoose.isValidObjectId(id)) {
+      return res.status(400).send({
+        success: false,
+        data: {},
+        message: "Invalid space _id",
+        statusCode: 400,
+      });
+    }
+
+    if (!memberId) {
+      return res.status(400).send({
+        success: false,
+        data: {},
+        message: "memberId is required",
+        statusCode: 400,
+      });
+    } else if (!mongoose.isValidObjectId(memberId)) {
+      return res.status(400).send({
+        success: false,
+        data: {},
+        message: "Invalid memberId",
+        statusCode: 400,
+      });
+    }
+
+    // now we have space _id & memberId
+    // check if the space if valid + the current user is atleast a member in it
+    const space = await Space.findOne({
+      _id: id,
+      members: {
+        $elemMatch: {
+          memberId: req.user._id,
+        },
+      },
+    })
+      .lean()
+      .select("_id members boards");
+
+    if (!space) {
+      return res.status(404).send({
+        success: false,
+        data: {},
+        message: "Space not found!",
+        statusCode: 404,
+      });
+    }
+
+    // to remove a member, space ADMIN can only do that
+    const role = space.members.find(
+      (m: any) => m.memberId.toString() === req.user._id.toString()
+    ).role;
+
+    if (role !== SPACE_MEMBER_ROLES.ADMIN) {
+      return res.status(403).send({
+        success: false,
+        data: {},
+        message: "You don't have permission to perform this action",
+        statusCode: 403,
+      });
+    }
+
+    // you reached here so you are an ADMIN
+    // check if such a member exist in this space
+    const targetMember = space.members.find(
+      (m: any) => m.memberId.toString() === memberId
+    );
+
+    if (!targetMember) {
+      // such a user doesn't exists in this space
+      return res.status(400).send({
+        success: false,
+        data: {},
+        message: "Such a member doesn't exists in this space",
+        statusCode: 400,
+      });
+    }
+
+    // if you are trying to remove yourself from the space, it is not possible, you should hit another route called leave
+    if (req.user._id.toString() === targetMember.memberId.toString()) {
+      return res.status(403).send({
+        success: false,
+        data: {},
+        message: "You can't remove yourself. Try leaving.",
+        statusCode: 403,
+      });
+    }
+
+    // if that target member is a GUEST, they must me made a member in space before removing them
+    // if (targetMember.role === SPACE_MEMBER_ROLES.GUEST) {
+    //   return res.status(403).send({
+    //     success: false,
+    //     data: {},
+    //     message: "Please make the GUEST a NORMAL member and then try to remove.",
+    //     statusCode: 403,
+    //   });
+    // }
+
+    // all conditions satisfied, so remove that user from the space and all the corresponding boards which he is part of
+    // remove the targetMember from all boards which he is NORMAL or ADMIN of
+    // if targetMember is the only admin in the board, then remove him from the board and put the current user as ADMIN of the board
+    // find all boards in this space in which the targetMember is member of
+    const boards = await Board.find({
+      _id: { $in: space.boards },
+      members: {
+        $elemMatch: {
+          memberId: targetMember.memberId,
+        },
+      },
+    }).select("_id members");
+
+    for (const b of boards) {
+      // which means, the targetMember is the only member in this board and he must be an ADMIN definetely
+      const boardAdmins = b.members.filter(
+        (m: any) => m.role === BOARD_MEMBER_ROLES.ADMIN
+      );
+      if (
+        boardAdmins.length === 1 &&
+        boardAdmins[0].memberId.toString() === targetMember.memberId.toString()
+      ) {
+        // in this scenario, remove that targetMember and add current user as the ADMIN
+        b.members = b.members.map((m: any) => {
+          if (m.memberId.toString() === targetMember.memberId.toString()) {
+            return {
+              memberId: req.user._id,
+              role: BOARD_MEMBER_ROLES.ADMIN,
+              fallbackRole: BOARD_MEMBER_ROLES.ADMIN,
+            };
+          }
+
+          return m;
+        });
+
+        await b.save();
+      } else {
+        // now the target user may be an ADMIN (but not the only one), or he may be an NORMAL / OBSERVER of the board,
+        b.members = b.members.filter(
+          (m: any) => m.memberId.toString() !== targetMember.memberId.toString()
+        );
+
+        await b.save();
+      }
+    }
+
+    res.send({
+      success: true,
+      data: {},
+      message: "Member removed successfully!",
+      statusCode: 200,
+    });
+  } catch (err) {
+    res.status(500).send({
+      success: false,
+      data: {},
+      message: "Oops, something went wrong!",
+      statusCode: 500,
+    });
+  }
+};
+
+// DELETE /spaces/:id/members -> leave from space
+export const leaveFromSpace = async (req: any, res: Response) => {
+  try {
+    const { id } = req.params;
+
+    if (!id) {
+      return res.status(400).send({
+        success: false,
+        data: {},
+        message: "space _id is required",
+        statusCode: 400,
+      });
+    } else if (!mongoose.isValidObjectId(id)) {
+      return res.status(400).send({
+        success: false,
+        data: {},
+        message: "Invalid space _id",
+        statusCode: 400,
+      });
+    }
+
+    // now we have space _id
+    // check if the space if valid + the current user is atleast a member in it
+    const space = await Space.findOne({
+      _id: id,
+      members: {
+        $elemMatch: {
+          memberId: req.user._id,
+        },
+      },
+    })
+      .lean()
+      .select("_id members boards");
+
+    if (!space) {
+      return res.status(404).send({
+        success: false,
+        data: {},
+        message: "Space not found!",
+        statusCode: 404,
+      });
+    }
+
+    // to remove a member, space ADMIN can only do that
+    const role = space.members.find(
+      (m: any) => m.memberId.toString() === req.user._id.toString()
+    ).role;
+
+    // if you are a GUEST
+    if (![SPACE_MEMBER_ROLES.ADMIN, SPACE_MEMBER_ROLES.NORMAL].includes(role)) {
+      return res.status(403).send({
+        success: false,
+        data: {},
+        message:
+          "Please leave manually from all the boards in which you are member of.",
+        statusCode: 403,
+      });
+    }
+
+    const spaceAdmins = space.members.filter(
+      (m: any) => m.role === SPACE_MEMBER_ROLES.ADMIN
+    );
+
+    // if you are the only space ADMIN, then you can't leave
+    if (
+      spaceAdmins.length === 1 &&
+      spaceAdmins[0].memberId.toString() === req.user._id.toString()
+    ) {
+      return res.status(403).send({
+        success: false,
+        data: {},
+        message:
+          "You can’t leave the space, because there must be at least one admin.",
+        statusCode: 403,
+      });
+    }
+
+    // you can leave now, if you reached this far
+    // if you are a part of any board, then you will be retained as a GUEST, you won't be removed from those boards
+    const boards = await Board.find({
+      _id: { $in: space.boards },
+      members: {
+        $elemMatch: {
+          memberId: req.user._id,
+        },
+      },
+    }).select("_id members");
+
+    if (boards.length > 0) {
+      // so change his role to GUEST in the space
+      space.members = space.members.map((m: any) => {
+        if (m.memberId.toString() === req.user._id.toString()) {
+          return {
+            ...m,
+            role: SPACE_MEMBER_ROLES.GUEST,
+          };
+        }
+
+        return m;
+      });
+
+      await space.save();
+    } else {
+      // then remove him from the space
+      space.members = space.members.filter(
+        (m: any) => m.memberId.toString() !== req.user._id.toString()
+      );
+
+      await space.save();
+    }
+
+    res.send({
+      success: true,
+      data: {},
+      message: "Removed successfully from Space!",
       statusCode: 200,
     });
   } catch (err) {
