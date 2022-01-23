@@ -22,5 +22,11 @@ spaceRouter.get(
 );
 // Protected(Auth) POST /spaces/:id/members -> add a member to space
 spaceRouter.post("/:id/members", authMiddleware, spaceController.addAMember);
+// Protected(Auth) PUT /spaces/:id/members/:memberId -> update member role in space
+spaceRouter.put(
+  "/:id/members/:memberId",
+  authMiddleware,
+  spaceController.updateMemberRole
+);
 
 export default spaceRouter;

@@ -13,6 +13,7 @@ import {
 } from "../types/constants";
 import { isAfter, isEqual } from "date-fns";
 import Favorite from "../models/favorite.model";
+import Board from "../models/board.model";
 
 // GET /spaces -> get space and its corresponding boards (for sidebar)
 export const getSpaces = async (req: any, res: Response) => {
@@ -1070,7 +1071,7 @@ export const updateMemberRole = async (req: any, res: Response) => {
       },
     })
       .lean()
-      .select("_id members");
+      .select("_id members boards");
 
     if (!space) {
       return res.status(404).send({
@@ -1159,6 +1160,61 @@ export const updateMemberRole = async (req: any, res: Response) => {
     });
 
     await space.save();
+
+    // if newRole === ADMIN, change all board role in which current user is member in this space to ADMIN
+
+    // find all boards in this space in which the targetMember is member of
+    const boards = await Board.find({
+      _id: { $in: space.boards },
+      members: {
+        $elemMatch: {
+          memberId: targetMember.memberId,
+        },
+      },
+    }).select("_id members");
+
+    // upgrade -> to ADMIN
+    if (newRole === SPACE_MEMBER_ROLES.ADMIN) {
+      await boards.map(async (b: any) => {
+        b.members = b.members.map((m: any) => {
+          if (m.memberId === targetMember.memberId) {
+            return {
+              ...m,
+              role: BOARD_MEMBER_ROLES.ADMIN,
+            };
+          }
+          return m;
+        });
+
+        await b.save();
+      });
+    } else if (
+      newRole === SPACE_MEMBER_ROLES.NORMAL &&
+      targetMember.role !== SPACE_MEMBER_ROLES.GUEST
+    ) {
+      // downgrade from ADMIN to NORMAL
+      // update this user's board role in every board he is member of to the fallbackRole and save
+      await boards.map(async (b: any) => {
+        b.members = b.members.map((m: any) => {
+          if (m.memberId === targetMember.memberId) {
+            return {
+              ...m,
+              role: m.fallbackRole,
+            };
+          }
+          return m;
+        });
+
+        await b.save();
+      });
+    }
+
+    return res.send({
+      success: true,
+      data: {},
+      message: "Role updated successfully.",
+      statusCode: 200,
+    });
   } catch (err) {
     res.status(500).send({
       success: false,

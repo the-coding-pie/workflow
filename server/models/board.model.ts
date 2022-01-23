@@ -14,7 +14,7 @@ const boardMemberSchema = new mongoose.Schema(
       enum: Object.values(BOARD_MEMBER_ROLES),
       default: BOARD_MEMBER_ROLES.NORMAL,
     },
-    adminGrantedRole: {
+    fallbackRole: {
       type: String,
       enum: [...Object.values(BOARD_MEMBER_ROLES)],
       required: false,

@@ -151,6 +151,7 @@ export const createBoard = async (req: any, res: Response) => {
     newBoard.members.push({
       memberId: req.user._id,
       role: BOARD_MEMBER_ROLES.ADMIN,
+      fallbackRole: BOARD_MEMBER_ROLES.ADMIN,
     });
 
     // add this newBoard to the parent space
