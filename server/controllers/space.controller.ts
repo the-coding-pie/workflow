@@ -1439,7 +1439,7 @@ export const leaveFromSpace = async (req: any, res: Response) => {
       });
     }
 
-    // to remove a member, space ADMIN can only do that
+    // in order to see the LEAVE btn, you should either be a space ADMIN or NORMAL
     const role = space.members.find(
       (m: any) => m.memberId.toString() === req.user._id.toString()
     ).role;
@@ -1498,6 +1498,14 @@ export const leaveFromSpace = async (req: any, res: Response) => {
       });
 
       await space.save();
+
+      return res.send({
+        success: true,
+        data: {},
+        message:
+          "Removed successfully from Space! But you are a part of some boards, so you will be retained as a Guest in this space till you manually leave from all those boards.",
+        statusCode: 200,
+      });
     } else {
       // then remove him from the space
       space.members = space.members.filter(
