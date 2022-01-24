@@ -128,7 +128,6 @@ const SpaceItem = ({ space }: Props) => {
               dispatch(
                 addToast({ kind: ERROR, msg: "Oops, something went wrong" })
               );
-              break;
           }
         } else if (error.request) {
           dispatch(
@@ -266,6 +265,7 @@ const SpaceItem = ({ space }: Props) => {
             )}
           </div>
           <div className="name flex items-center">
+            {/* if there is no icon in space or the field is present and it's value is empty, falls to false */}
             {space.icon ? (
               <Avatar
                 src={space.icon}

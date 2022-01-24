@@ -39,10 +39,23 @@ export interface FavoriteObj {
   color?: string;
 }
 
+export interface SpaceInfoObj {
+  _id: string;
+  name: string;
+  icon?: string;
+  isFavorite: boolean;
+  description?: string;
+  favoriteId?: string;
+  role:
+    | typeof SPACE_ROLES.ADMIN
+    | typeof SPACE_ROLES.NORMAL
+    | typeof SPACE_ROLES.GUEST;
+}
+
 export interface SpaceObj {
   _id: string;
   name: string;
-  icon: string | null;
+  icon?: string;
   isFavorite: boolean;
   favoriteId?: string;
   role:
