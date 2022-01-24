@@ -14,6 +14,14 @@ import {
 import { isAfter, isEqual } from "date-fns";
 import Favorite from "../models/favorite.model";
 import Board from "../models/board.model";
+import { removeFile, saveFile } from "../utils/file";
+import {
+  PUBLIC_DIR_NAME,
+  SPACE_ICONS_DIR_NAME,
+  SPACE_ICON_SIZE,
+  STATIC_PATH,
+} from "../config";
+import path from "path";
 
 // GET /spaces -> get space and its corresponding boards (for sidebar)
 export const getSpaces = async (req: any, res: Response) => {
@@ -901,7 +909,6 @@ export const addAMember = async (req: any, res: Response) => {
         },
       },
     })
-      .lean()
       .select("_id members");
 
     if (!space) {
@@ -1070,7 +1077,6 @@ export const updateMemberRole = async (req: any, res: Response) => {
         },
       },
     })
-      .lean()
       .select("_id members boards");
 
     if (!space) {
@@ -1427,7 +1433,6 @@ export const leaveFromSpace = async (req: any, res: Response) => {
         },
       },
     })
-      .lean()
       .select("_id members boards");
 
     if (!space) {
@@ -1519,6 +1524,229 @@ export const leaveFromSpace = async (req: any, res: Response) => {
       success: true,
       data: {},
       message: "Removed successfully from Space!",
+      statusCode: 200,
+    });
+  } catch (err) {
+    res.status(500).send({
+      success: false,
+      data: {},
+      message: "Oops, something went wrong!",
+      statusCode: 500,
+    });
+  }
+};
+
+// GET /spaces/:id/settings -> get all space settings
+export const getSpaceSettings = async (req: any, res: Response) => {
+  try {
+    const { id } = req.params;
+
+    if (!id) {
+      return res.status(400).send({
+        success: false,
+        data: {},
+        message: "space _id is required",
+        statusCode: 400,
+      });
+    } else if (!mongoose.isValidObjectId(id)) {
+      return res.status(400).send({
+        success: false,
+        data: {},
+        message: "Invalid space _id",
+        statusCode: 400,
+      });
+    }
+
+    // to get a space's information, you must be a member in it
+    const space = await Space.findOne({
+      _id: id,
+      members: {
+        $elemMatch: {
+          memberId: req.user._id,
+        },
+      },
+    })
+      .lean()
+      .select("_id icon name description members");
+
+    if (!space) {
+      return res.status(404).send({
+        success: false,
+        data: {},
+        message: "Space not found!",
+        statusCode: 404,
+      });
+    }
+
+    // only give this information if current user is either an ADMIN or NORMAL
+    const role = space.members.find(
+      (m: any) => m.memberId.toString() === req.user._id.toString()
+    ).role;
+
+    // if he is a GUEST
+    if (![SPACE_MEMBER_ROLES.ADMIN, SPACE_MEMBER_ROLES.NORMAL].includes(role)) {
+      return res.status(403).send({
+        success: false,
+        data: {},
+        message: "You don't have permission to access",
+        statusCode: 403,
+      });
+    }
+
+    // if you reached this far, you may be an ADMIN or a NORMAL user
+    res.send({
+      success: true,
+      data: {
+        icon: path.join(STATIC_PATH, SPACE_ICONS_DIR_NAME, space.icon),
+        name: space.name,
+        description: space.description,
+      },
+      message: "",
+      statusCode: 200,
+    });
+  } catch (err) {
+    res.status(500).send({
+      success: false,
+      data: {},
+      message: "Oops, something went wrong!",
+      statusCode: 500,
+    });
+  }
+};
+
+// PUT /spaces/:id/settings -> update space settings, only ADMIN can do this
+export const updateSpaceSettings = async (req: any, res: Response) => {
+  try {
+    const { id } = req.params;
+    const { name, description } = req.body;
+    const icon = req.file;
+
+    if (!id) {
+      return res.status(400).send({
+        success: false,
+        data: {},
+        message: "space _id is required",
+        statusCode: 400,
+      });
+    } else if (!mongoose.isValidObjectId(id)) {
+      return res.status(400).send({
+        success: false,
+        data: {},
+        message: "Invalid space _id",
+        statusCode: 400,
+      });
+    }
+
+    // if nothing is given
+    if (
+      !Object.keys(req.body).includes("name") &&
+      !Object.keys(req.body).includes("description") &&
+      !icon
+    ) {
+      return res.status(400).send({
+        success: false,
+        data: {},
+        message:
+          "Please provide atleast any one the values -> name, description, or an icon",
+        statusCode: 400,
+      });
+    }
+
+    if (Object.keys(req.body).includes("name")) {
+      if (!name) {
+        return res.status(400).send({
+          success: false,
+          data: {},
+          message: "Space name cannot be empty",
+          statusCode: 400,
+        });
+      } else if (name.length > 100) {
+        return res.status(400).send({
+          success: false,
+          data: {},
+          message: "Space name should be less than or equal to 100 chars",
+          statusCode: 400,
+        });
+      }
+    }
+
+    if (description && description.length > 255) {
+      return res.status(400).send({
+        success: false,
+        data: {},
+        message: "Space description should be less than or equal to 255 chars",
+        statusCode: 400,
+      });
+    }
+
+    // check if the space if valid + the current user is atleast a member in it
+    const space = await Space.findOne({
+      _id: id,
+      members: {
+        $elemMatch: {
+          memberId: req.user._id,
+        },
+      },
+    })
+      .select("_id icon members");
+
+    if (!space) {
+      return res.status(404).send({
+        success: false,
+        data: {},
+        message: "Space not found!",
+        statusCode: 404,
+      });
+    }
+
+    // to update space settings, ADMIN can only do that
+    const role = space.members.find(
+      (m: any) => m.memberId.toString() === req.user._id.toString()
+    ).role;
+
+    if (role !== SPACE_MEMBER_ROLES.ADMIN) {
+      return res.status(403).send({
+        success: false,
+        data: {},
+        message: "You don't have permission to perform this action",
+        statusCode: 403,
+      });
+    }
+
+    // update informations accordingly
+    if (name) {
+      space.name = validator.escape(name);
+    }
+
+    if (Object.keys(req.body).includes("description")) {
+      space.description = validator.escape(description);
+    }
+
+    if (icon) {
+      // if there is an old icon for the space, delete it first
+      if (space.icon) {
+        await removeFile(
+          path.join(PUBLIC_DIR_NAME, SPACE_ICONS_DIR_NAME, space.icon)
+        );
+      }
+
+      // upload it
+      const fileName = await saveFile(
+        icon,
+        SPACE_ICON_SIZE.WIDTH,
+        SPACE_ICON_SIZE.HEIGHT,
+        SPACE_ICONS_DIR_NAME
+      );
+
+      space.icon = fileName;
+    }
+
+    await space.save();
+
+    return res.status(200).send({
+      success: false,
+      data: {},
+      message: "Space updated successfully",
       statusCode: 200,
     });
   } catch (err) {

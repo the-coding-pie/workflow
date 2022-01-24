@@ -1,15 +1,19 @@
 import express from "express";
 import { authMiddleware } from "../middlewares/auth";
 import * as spaceController from "../controllers/space.controller";
+import { multerUploadSingle } from "../middlewares/multerUploadSingle";
 
 const spaceRouter = express.Router();
 
 // Protected(Auth) GET /spaces -> get all spaces (sidebar)
 spaceRouter.get("/", authMiddleware, spaceController.getSpaces);
+
 // Protected(Auth) POST /spaces -> create new space
 spaceRouter.post("/", authMiddleware, spaceController.createSpace);
+
 // Protected(Auth) GET /spaces/mine -> gets all the spaces in which current user is either an admin/normal member
 spaceRouter.get("/mine", authMiddleware, spaceController.getSpacesMine);
+
 // Protected(Auth) GET /spaces/:id/info -> get space info
 spaceRouter.get("/:id/info", authMiddleware, spaceController.getSpaceInfo);
 // Protected(Auth) GET /spaces/:id/boards -> get all space boards according to user role
@@ -34,12 +38,27 @@ spaceRouter.delete(
   authMiddleware,
   spaceController.removeMember
 );
-
 // Protected(Auth) DELETE /spaces/:id/members -> leave from space
 spaceRouter.delete(
   "/:id/members",
   authMiddleware,
   spaceController.leaveFromSpace
+);
+
+// Protected(Auth) GET /spaces/:id/settings -> get space settings
+spaceRouter.get(
+  "/:id/settings",
+  authMiddleware,
+  spaceController.getSpaceSettings
+);
+// Protected(Auth) PUT /spaces/:id/settings -> update space settings
+spaceRouter.put(
+  "/:id/settings",
+  authMiddleware,
+  function (req, res, next) {
+    multerUploadSingle(req, res, next, "icon");
+  },
+  spaceController.updateSpaceSettings
 );
 
 export default spaceRouter;
