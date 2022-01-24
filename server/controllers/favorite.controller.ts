@@ -11,6 +11,12 @@ import {
 } from "../types/constants";
 import { isEqual } from "date-fns";
 import isAfter from "date-fns/isAfter";
+import {
+  BASE_PATH_COMPLETE,
+  SPACE_ICONS_DIR_NAME,
+  STATIC_PATH,
+} from "../config";
+import path from "path";
 
 // GET /favorites
 export const getMyFavorites = async (req: any, res: Response) => {
@@ -78,7 +84,10 @@ export const getMyFavorites = async (req: any, res: Response) => {
         spaceRole: s.members.find(
           (m: any) => m.memberId.toString() === req.user._id.toString()
         ).role,
-        icon: s.icon,
+        icon: s.icon
+          ? BASE_PATH_COMPLETE +
+            path.join(STATIC_PATH, SPACE_ICONS_DIR_NAME, s.icon)
+          : undefined,
         createdAt: favorite.createdAt,
       };
     });
@@ -230,7 +239,8 @@ export const addToFavorite = async (req: any, res: Response) => {
           spaceRole: space.members.find(
             (m: any) => m.memberId.toString() === req.user._id.toString()
           ).role,
-          icon: space.icon,
+          icon: space.icon ? BASE_PATH_COMPLETE +
+          path.join(STATIC_PATH, SPACE_ICONS_DIR_NAME, space.icon) : undefined,
         },
         message: "Space added to favorite",
         statusCode: 201,

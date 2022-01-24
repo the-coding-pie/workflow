@@ -16,6 +16,7 @@ import Favorite from "../models/favorite.model";
 import Board from "../models/board.model";
 import { removeFile, saveFile } from "../utils/file";
 import {
+  BASE_PATH_COMPLETE,
   PUBLIC_DIR_NAME,
   SPACE_ICONS_DIR_NAME,
   SPACE_ICON_SIZE,
@@ -132,7 +133,10 @@ export const getSpaces = async (req: any, res: Response) => {
           role: role,
           isFavorite: favorite ? true : false,
           favoriteId: favorite && favorite._id,
-          icon: space.icon,
+          icon: space.icon
+            ? BASE_PATH_COMPLETE +
+              path.join(STATIC_PATH, SPACE_ICONS_DIR_NAME, space.icon)
+            : undefined,
           boards: totalBoards.map((b: any) => {
             delete b.createdAt;
 
@@ -205,7 +209,10 @@ export const getSpaces = async (req: any, res: Response) => {
           isFavorite: favorite ? true : false,
           favoriteId: favorite && favorite._id,
           role: role,
-          icon: space.icon,
+          icon: space.icon
+            ? BASE_PATH_COMPLETE +
+              path.join(STATIC_PATH, SPACE_ICONS_DIR_NAME, space.icon)
+            : undefined,
           boards: totalBoards.map((b: any) => {
             delete b.createdAt;
 
@@ -255,7 +262,10 @@ export const getSpaces = async (req: any, res: Response) => {
           role: role,
           isFavorite: favorite ? true : false,
           favoriteId: favorite && favorite._id,
-          icon: space.icon,
+          icon: space.icon
+            ? BASE_PATH_COMPLETE +
+              path.join(STATIC_PATH, SPACE_ICONS_DIR_NAME, space.icon)
+            : undefined,
           boards: totalBoards.map((b: any) => {
             delete b.createdAt;
 
@@ -488,7 +498,10 @@ export const getSpaceInfo = async (req: any, res: Response) => {
       success: true,
       data: {
         _id: space._id,
-        icon: space.icon,
+        icon: space.icon
+          ? BASE_PATH_COMPLETE +
+            path.join(STATIC_PATH, SPACE_ICONS_DIR_NAME, space.icon)
+          : undefined,
         name: space.name,
         role: space.members.find(
           (m: any) => m.memberId.toString() === req.user._id.toString()
@@ -908,8 +921,7 @@ export const addAMember = async (req: any, res: Response) => {
           memberId: req.user._id,
         },
       },
-    })
-      .select("_id members");
+    }).select("_id members");
 
     if (!space) {
       return res.status(404).send({
@@ -1076,8 +1088,7 @@ export const updateMemberRole = async (req: any, res: Response) => {
           memberId: req.user._id,
         },
       },
-    })
-      .select("_id members boards");
+    }).select("_id members boards");
 
     if (!space) {
       return res.status(404).send({
@@ -1432,8 +1443,7 @@ export const leaveFromSpace = async (req: any, res: Response) => {
           memberId: req.user._id,
         },
       },
-    })
-      .select("_id members boards");
+    }).select("_id members boards");
 
     if (!space) {
       return res.status(404).send({
@@ -1597,7 +1607,9 @@ export const getSpaceSettings = async (req: any, res: Response) => {
     res.send({
       success: true,
       data: {
-        icon: path.join(STATIC_PATH, SPACE_ICONS_DIR_NAME, space.icon),
+        icon:
+          BASE_PATH_COMPLETE +
+          path.join(STATIC_PATH, SPACE_ICONS_DIR_NAME, space.icon),
         name: space.name,
         description: space.description,
       },
@@ -1687,8 +1699,7 @@ export const updateSpaceSettings = async (req: any, res: Response) => {
           memberId: req.user._id,
         },
       },
-    })
-      .select("_id icon members");
+    }).select("_id icon members");
 
     if (!space) {
       return res.status(404).send({
