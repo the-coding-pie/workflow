@@ -1,5 +1,11 @@
 import React from "react";
-import { Navigate, NavLink, useNavigate } from "react-router-dom";
+import {
+  Navigate,
+  NavLink,
+  Route,
+  Routes,
+  useNavigate,
+} from "react-router-dom";
 import { Outlet, useParams } from "react-router-dom";
 import spaces from "../../data/spaces";
 import Avatar from "react-avatar";
@@ -20,6 +26,9 @@ import Loader from "../Loader/Loader";
 import Error from "../Error/Error";
 import Icon from "../Icon/Icon";
 import UtilityBtn from "../UtilityBtn/UtilityBtn";
+import SpaceBoards from "../../pages/spaces/SpaceBoards";
+import SpaceMembers from "../../pages/spaces/SpaceMembers";
+import SpaceSettings from "../../pages/spaces/SpaceSettings";
 
 const SpaceLayout = () => {
   const { id } = useParams();
@@ -191,7 +200,22 @@ const SpaceLayout = () => {
             </ul>
           </header>
           <div className="content flex-1">
-            <Outlet />
+            <Routes>
+              <Route index element={<Navigate to="boards" replace={true} />} />
+              <Route path="boards" element={<SpaceBoards />} />
+              <Route
+                path="members"
+                element={<SpaceMembers spaceId={space._id} myRole={space.role} />}
+              />
+              <Route
+                path="settings"
+                element={
+                  <SpaceSettings spaceId={space._id} myRole={space.role} />
+                }
+              />
+
+              <Route path="*" element={<Navigate to="/404" replace={true} />} />
+            </Routes>
           </div>
         </>
       )}

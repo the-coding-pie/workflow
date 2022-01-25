@@ -17,6 +17,7 @@ import Board from "../models/board.model";
 import { removeFile, saveFile } from "../utils/file";
 import {
   BASE_PATH_COMPLETE,
+  PROFILE_PICS_DIR_NAME,
   PUBLIC_DIR_NAME,
   SPACE_ICONS_DIR_NAME,
   SPACE_ICON_SIZE,
@@ -814,8 +815,15 @@ export const getAllSpaceMembers = async (req: any, res: Response) => {
         },
       },
     })
-      .lean()
-      .select("_id members");
+      .select("_id members")
+      .populate({
+        path: "members",
+        populate: {
+          path: "memberId",
+          select: "_id username profile",
+        },
+      })
+      .lean();
 
     if (!space) {
       return res.status(404).send({
@@ -828,7 +836,7 @@ export const getAllSpaceMembers = async (req: any, res: Response) => {
 
     // only give this information if current user is either an ADMIN or NORMAL
     const role = space.members.find(
-      (m: any) => m.memberId.toString() === req.user._id.toString()
+      (m: any) => m.memberId._id.toString() === req.user._id.toString()
     ).role;
 
     // if he is a GUEST
@@ -860,7 +868,20 @@ export const getAllSpaceMembers = async (req: any, res: Response) => {
     // if you reached this far, you may be an ADMIN or a NORMAL user
     res.send({
       success: true,
-      data: rearrangedMembers,
+      data: rearrangedMembers.map((m: any) => {
+        delete m.createdAt;
+        delete m.updatedAt;
+
+        return {
+          _id: m.memberId._id,
+          username: m.memberId.username,
+          profile: m.memberId.profile.includes("http")
+            ? m.memberId.profile
+            : BASE_PATH_COMPLETE +
+              path.join(STATIC_PATH, PROFILE_PICS_DIR_NAME, m.memberId.profile),
+          role: m.role,
+        };
+      }),
       message: "",
       statusCode: 200,
     });

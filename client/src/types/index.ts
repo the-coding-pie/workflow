@@ -77,6 +77,16 @@ export interface BoardObj {
   spaceId: string;
 }
 
+export interface MemberObj {
+  _id: string;
+  profile: string;
+  username: string;
+  role:
+    | typeof SPACE_ROLES.ADMIN
+    | typeof SPACE_ROLES.NORMAL
+    | typeof SPACE_ROLES.GUEST;
+}
+
 export interface ToastObj {
   kind:
     | typeof ERROR

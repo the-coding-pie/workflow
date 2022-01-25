@@ -21,6 +21,7 @@ const Board = ({ board }: Props) => {
       style={{
         background: board.bgImg ? `url(${board.bgImg})` : board.color,
         backgroundRepeat: "no-repeat",
+        boxShadow:`inset 0 0 0 2000px rgba(0, 0, 0, 0.22)`,
         backgroundPosition: "50%",
         backgroundOrigin: "border-box",
         backgroundSize: "cover",

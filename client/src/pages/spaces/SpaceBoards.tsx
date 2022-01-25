@@ -8,7 +8,8 @@ import Error from "../../components/Error/Error";
 import Loader from "../../components/Loader/Loader";
 import { addToast } from "../../redux/features/toastSlice";
 import { BoardObj } from "../../types";
-import { ERROR } from "../../types/constants";
+import { ERROR, SPACE_ROLES } from "../../types/constants";
+
 
 const SpaceBoards = () => {
   const { id } = useParams();

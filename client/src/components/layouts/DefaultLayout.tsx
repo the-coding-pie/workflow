@@ -35,18 +35,10 @@ const DefaultLayout = () => {
                 <Route path="/settings" element={<Settings />} />
 
                 {/* /s/:id/* */}
-                <Route path="/s/:id/" element={<SpaceLayout />}>
-                  <Route
-                    path=""
-                    element={<Navigate to="boards" replace={true} />}
-                  />
-                  <Route path="boards" element={<SpaceBoards />} />
-                  <Route path="members" element={<SpaceMembers />} />
-                  <Route path="settings" element={<SpaceSettings />} />
-                </Route>
+                <Route path="/s/:id/*" element={<SpaceLayout />} />
 
-                {/* /b/:id/* */}
-                <Route path="/b/:boardId" element={<BoardDetail />} />
+                {/* /b/:id */}
+                <Route path="/b/:id" element={<BoardDetail />} />
 
                 {/* /404 */}
                 <Route path="/404" element={<Error404 />} />
