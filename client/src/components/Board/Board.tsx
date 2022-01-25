@@ -1,6 +1,9 @@
 import React, { useState } from "react";
+import { HiOutlineLockClosed, HiOutlineStar } from "react-icons/hi";
 import { Link } from "react-router-dom";
 import { BoardObj } from "../../types";
+import { BOARD_VISIBILITY_TYPES } from "../../types/constants";
+import UtilityBtn from "../UtilityBtn/UtilityBtn";
 
 interface Props {
   board: BoardObj;
@@ -32,6 +35,41 @@ const Board = ({ board }: Props) => {
       <div className="details absolute top-0 right-0 bottom-0 left-0 flex px-3 py-2">
         {board.name}
       </div>
+
+      <div className="absolute bottom-2 left-2">
+        {board.visibility === BOARD_VISIBILITY_TYPES.PRIVATE && (
+          <UtilityBtn
+            iconSize={14}
+            Icon={HiOutlineLockClosed}
+            label="Private Board"
+            tooltipPosition="top"
+          />
+        )}
+      </div>
+
+      {isIn && (
+        <div className="absolute bottom-2 right-2">
+          {board.isFavorite ? (
+            <UtilityBtn
+              Icon={HiOutlineStar}
+              label="Unfavorite"
+              iconFillColor="#fbbf24"
+              iconColor="#fbbf24"
+              onClick={(e) => {
+                e.preventDefault();
+              }}
+            />
+          ) : (
+            <UtilityBtn
+              Icon={HiOutlineStar}
+              label="Favorite"
+              onClick={(e) => {
+                e.preventDefault();
+              }}
+            />
+          )}
+        </div>
+      )}
     </Link>
   );
 };

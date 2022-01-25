@@ -12,6 +12,7 @@ interface Props {
   isSubmitting?: boolean;
   onClick?: Function;
   color?: string;
+  tooltipPosition?: "bottom" | "right" | "left" | "top";
 }
 
 const UtilityBtn = ({
@@ -25,6 +26,7 @@ const UtilityBtn = ({
   onClick,
   isSubmitting = false,
   color = "primary",
+  tooltipPosition = "bottom",
 }: Props) => {
   return (
     <>
@@ -33,7 +35,7 @@ const UtilityBtn = ({
         data-tip
         data-for={label}
         aria-label={label}
-        onClick={(e) => onClick && onClick()}
+        onClick={(e) => onClick && onClick(e)}
         className={`
        flex items-center justify-center disabled:opacity-30 ${
          isSubmitting === false
@@ -52,7 +54,7 @@ const UtilityBtn = ({
       {label && (
         <ReactTooltip
           id={label}
-          place="bottom"
+          place={tooltipPosition}
           effect="solid"
           className="bg-gray-700"
         >

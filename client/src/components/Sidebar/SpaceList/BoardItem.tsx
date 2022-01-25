@@ -3,6 +3,7 @@ import { BoardObj, SpaceObj } from "../../../types";
 import {
   HiOutlineCog,
   HiOutlineDotsHorizontal,
+  HiOutlineLockClosed,
   HiOutlinePencil,
   HiOutlineShare,
   HiOutlineStar,
@@ -15,13 +16,18 @@ import { setCurrentActiveMenu } from "../../../redux/features/sidebarMenu";
 import CustomReactToolTip from "../../CustomReactToolTip/CustomReactToolTip";
 import Options from "../../Options/Options";
 import OptionsItem from "../../Options/OptionsItem";
-import { BOARD_ROLES, ERROR } from "../../../types/constants";
+import {
+  BOARD_ROLES,
+  BOARD_VISIBILITY_TYPES,
+  ERROR,
+} from "../../../types/constants";
 import { setCurrentActiveSpace } from "../../../redux/features/spaceMenu";
 import OptionsHR from "../../Options/OptionsHR";
 import { AxiosError } from "axios";
 import { useQueryClient } from "react-query";
 import axiosInstance from "../../../axiosInstance";
 import { addToast } from "../../../redux/features/toastSlice";
+import UtilityBtn from "../../UtilityBtn/UtilityBtn";
 
 interface Props {
   board: BoardObj;
@@ -221,7 +227,15 @@ const BoardItem = ({ board, setShowPlusIcon, setShowBoardOptions }: Props) => {
               background: board.color,
             }}
           ></div>
-          <span>{board.name}</span>
+          <span className="mr-1">{board.name}</span>
+          {board.visibility === BOARD_VISIBILITY_TYPES.PRIVATE && (
+            <UtilityBtn
+              iconSize={14}
+              Icon={HiOutlineLockClosed}
+              label="Private Board"
+              tooltipPosition="top"
+            />
+          )}
         </div>
 
         <div className="right text-gray-600 flex items-center">

@@ -17,7 +17,7 @@ spaceRouter.get("/mine", authMiddleware, spaceController.getSpacesMine);
 // Protected(Auth) GET /spaces/:id/info -> get space info
 spaceRouter.get("/:id/info", authMiddleware, spaceController.getSpaceInfo);
 // Protected(Auth) GET /spaces/:id/boards -> get all space boards according to user role
-spaceRouter.get("/:id/boards", authMiddleware, spaceController.getAllBoards);
+spaceRouter.get("/:id/boards", authMiddleware, spaceController.getSpaceBoards);
 // Protected(Auth) GET /spaces/:id/members -> get all space members according to user role
 spaceRouter.get(
   "/:id/members",

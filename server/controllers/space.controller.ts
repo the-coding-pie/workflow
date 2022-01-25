@@ -524,7 +524,7 @@ export const getSpaceInfo = async (req: any, res: Response) => {
 };
 
 // GET /spaces/:id/boards -> get all the boards under the space
-export const getAllBoards = async (req: any, res: Response) => {
+export const getSpaceBoards = async (req: any, res: Response) => {
   try {
     const { id } = req.params;
 
