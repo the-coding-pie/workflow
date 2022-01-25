@@ -34,7 +34,6 @@ const SpaceMembers = ({ spaceId, myRole }: Props) => {
 
   // if you reached here, then you must be an ADMIN or a NORMAL
   const getSpaceMembers = async ({ queryKey }: any) => {
-    console.log("yess");
     const response = await axiosInstance.get(`/spaces/${queryKey[1]}/members`);
 
     const { data } = response.data;
