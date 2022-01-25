@@ -4,6 +4,7 @@ import { IconType } from "react-icons";
 interface Props {
   Icon: IconType;
   label: string;
+  uniqueId: string;
   classes?: string;
   iconSize?: number;
   iconColor?: string;
@@ -18,6 +19,7 @@ interface Props {
 const UtilityBtn = ({
   Icon,
   label,
+  uniqueId,
   classes,
   iconColor,
   iconFillColor,
@@ -33,7 +35,7 @@ const UtilityBtn = ({
       <button
         type="button"
         data-tip
-        data-for={label}
+        data-for={uniqueId}
         aria-label={label}
         onClick={(e) => onClick && onClick(e)}
         className={`
@@ -53,7 +55,7 @@ const UtilityBtn = ({
       </button>
       {label && (
         <ReactTooltip
-          id={label}
+          id={uniqueId}
           place={tooltipPosition}
           effect="solid"
           className="bg-gray-700"

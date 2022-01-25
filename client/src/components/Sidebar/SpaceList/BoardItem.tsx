@@ -232,6 +232,7 @@ const BoardItem = ({ board, setShowPlusIcon, setShowBoardOptions }: Props) => {
             <UtilityBtn
               iconSize={14}
               Icon={HiOutlineLockClosed}
+              uniqueId="private-board-board-item"
               label="Private Board"
               tooltipPosition="top"
             />

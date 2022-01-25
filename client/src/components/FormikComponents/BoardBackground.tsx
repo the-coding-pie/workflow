@@ -82,6 +82,7 @@ const BoardBackground = ({ label, fieldNames, classes }: Props) => {
             iconSize={14}
             Icon={HiOutlineRefresh}
             label="New Images"
+            uniqueId="board-bg-new-images"
             iconClasses={isFetching ? "animate-spin" : ""}
             onClick={() => {
               queryClient.invalidateQueries(["getBgImages"]);
@@ -100,6 +101,7 @@ const BoardBackground = ({ label, fieldNames, classes }: Props) => {
             ) : (
               <div className="w-full flex items-center justify-center">
                 <UtilityBtn
+                  uniqueId="board-bg-retry"
                   iconSize={24}
                   Icon={HiOutlineRefresh}
                   label="Retry"

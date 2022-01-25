@@ -115,11 +115,13 @@ const SpaceLayout = () => {
                   label="Unfavorite"
                   iconFillColor="#fbbf24"
                   iconColor="#fbbf24"
+                  uniqueId="space-layout-unfavorite"
                   classes="bg-slate-100 shadow px-1 py-0.5 rounded text-sm"
                 />
               ) : (
                 <UtilityBtn
                   Icon={HiOutlineStar}
+                  uniqueId="space-layout-favorite"
                   label="Favorite"
                   classes="bg-slate-100 shadow px-1 py-0.5 rounded text-sm"
                 />

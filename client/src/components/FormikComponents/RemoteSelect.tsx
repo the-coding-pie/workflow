@@ -86,6 +86,7 @@ const RemoteSelect = ({
           </select>
 
           <UtilityBtn
+            uniqueId="remote-select-retry"
             Icon={HiOutlineRefresh}
             label="Retry"
             iconClasses={isFetching ? "animate-spin" : ""}

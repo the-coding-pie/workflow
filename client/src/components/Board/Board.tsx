@@ -40,9 +40,10 @@ const Board = ({ board }: Props) => {
         {board.visibility === BOARD_VISIBILITY_TYPES.PRIVATE && (
           <UtilityBtn
             iconSize={14}
+            uniqueId="private-board-component"
             Icon={HiOutlineLockClosed}
             label="Private Board"
-            tooltipPosition="top"
+            tooltipPosition="bottom"
           />
         )}
       </div>
@@ -53,9 +54,10 @@ const Board = ({ board }: Props) => {
             <UtilityBtn
               Icon={HiOutlineStar}
               label="Unfavorite"
+            uniqueId="board-component-unfavorite"
               iconFillColor="#fbbf24"
               iconColor="#fbbf24"
-              onClick={(e) => {
+              onClick={(e: any) => {
                 e.preventDefault();
               }}
             />
@@ -63,7 +65,8 @@ const Board = ({ board }: Props) => {
             <UtilityBtn
               Icon={HiOutlineStar}
               label="Favorite"
-              onClick={(e) => {
+            uniqueId="board-component-favorite"
+              onClick={(e: any) => {
                 e.preventDefault();
               }}
             />
