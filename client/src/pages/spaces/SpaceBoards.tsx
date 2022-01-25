@@ -29,8 +29,7 @@ const SpaceBoards = () => {
     error,
   } = useQuery<BoardObj[] | undefined, any, BoardObj[], string[]>(
     ["getSpaceBoards", id!],
-    getSpaceBoards,
-    {}
+    getSpaceBoards
   );
 
   if (isLoading) {

@@ -105,6 +105,8 @@ const CreateBoardModal = ({ spaceId }: Props) => {
       .then((response) => {
         const { data } = response.data;
 
+        queryClient.invalidateQueries(["getSpaceBoards", data.spaceId]);
+
         // update existing spaces list
         queryClient.setQueryData([`getSpaces`], (oldData: any) => {
           if (data.spaceId) {
