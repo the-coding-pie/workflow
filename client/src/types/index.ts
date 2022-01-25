@@ -39,29 +39,23 @@ export interface FavoriteObj {
   color?: string;
 }
 
-export interface SpaceInfoObj {
+export interface Space {
   _id: string;
   name: string;
   icon: string;
   isFavorite: boolean;
-  description: string;
-  favoriteId?: string;
+  favoriteId: string | null;
   role:
     | typeof SPACE_ROLES.ADMIN
     | typeof SPACE_ROLES.NORMAL
     | typeof SPACE_ROLES.GUEST;
 }
 
-export interface SpaceObj {
-  _id: string;
-  name: string;
-  icon: string;
-  isFavorite: boolean;
-  favoriteId?: string;
-  role:
-    | typeof SPACE_ROLES.ADMIN
-    | typeof SPACE_ROLES.NORMAL
-    | typeof SPACE_ROLES.GUEST;
+export interface SpaceInfoObj extends Space {
+  description: string;
+}
+
+export interface SpaceObj extends Space {
   boards: BoardObj[];
 }
 
@@ -70,7 +64,7 @@ export interface BoardObj {
   name: string;
   isMember: boolean;
   isFavorite: boolean;
-  favoriteId?: string;
+  favoriteId: string | null;
   color: string;
   visibility:
     | typeof BOARD_VISIBILITY_TYPES.PRIVATE
@@ -79,7 +73,7 @@ export interface BoardObj {
     | typeof BOARD_ROLES.ADMIN
     | typeof BOARD_ROLES.NORMAL
     | typeof BOARD_ROLES.OBSERVER;
-  bgImg?: string;
+  bgImg: string;
   spaceId: string;
 }
 

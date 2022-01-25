@@ -24,8 +24,6 @@ import UtilityBtn from "../UtilityBtn/UtilityBtn";
 const SpaceLayout = () => {
   const { id } = useParams();
 
-  const navigate = useNavigate();
-
   const dispatch = useDispatch();
 
   const getSpaceInfo = async ({ queryKey }: any) => {
@@ -42,12 +40,15 @@ const SpaceLayout = () => {
     error,
   } = useQuery<SpaceInfoObj | undefined, any, SpaceInfoObj, string[]>(
     ["getSpaceInfo", id!],
-    getSpaceInfo
+    getSpaceInfo,
+    {
+      keepPreviousData: true,
+    }
   );
 
   if (isLoading) {
     return (
-      <div className="h-screen pb-12 w-full flex items-center justify-center">
+      <div className="h-full pb-12 w-full flex items-center justify-center">
         <Loader />
       </div>
     );
@@ -55,7 +56,7 @@ const SpaceLayout = () => {
 
   // handle each error accordingly & specific to that situation
   if (error) {
-    if (error.response) {
+    if (error?.response) {
       const response = error.response;
       const { message } = response.data;
 
@@ -70,7 +71,7 @@ const SpaceLayout = () => {
         default:
           return <Error msg={"Oops, something went wrong!"} />;
       }
-    } else if (error.request) {
+    } else if (error?.request) {
       return (
         <Error
           msg={"Oops, something went wrong, Unable to get response back!"}
@@ -82,115 +83,117 @@ const SpaceLayout = () => {
   }
 
   return (
-    space && (
-      <div className="space-detail">
-        <header className="top w-full bg-white px-8 pt-4">
-          <div className="info flex items-start mb-8">
-            <div className="icon mr-4">
-              {space.icon ? (
-                <Icon alt={space.name} src={space.icon} size={48} />
+    <div className="space-detail flex flex-col h-full">
+      {space && (
+        <>
+          {" "}
+          <header className="top w-full bg-white px-8 pt-4">
+            <div className="info flex items-start mb-8">
+              <div className="icon mr-4">
+                {space.icon ? (
+                  <Icon alt={space.name} src={space.icon} size={48} />
+                ) : (
+                  <Avatar
+                    name={space.name}
+                    className="rounded"
+                    size="48"
+                    textSizeRatio={1.75}
+                  />
+                )}
+              </div>
+              <div className="right mr-4">
+                <h3 className="text-xl font-medium mb-0.5">{space.name}</h3>
+                <p className="flex items-center text-sm">
+                  {space.description || (
+                    <span className="text-slate-500">No Description</span>
+                  )}
+                </p>
+              </div>
+              {space.isFavorite ? (
+                <UtilityBtn
+                  Icon={HiOutlineStar}
+                  label="Unfavorite"
+                  iconFillColor="#fbbf24"
+                  iconColor="#fbbf24"
+                  classes="bg-slate-100 shadow px-1 py-0.5 rounded text-sm"
+                />
               ) : (
-                <Avatar
-                  name={space.name}
-                  className="rounded"
-                  size="48"
-                  textSizeRatio={1.75}
+                <UtilityBtn
+                  Icon={HiOutlineStar}
+                  label="Favorite"
+                  classes="bg-slate-100 shadow px-1 py-0.5 rounded text-sm"
                 />
               )}
             </div>
-            <div className="right mr-4">
-              <h3 className="text-xl font-medium mb-0.5">{space.name}</h3>
-              <p className="flex items-center text-sm">
-                {space.description || (
-                  <span className="text-slate-500">No Description</span>
-                )}
-              </p>
-            </div>
-            {space.isFavorite ? (
-              <UtilityBtn
-                Icon={HiOutlineStar}
-                label="Unfavorite"
-                iconFillColor="#fbbf24"
-                iconColor="#fbbf24"
-                classes="bg-slate-100 shadow px-1 py-0.5 rounded text-sm"
-              />
-            ) : (
-              <UtilityBtn
-              Icon={HiOutlineStar}
-              label="Favorite"
-              classes="bg-slate-100 shadow px-1 py-0.5 rounded text-sm"
-            />
-            )}
+
+            <ul className="flex pb-2">
+              <li className="w-18">
+                <NavLink
+                  to={`/s/${id}/boards`}
+                  className={({ isActive }) => {
+                    return `text-base mr-6 font-medium text-gray-500 ${
+                      isActive
+                        ? "border-b-4 pb-2 text-primary border-primary"
+                        : ""
+                    }`;
+                  }}
+                >
+                  Boards
+                </NavLink>
+              </li>
+              {space.role === SPACE_ROLES.GUEST ? (
+                <>
+                  <li className="w-18">
+                    <div className="text-base mr-6 font-medium text-gray-400 cursor-not-allowed noselect">
+                      Members
+                    </div>
+                  </li>
+                  <li className="w-18">
+                    <div className="text-base mr-6 font-medium text-gray-400 cursor-not-allowed noselect">
+                      Settings
+                    </div>
+                  </li>
+                </>
+              ) : (
+                <>
+                  <li className="w-18">
+                    <NavLink
+                      to={`/s/${id}/members`}
+                      className={({ isActive }) => {
+                        return `text-base mr-6 font-medium text-gray-500 ${
+                          isActive
+                            ? "border-b-4 pb-2 text-primary border-primary"
+                            : ""
+                        }`;
+                      }}
+                    >
+                      Members
+                    </NavLink>
+                  </li>
+                  <li className="w-18">
+                    <NavLink
+                      to={`/s/${id}/settings`}
+                      className={({ isActive }) => {
+                        return `text-base mr-6 font-medium text-gray-500 ${
+                          isActive
+                            ? "border-b-4 pb-2 text-primary border-primary"
+                            : ""
+                        }`;
+                      }}
+                    >
+                      Settings
+                    </NavLink>
+                  </li>
+                </>
+              )}
+            </ul>
+          </header>
+          <div className="content flex-1">
+            <Outlet />
           </div>
-
-          <ul className="flex pb-2">
-            <li className="w-18">
-              <NavLink
-                to={`/s/${id}/boards`}
-                className={({ isActive }) => {
-                  return `text-base mr-6 font-medium text-gray-500 ${
-                    isActive
-                      ? "border-b-4 pb-2 text-primary border-primary"
-                      : ""
-                  }`;
-                }}
-              >
-                Boards
-              </NavLink>
-            </li>
-            {space.role === SPACE_ROLES.GUEST ? (
-              <>
-                <li className="w-18">
-                  <div className="text-base mr-6 font-medium text-gray-400 cursor-not-allowed noselect">
-                    Members
-                  </div>
-                </li>
-                <li className="w-18">
-                  <div className="text-base mr-6 font-medium text-gray-400 cursor-not-allowed noselect">
-                    Settings
-                  </div>
-                </li>
-              </>
-            ) : (
-              <>
-                <li className="w-18">
-                  <NavLink
-                    to={`/s/${id}/members`}
-                    className={({ isActive }) => {
-                      return `text-base mr-6 font-medium text-gray-500 ${
-                        isActive
-                          ? "border-b-4 pb-2 text-primary border-primary"
-                          : ""
-                      }`;
-                    }}
-                  >
-                    Members
-                  </NavLink>
-                </li>
-                <li className="w-18">
-                  <NavLink
-                    to={`/s/${id}/settings`}
-                    className={({ isActive }) => {
-                      return `text-base mr-6 font-medium text-gray-500 ${
-                        isActive
-                          ? "border-b-4 pb-2 text-primary border-primary"
-                          : ""
-                      }`;
-                    }}
-                  >
-                    Settings
-                  </NavLink>
-                </li>
-              </>
-            )}
-          </ul>
-        </header>
-
-        <div className="content">
-          <Outlet />
-        </div>
-      </div>
-    )
+        </>
+      )}
+    </div>
   );
 };
 
