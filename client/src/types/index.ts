@@ -42,9 +42,9 @@ export interface FavoriteObj {
 export interface SpaceInfoObj {
   _id: string;
   name: string;
-  icon?: string;
+  icon: string;
   isFavorite: boolean;
-  description?: string;
+  description: string;
   favoriteId?: string;
   role:
     | typeof SPACE_ROLES.ADMIN
@@ -55,7 +55,7 @@ export interface SpaceInfoObj {
 export interface SpaceObj {
   _id: string;
   name: string;
-  icon?: string;
+  icon: string;
   isFavorite: boolean;
   favoriteId?: string;
   role:

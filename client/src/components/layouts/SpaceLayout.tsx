@@ -3,7 +3,13 @@ import { Navigate, NavLink, useNavigate } from "react-router-dom";
 import { Outlet, useParams } from "react-router-dom";
 import spaces from "../../data/spaces";
 import Avatar from "react-avatar";
-import { HiOutlineLockClosed, HiOutlinePencil } from "react-icons/hi";
+import {
+  HiInformationCircle,
+  HiOutlineInformationCircle,
+  HiOutlineLockClosed,
+  HiOutlinePencil,
+  HiOutlineStar,
+} from "react-icons/hi";
 import { ERROR, SPACE_ROLES } from "../../types/constants";
 import axiosInstance from "../../axiosInstance";
 import { useQuery } from "react-query";
@@ -12,9 +18,13 @@ import { useDispatch } from "react-redux";
 import { addToast } from "../../redux/features/toastSlice";
 import Loader from "../Loader/Loader";
 import Error from "../Error/Error";
+import Icon from "../Icon/Icon";
+import UtilityBtn from "../UtilityBtn/UtilityBtn";
 
 const SpaceLayout = () => {
   const { id } = useParams();
+
+  const navigate = useNavigate();
 
   const dispatch = useDispatch();
 
@@ -37,7 +47,7 @@ const SpaceLayout = () => {
 
   if (isLoading) {
     return (
-      <div className="h-screen w-full flex items-center justify-center">
+      <div className="h-screen pb-12 w-full flex items-center justify-center">
         <Loader />
       </div>
     );
@@ -61,7 +71,11 @@ const SpaceLayout = () => {
           return <Error msg={"Oops, something went wrong!"} />;
       }
     } else if (error.request) {
-      return <Error msg={"Oops, something went wrong!"} />;
+      return (
+        <Error
+          msg={"Oops, something went wrong, Unable to get response back!"}
+        />
+      );
     } else {
       return <Error msg={`Oops, something went wrong!`} />;
     }
@@ -73,14 +87,8 @@ const SpaceLayout = () => {
         <header className="top w-full bg-white px-8 pt-4">
           <div className="info flex items-start mb-8">
             <div className="icon mr-4">
-              {space?.icon ? (
-                <Avatar
-                  src={space.icon}
-                  alt="space icon"
-                  className="rounded"
-                  size="48"
-                  textSizeRatio={1.75}
-                />
+              {space.icon ? (
+                <Icon alt={space.name} src={space.icon} size={48} />
               ) : (
                 <Avatar
                   name={space.name}
@@ -93,16 +101,25 @@ const SpaceLayout = () => {
             <div className="right mr-4">
               <h3 className="text-xl font-medium mb-0.5">{space.name}</h3>
               <p className="flex items-center text-sm">
-                <span className="mr-1">
-                  <HiOutlineLockClosed />
-                </span>
-                <span>Private</span>
+                {space.description || (
+                  <span className="text-slate-500">No Description</span>
+                )}
               </p>
             </div>
-            {space.role !== SPACE_ROLES.GUEST && (
-              <button className="bg-violet-200 px-1 py-0.5 rounded text-sm">
-                <HiOutlinePencil size={18} />
-              </button>
+            {space.isFavorite ? (
+              <UtilityBtn
+                Icon={HiOutlineStar}
+                label="Unfavorite"
+                iconFillColor="#fbbf24"
+                iconColor="#fbbf24"
+                classes="bg-slate-100 shadow px-1 py-0.5 rounded text-sm"
+              />
+            ) : (
+              <UtilityBtn
+              Icon={HiOutlineStar}
+              label="Favorite"
+              classes="bg-slate-100 shadow px-1 py-0.5 rounded text-sm"
+            />
             )}
           </div>
 

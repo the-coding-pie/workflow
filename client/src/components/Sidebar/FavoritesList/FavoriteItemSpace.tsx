@@ -20,6 +20,7 @@ import axiosInstance from "../../../axiosInstance";
 import { AxiosError } from "axios";
 import { addToast } from "../../../redux/features/toastSlice";
 import { useQueryClient } from "react-query";
+import Icon from "../../Icon/Icon";
 
 interface Props {
   item: FavoriteObj;
@@ -142,12 +143,11 @@ const FavoriteItemSpace = ({ item }: Props) => {
           <div className="left flex items-center">
             <div className="name flex items-center">
               {item.icon ? (
-                <Avatar
+                <Icon
+                  classes="mr-1.5"
+                  alt={item.name}
                   src={item.icon}
-                  alt="space icon"
-                  className="rounded mr-1.5"
-                  size="18"
-                  textSizeRatio={1.75}
+                  size={18}
                 />
               ) : (
                 <Avatar

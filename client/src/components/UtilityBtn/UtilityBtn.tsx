@@ -6,9 +6,11 @@ interface Props {
   label: string;
   classes?: string;
   iconSize?: number;
+  iconColor?: string;
+  iconFillColor?: string;
   iconClasses?: string;
   isSubmitting?: boolean;
-  onClick: Function;
+  onClick?: Function;
   color?: string;
 }
 
@@ -16,6 +18,8 @@ const UtilityBtn = ({
   Icon,
   label,
   classes,
+  iconColor,
+  iconFillColor,
   iconSize = 18,
   iconClasses,
   onClick,
@@ -29,7 +33,7 @@ const UtilityBtn = ({
         data-tip
         data-for={label}
         aria-label={label}
-        onClick={(e) => onClick()}
+        onClick={(e) => onClick && onClick()}
         className={`
        flex items-center justify-center disabled:opacity-30 ${
          isSubmitting === false
@@ -38,7 +42,12 @@ const UtilityBtn = ({
        }   ${classes}`}
         disabled={isSubmitting ? true : false}
       >
-        <Icon size={iconSize} className={`icon ${iconClasses}`} />
+        <Icon
+          color={iconColor ? iconColor : "currentColor"}
+          fill={iconFillColor ? iconFillColor : "none"}
+          size={iconSize}
+          className={`icon ${iconClasses}`}
+        />
       </button>
       {label && (
         <ReactTooltip

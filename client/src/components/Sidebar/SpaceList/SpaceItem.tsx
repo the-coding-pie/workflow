@@ -36,6 +36,7 @@ import axiosInstance from "../../../axiosInstance";
 import { useQueryClient } from "react-query";
 import { AxiosError } from "axios";
 import { addToast } from "../../../redux/features/toastSlice";
+import Icon from "../../Icon/Icon";
 
 interface Props {
   space: SpaceObj;
@@ -267,12 +268,11 @@ const SpaceItem = ({ space }: Props) => {
           <div className="name flex items-center">
             {/* if there is no icon in space or the field is present and it's value is empty, falls to false */}
             {space.icon ? (
-              <Avatar
+              <Icon
+                classes="mr-1.5"
+                alt={space.name}
                 src={space.icon}
-                alt="space icon"
-                className="rounded mr-1.5"
-                size="18"
-                textSizeRatio={1.75}
+                size={18}
               />
             ) : (
               <Avatar
