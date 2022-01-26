@@ -7,6 +7,7 @@ import {
   DEFAULT,
   ERROR,
   INFO,
+  INVITE_SPACE_MEMBER_MODAL,
   SPACE,
   SPACE_ROLES,
   SUCCESS,
@@ -98,7 +99,11 @@ export interface ToastObj {
 }
 
 export interface ModalObj {
-  modalType: typeof CREATE_SPACE_MODAL | typeof CREATE_BOARD_MODAL | null;
+  modalType:
+    | typeof CREATE_SPACE_MODAL
+    | typeof CREATE_BOARD_MODAL
+    | typeof INVITE_SPACE_MEMBER_MODAL
+    | null;
   modalProps?: object;
   modalTitle?: string;
   showCloseBtn?: boolean;

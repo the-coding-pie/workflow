@@ -895,7 +895,7 @@ export const getAllSpaceMembers = async (req: any, res: Response) => {
   }
 };
 
-// POST /spaces/:id/members -> to add a new member, only space admin can do this
+// PUT /spaces/:id/members -> to add a new member, only space admin can do this
 export const addAMember = async (req: any, res: Response) => {
   try {
     const { id } = req.params;
@@ -1006,7 +1006,7 @@ export const addAMember = async (req: any, res: Response) => {
     }
 
     // check if memberId is valid
-    const member = await User.findOne({ _id: memberId });
+    const member = await User.findOne({ _id: memberId, emailVerified: true });
 
     if (member) {
       return res.status(400).send({
@@ -1029,6 +1029,197 @@ export const addAMember = async (req: any, res: Response) => {
       success: true,
       data: {},
       message: "Member added to the space",
+      statusCode: 200,
+    });
+  } catch (err) {
+    res.status(500).send({
+      success: false,
+      data: {},
+      message: "Oops, something went wrong!",
+      statusCode: 500,
+    });
+  }
+};
+
+// PUT /spaces/:id/members/bulk -> add one or more member to space
+export const addSpaceMembers = async (req: any, res: Response) => {
+  try {
+    const { id } = req.params;
+    const { members } = req.body;
+
+    let uniqueMemberIds: string[] = [];
+
+    if (!id) {
+      return res.status(400).send({
+        success: false,
+        data: {},
+        message: "space _id is required",
+        statusCode: 400,
+      });
+    } else if (!mongoose.isValidObjectId(id)) {
+      return res.status(400).send({
+        success: false,
+        data: {},
+        message: "Invalid space _id",
+        statusCode: 400,
+      });
+    }
+
+    // space members validation
+    if (!members) {
+      return res.status(400).send({
+        success: false,
+        data: {},
+        message: "members array is required",
+        statusCode: 400,
+      });
+    } else if (!Array.isArray(members) || !checkAllString(members)) {
+      return res.status(400).send({
+        success: false,
+        data: {},
+        message: "members value should be an array of _id(s)",
+        statusCode: 400,
+      });
+    } else if (members.length === 0) {
+      return res.status(400).send({
+        success: false,
+        data: {},
+        message: "Please provide atleast a member _id inside array",
+        statusCode: 400,
+      });
+    } else if (members.find((m) => !mongoose.isValidObjectId(m))) {
+      return res.status(400).send({
+        success: false,
+        data: {},
+        message: "Invalid member _id(s)",
+        statusCode: 400,
+      });
+    }
+
+    // now we can trust, the members is an array and has atleast one valid _id
+    // extract unique values
+    // remove the current user's _id
+    uniqueMemberIds = getUniqueValues<string>(members).filter(
+      (m) => m !== req.user._id.toString()
+    );
+
+    // remove empty strings from array
+    uniqueMemberIds = uniqueMemberIds.filter((id) => id);
+
+    if (uniqueMemberIds.length === 0) {
+      return res.status(400).send({
+        success: false,
+        data: {},
+        message: "Invalid member _id(s)",
+        statusCode: 400,
+      });
+    }
+
+    // // now we can asssure, we have some valid _id(s)
+
+    // now we have space _id & memberId(s)
+    // check if the space if valid + the current user is atleast a member in it
+    const space = await Space.findOne({
+      _id: id,
+      members: {
+        $elemMatch: {
+          memberId: req.user._id,
+        },
+      },
+    }).select("_id members");
+
+    if (!space) {
+      return res.status(404).send({
+        success: false,
+        data: {},
+        message: "Space not found!",
+        statusCode: 404,
+      });
+    }
+
+    // to add a new member, space ADMIN can only do that
+    const role = space.members.find(
+      (m: any) => m.memberId.toString() === req.user._id.toString()
+    ).role;
+
+    if (role !== SPACE_MEMBER_ROLES.ADMIN) {
+      return res.status(403).send({
+        success: false,
+        data: {},
+        message: "You don't have permission to invite member(s)",
+        statusCode: 403,
+      });
+    }
+
+    // you are an ADMIN on this space
+    // check the given memberId(s) is valid
+
+    // take all the id(s) from uniqueMemberIds who is not a member of the space (but we can keep the GUEST users)
+    const notGuests = space.members.filter(
+      (m: any) => m.role !== SPACE_MEMBER_ROLES.GUEST
+    );
+    const spaceGuests = space.members.filter(
+      (m: any) => m.role === SPACE_MEMBER_ROLES.GUEST
+    );
+
+    // array of new user _ids + space guests
+    uniqueMemberIds = uniqueMemberIds.filter(
+      (id) => !notGuests.map((m: any) => m.memberId.toString()).includes(id)
+    );
+
+    // space guests from uniqueMemberIds
+    const guestMembers = uniqueMemberIds.filter((id) =>
+      spaceGuests.map((m: any) => m.memberId.toString()).includes(id)
+    );
+
+    // check if member id's are valid
+    let validMembers = await User.find({
+      _id: { $in: uniqueMemberIds },
+      emailVerified: true,
+    })
+      .select("_id")
+      .lean();
+
+    validMembers = validMembers.map((m: any) => m._id.toString());
+
+    // now we have all the valid users
+    // split them into two groups
+    const alreadyValidGuests = validMembers.filter((id: any) =>
+      guestMembers.includes(id)
+    );
+    const newValidMembers = validMembers.filter(
+      (id: any) => !alreadyValidGuests.includes(id)
+    );
+
+    // convert GUEST to NORMAL
+    if (alreadyValidGuests.length > 0) {
+      // upgrade his role to NORMAL
+      space.members = space.members.map((m: any) => {
+        if (alreadyValidGuests.includes(m.memberId.toString())) {
+          m.role = SPACE_MEMBER_ROLES.NORMAL;
+          return m;
+        }
+
+        return m;
+      });
+    }
+
+    // add the new users as NORMAL users
+    if (newValidMembers.length > 0) {
+      newValidMembers.forEach((id) => {
+        space.members.push({
+          memberId: id,
+          role: SPACE_MEMBER_ROLES.NORMAL,
+        });
+      });
+    }
+
+    await space.save();
+
+    return res.send({
+      success: true,
+      data: {},
+      message: "Members added to the space",
       statusCode: 200,
     });
   } catch (err) {

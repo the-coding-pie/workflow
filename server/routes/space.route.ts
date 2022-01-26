@@ -24,8 +24,14 @@ spaceRouter.get(
   authMiddleware,
   spaceController.getAllSpaceMembers
 );
-// Protected(Auth) POST /spaces/:id/members -> add a member to space
-spaceRouter.post("/:id/members", authMiddleware, spaceController.addAMember);
+// Protected(Auth) PUT /spaces/:id/members -> add a member to space
+spaceRouter.put("/:id/members", authMiddleware, spaceController.addAMember);
+// Protected(Auth) PUT /spaces/:id/members/bulk -> add one or more members to space
+spaceRouter.put(
+  "/:id/members/bulk",
+  authMiddleware,
+  spaceController.addSpaceMembers
+);
 // Protected(Auth) PUT /spaces/:id/members/:memberId -> update member role in space
 spaceRouter.put(
   "/:id/members/:memberId",

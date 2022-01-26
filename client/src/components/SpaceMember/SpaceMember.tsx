@@ -44,7 +44,7 @@ const SpaceMember = ({ member, myRole, spaceId, isOnlyAdmin }: Props) => {
 
   const addToSpace = useCallback((spaceId, memberId) => {
     axiosInstance
-      .post(`/spaces/${spaceId}/members`, {
+      .put(`/spaces/${spaceId}/members`, {
         memberId: memberId,
       })
       .then((response) => {

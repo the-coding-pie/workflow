@@ -8,9 +8,15 @@ import Loader from "../../components/Loader/Loader";
 import Profile from "../../components/Profile/Profile";
 import SpaceMember from "../../components/SpaceMember/SpaceMember";
 import { RootState } from "../../redux/app";
+import { showModal } from "../../redux/features/modalSlice";
 import { addToast } from "../../redux/features/toastSlice";
 import { MemberObj } from "../../types";
-import { ERROR, SPACE_ROLES, WARNING } from "../../types/constants";
+import {
+  ERROR,
+  INVITE_SPACE_MEMBER_MODAL,
+  SPACE_ROLES,
+  WARNING,
+} from "../../types/constants";
 
 interface Props {
   spaceId: string;
@@ -107,7 +113,16 @@ const SpaceMembers = ({ spaceId, myRole }: Props) => {
           </div>
           {myRole === SPACE_ROLES.ADMIN && (
             <div className="flex justify-end w-full mb-6">
-              <button className="btn-primary text-sm">
+              <button
+                onClick={() =>
+                  dispatch(
+                    showModal({
+                      modalType: INVITE_SPACE_MEMBER_MODAL,
+                    })
+                  )
+                }
+                className="btn-primary text-sm"
+              >
                 Invite Space Members
               </button>
             </div>

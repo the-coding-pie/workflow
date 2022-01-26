@@ -13,7 +13,6 @@ import SubmitBtn from "../FormikComponents/SubmitBtn";
 import { addToast } from "../../redux/features/toastSlice";
 import { hideModal } from "../../redux/features/modalSlice";
 import { ERROR } from "../../types/constants";
-import { logoutUser } from "../../redux/features/authSlice";
 import axiosInstance from "../../axiosInstance";
 import { useQueryClient } from "react-query";
 

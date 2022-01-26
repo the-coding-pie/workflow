@@ -4,9 +4,14 @@ import { useDispatch } from "react-redux";
 import useEscClose from "../../hooks/useEscClose";
 import { hideModal } from "../../redux/features/modalSlice";
 import { ModalObj } from "../../types";
-import { CREATE_BOARD_MODAL, CREATE_SPACE_MODAL } from "../../types/constants";
+import {
+  CREATE_BOARD_MODAL,
+  CREATE_SPACE_MODAL,
+  INVITE_SPACE_MEMBER_MODAL,
+} from "../../types/constants";
 import CreateBoardModal from "../ModalComponents/CreateBoardModal";
 import CreateSpaceModal from "../ModalComponents/CreateSpaceModal";
+import InviteSpaceMemberModal from "../ModalComponents/InviteSpaceMemberModal";
 
 interface Props extends ModalObj {}
 
@@ -34,6 +39,9 @@ const Modal = ({
       break;
     case CREATE_BOARD_MODAL:
       Component = CreateBoardModal;
+      break;
+    case INVITE_SPACE_MEMBER_MODAL:
+      Component = InviteSpaceMemberModal;
       break;
     default:
       Component = null;
@@ -82,7 +90,7 @@ const Modal = ({
 
           <div className={`w-full ${showCloseBtn ? "mr-4" : ""}`}>
             {/* desctucturing undefinded value inside object, it will ignore */}
-            
+
             {Component !== null && <Component {...modalProps} />}
           </div>
         </div>
