@@ -99,7 +99,7 @@ const InviteSpaceMemberModal = () => {
 
           <div className="buttons w-full flex flex-col text-sm">
             <SubmitBtn
-              text="Create"
+              text="Invite"
               classes="mb-4"
               isSubmitting={isSubmitting}
             />
