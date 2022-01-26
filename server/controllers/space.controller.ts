@@ -988,10 +988,8 @@ export const addAMember = async (req: any, res: Response) => {
       // upgrade his role to NORMAL
       space.members = space.members.map((m: any) => {
         if (m.memberId.toString() === memberId) {
-          return {
-            ...m,
-            role: SPACE_MEMBER_ROLES.NORMAL,
-          };
+          m.role = SPACE_MEMBER_ROLES.NORMAL;
+          return m;
         }
 
         return m;
@@ -1173,11 +1171,11 @@ export const updateMemberRole = async (req: any, res: Response) => {
 
     // if you are now trying to change the the role of any user(including yours) to the same existing one
     if (newRole === targetMember.role) {
-      return res.send({
+      return res.status(204).send({
         success: true,
         data: {},
         message: "The newRole is the already existing role. Nothing to change.",
-        statusCode: 200,
+        statusCode: 204,
       });
     }
 
@@ -1186,12 +1184,11 @@ export const updateMemberRole = async (req: any, res: Response) => {
     // allow that
     space.members = space.members.map((m: any) => {
       if (m.memberId.toString() === targetMember.memberId.toString()) {
-        return {
-          ...m,
-          role: [SPACE_MEMBER_ROLES.ADMIN, SPACE_MEMBER_ROLES.NORMAL].find(
-            (r: any) => r === newRole
-          ),
-        };
+        m.role = [SPACE_MEMBER_ROLES.ADMIN, SPACE_MEMBER_ROLES.NORMAL].find(
+          (r: any) => r === newRole
+        );
+
+        return m;
       }
 
       return m;
@@ -1216,10 +1213,8 @@ export const updateMemberRole = async (req: any, res: Response) => {
       for (const b of boards) {
         b.members = b.members.map((m: any) => {
           if (m.memberId === targetMember.memberId) {
-            return {
-              ...m,
-              role: BOARD_MEMBER_ROLES.ADMIN,
-            };
+            m.role = BOARD_MEMBER_ROLES.ADMIN;
+            return m;
           }
           return m;
         });
@@ -1235,10 +1230,9 @@ export const updateMemberRole = async (req: any, res: Response) => {
       for (const b of boards) {
         b.members = b.members.map((m: any) => {
           if (m.memberId === targetMember.memberId) {
-            return {
-              ...m,
-              role: m.fallbackRole,
-            };
+            m.role = m.fallbackRole;
+
+            return m;
           }
           return m;
         });
@@ -1309,9 +1303,7 @@ export const removeMember = async (req: any, res: Response) => {
           memberId: req.user._id,
         },
       },
-    })
-      .lean()
-      .select("_id members boards");
+    }).select("_id members boards");
 
     if (!space) {
       return res.status(404).send({
@@ -1417,6 +1409,13 @@ export const removeMember = async (req: any, res: Response) => {
         await b.save();
       }
     }
+
+    // remove member from space
+    space.members = space.members.filter(
+      (m: any) => m.memberId.toString() !== targetMember._id.toString()
+    );
+
+    await space.save();
 
     res.send({
       success: true,
@@ -1524,10 +1523,9 @@ export const leaveFromSpace = async (req: any, res: Response) => {
       // so change his role to GUEST in the space
       space.members = space.members.map((m: any) => {
         if (m.memberId.toString() === req.user._id.toString()) {
-          return {
-            ...m,
-            role: SPACE_MEMBER_ROLES.GUEST,
-          };
+          m.role = SPACE_MEMBER_ROLES.GUEST;
+
+          return m;
         }
 
         return m;

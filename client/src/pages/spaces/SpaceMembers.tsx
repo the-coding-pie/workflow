@@ -1,12 +1,13 @@
 import React from "react";
 import { useQuery } from "react-query";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { Navigate, useParams } from "react-router-dom";
 import axiosInstance from "../../axiosInstance";
 import Error from "../../components/Error/Error";
 import Loader from "../../components/Loader/Loader";
 import Profile from "../../components/Profile/Profile";
 import SpaceMember from "../../components/SpaceMember/SpaceMember";
+import { RootState } from "../../redux/app";
 import { addToast } from "../../redux/features/toastSlice";
 import { MemberObj } from "../../types";
 import { ERROR, SPACE_ROLES, WARNING } from "../../types/constants";
@@ -94,7 +95,11 @@ const SpaceMembers = ({ spaceId, myRole }: Props) => {
     <div className="space-members px-8 py-6 mt-2">
       {members && members.length > 0 ? (
         <div className="members">
-          <div className="intro mb-8">
+          <div
+            className={`intro ${
+              myRole === SPACE_ROLES.ADMIN ? "mb-4" : "mb-8"
+            }`}
+          >
             <h3 className="text-xl font-semibold">Members & Guests</h3>
             <p className="text-slate-600">
               A list of all the space members and guests.
@@ -107,9 +112,19 @@ const SpaceMembers = ({ spaceId, myRole }: Props) => {
               </button>
             </div>
           )}
-          <div>
+          <div className="bg-white border">
             {members.map((m) => (
-              <SpaceMember key={m._id} myRole={myRole} member={m} />
+              <SpaceMember
+                key={m._id}
+                isOnlyAdmin={
+                  myRole === SPACE_ROLES.ADMIN &&
+                  members.filter((m) => m.role === SPACE_ROLES.ADMIN).length ===
+                    1
+                }
+                myRole={myRole}
+                spaceId={spaceId}
+                member={m}
+              />
             ))}
           </div>
         </div>

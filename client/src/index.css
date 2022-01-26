@@ -118,6 +118,14 @@ body {
     @apply bg-primary py-2 px-5 text-white rounded font-bold;
   }
 
+  .btn-slate {
+    @apply text-sm px-5 py-2 bg-slate-200 rounded hover:bg-primary_light disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:bg-slate-200;
+  }
+
+  .btn-primary_light {
+    @apply bg-primary_light py-2 px-5 text-slate-700 rounded font-medium;
+  }
+
   .btn-primary-rounded {
     @apply bg-primary rounded-full p-1 text-white;
   }

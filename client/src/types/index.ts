@@ -111,3 +111,10 @@ export interface Option {
   value: string;
   label: string;
 }
+
+// select drop down option type
+export interface OptionWithSub {
+  value: string;
+  label: string;
+  sub: string;
+}
