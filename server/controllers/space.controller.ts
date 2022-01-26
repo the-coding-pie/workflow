@@ -1412,7 +1412,7 @@ export const removeMember = async (req: any, res: Response) => {
 
     // remove member from space
     space.members = space.members.filter(
-      (m: any) => m.memberId.toString() !== targetMember._id.toString()
+      (m: any) => m.memberId.toString() !== targetMember.memberId.toString()
     );
 
     await space.save();
