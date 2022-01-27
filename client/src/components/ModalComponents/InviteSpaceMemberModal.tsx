@@ -4,7 +4,7 @@ import { Form, Formik } from "formik";
 import React, { useCallback, useState } from "react";
 import { useQueryClient } from "react-query";
 import { useDispatch } from "react-redux";
-import { Navigate } from "react-router-dom";
+import { Navigate, useNavigate } from "react-router-dom";
 import * as Yup from "yup";
 import axiosInstance from "../../axiosInstance";
 import { hideModal } from "../../redux/features/modalSlice";
@@ -34,6 +34,8 @@ const InviteSpaceMemberModal = ({ spaceId }: Props) => {
 
   const queryClient = useQueryClient();
 
+  const navigate = useNavigate();
+
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const initialValues: MembersObj = {
@@ -56,7 +58,7 @@ const InviteSpaceMemberModal = ({ spaceId }: Props) => {
     };
 
     axiosInstance
-      .put(`/${spaceId}/members/bulk`, value, {
+      .put(`/spaces/${spaceId}/members/bulk`, value, {
         headers: {
           ContentType: "application/json",
         },
@@ -88,8 +90,11 @@ const InviteSpaceMemberModal = ({ spaceId }: Props) => {
             case 404:
               dispatch(hideModal());
               dispatch(addToast({ kind: ERROR, msg: message }));
+              queryClient.invalidateQueries(["getSpaces"]);
+              queryClient.invalidateQueries(["getFavorites"]);
               // redirect them to home page
-              return <Navigate to="/" replace={true} />;
+              navigate("/", { replace: true });
+              break;
             case 400:
             case 403:
               dispatch(hideModal());

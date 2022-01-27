@@ -4,7 +4,7 @@ import { HiUserGroup } from "react-icons/hi";
 import { MdGroup } from "react-icons/md";
 import { useQueryClient } from "react-query";
 import { useDispatch, useSelector } from "react-redux";
-import { Navigate } from "react-router-dom";
+import { Navigate, useNavigate } from "react-router-dom";
 import axiosInstance from "../../axiosInstance";
 import { RootState } from "../../redux/app";
 import { addToast } from "../../redux/features/toastSlice";
@@ -27,6 +27,8 @@ interface Props {
 const SpaceMember = ({ member, myRole, spaceId, isOnlyAdmin }: Props) => {
   const dispatch = useDispatch();
   const queryClient = useQueryClient();
+
+  const navigate = useNavigate();
 
   const { user } = useSelector((state: RootState) => state.auth);
 
@@ -68,8 +70,11 @@ const SpaceMember = ({ member, myRole, spaceId, isOnlyAdmin }: Props) => {
           switch (response.status) {
             case 404:
               dispatch(addToast({ kind: ERROR, msg: message }));
+              queryClient.invalidateQueries(["getSpaces"]);
+              queryClient.invalidateQueries(["getFavorites"]);
               // redirect them to home page
-              return <Navigate to="/" replace={true} />;
+              navigate("/", { replace: true });
+              break;
             case 400:
             case 403:
             case 409:
@@ -115,8 +120,11 @@ const SpaceMember = ({ member, myRole, spaceId, isOnlyAdmin }: Props) => {
           switch (response.status) {
             case 404:
               dispatch(addToast({ kind: ERROR, msg: message }));
+              queryClient.invalidateQueries(["getSpaces"]);
+              queryClient.invalidateQueries(["getFavorites"]);
               // redirect them to home page
-              return <Navigate to="/" replace={true} />;
+              navigate("/", { replace: true });
+              break;
             case 400:
             case 403:
             case 500:
@@ -155,6 +163,8 @@ const SpaceMember = ({ member, myRole, spaceId, isOnlyAdmin }: Props) => {
         queryClient.invalidateQueries(["getFavorites"]);
         queryClient.invalidateQueries(["getSpaceInfo", spaceId]);
         queryClient.invalidateQueries(["getSpaceMembers", spaceId]);
+
+        navigate("/", { replace: true });
       })
       .catch((error: AxiosError) => {
         if (error.response) {
@@ -164,8 +174,11 @@ const SpaceMember = ({ member, myRole, spaceId, isOnlyAdmin }: Props) => {
           switch (response.status) {
             case 404:
               dispatch(addToast({ kind: ERROR, msg: message }));
+              queryClient.invalidateQueries(["getSpaces"]);
+              queryClient.invalidateQueries(["getFavorites"]);
               // redirect them to home page
-              return <Navigate to="/" replace={true} />;
+              navigate("/", { replace: true });
+              break;
             case 400:
             case 403:
             case 500:

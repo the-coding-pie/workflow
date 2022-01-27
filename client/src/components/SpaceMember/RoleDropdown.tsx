@@ -5,7 +5,7 @@ import { HiDotsHorizontal, HiOutlineCheck } from "react-icons/hi";
 import { MdArrowLeft, MdChevronLeft, MdClose } from "react-icons/md";
 import { useQueryClient } from "react-query";
 import { useDispatch, useSelector } from "react-redux";
-import { Navigate } from "react-router-dom";
+import { Navigate, useNavigate } from "react-router-dom";
 import axiosInstance from "../../axiosInstance";
 import useClose from "../../hooks/useClose";
 import useEscClose from "../../hooks/useEscClose";
@@ -31,12 +31,14 @@ const RoleDropDown = ({
 }: Props) => {
   const dispatch = useDispatch();
 
+  const queryClient = useQueryClient();
+
+  const navigate = useNavigate();
+
   const ref = useClose(() => {
     setShowDropDown(false);
     setShowConfirmScreen(false);
   });
-
-  const queryClient = useQueryClient();
 
   const [currentValue, setCurrentValue] = useState<string>("");
 
@@ -92,8 +94,11 @@ const RoleDropDown = ({
             switch (response.status) {
               case 404:
                 dispatch(addToast({ kind: ERROR, msg: message }));
+                queryClient.invalidateQueries(["getSpaces"]);
+                queryClient.invalidateQueries(["getFavorites"]);
                 // redirect them to home page
-                return <Navigate to="/" replace={true} />;
+                navigate("/", { replace: true });
+                break;
               case 400:
               case 403:
               case 500:
