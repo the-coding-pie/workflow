@@ -5,13 +5,14 @@ import { HiDotsHorizontal, HiOutlineCheck } from "react-icons/hi";
 import { MdArrowLeft, MdChevronLeft, MdClose } from "react-icons/md";
 import { useQueryClient } from "react-query";
 import { useDispatch, useSelector } from "react-redux";
+import { Navigate } from "react-router-dom";
 import axiosInstance from "../../axiosInstance";
 import useClose from "../../hooks/useClose";
 import useEscClose from "../../hooks/useEscClose";
 import { RootState } from "../../redux/app";
 import { addToast } from "../../redux/features/toastSlice";
 import { MemberObj, OptionWithSub } from "../../types";
-import { ERROR, SPACE_ROLES } from "../../types/constants";
+import { ERROR, SPACE_ROLES, SUCCESS } from "../../types/constants";
 
 interface Props {
   options: OptionWithSub[];
@@ -68,14 +69,18 @@ const RoleDropDown = ({
           newRole: newRole,
         })
         .then((response) => {
-          const { data } = response.data;
+          const { message } = response.data;
 
+          dispatch(
+            addToast({
+              kind: SUCCESS,
+              msg: message,
+            })
+          );
           setShowDropDown(false);
 
-          if (response.status === 200) {
-            queryClient.invalidateQueries(["getSpaceInfo", spaceId]);
-            queryClient.invalidateQueries(["getSpaceMembers", spaceId]);
-          }
+          queryClient.invalidateQueries(["getSpaceInfo", spaceId]);
+          queryClient.invalidateQueries(["getSpaceMembers", spaceId]);
         })
         .catch((error: AxiosError) => {
           setShowDropDown(false);
@@ -85,9 +90,12 @@ const RoleDropDown = ({
             const { message } = response.data;
 
             switch (response.status) {
+              case 404:
+                dispatch(addToast({ kind: ERROR, msg: message }));
+                // redirect them to home page
+                return <Navigate to="/" replace={true} />;
               case 400:
               case 403:
-              case 404:
               case 500:
                 dispatch(addToast({ kind: ERROR, msg: message }));
                 break;

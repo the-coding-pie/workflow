@@ -118,6 +118,9 @@ const SpaceMembers = ({ spaceId, myRole }: Props) => {
                   dispatch(
                     showModal({
                       modalType: INVITE_SPACE_MEMBER_MODAL,
+                      modalProps: {
+                        spaceId: spaceId,
+                      },
                     })
                   )
                 }

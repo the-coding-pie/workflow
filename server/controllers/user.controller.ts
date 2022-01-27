@@ -9,6 +9,9 @@ import EmailVerification from "../models/emailVerification.model.";
 import ForgotPassword from "../models/forgotPassword.model";
 import RefreshToken from "../models/refreshTokens.model";
 import User from "../models/user.model";
+import Space from "../models/space.model";
+import mongoose from "mongoose";
+import { SPACE_MEMBER_ROLES } from "../types/constants";
 
 // DELETE /users
 export const deleteCurrentUser = async (req: any, res: Response) => {
@@ -107,7 +110,7 @@ export const getCurrentUser = async (req: any, res: Response) => {
 // GET /users/search?q=query search users
 export const searchUser = async (req: any, res: Response) => {
   try {
-    const { q } = req.query;
+    const { q, spaceId } = req.query;
 
     if (!q) {
       return res.status(400).send({
@@ -135,6 +138,41 @@ export const searchUser = async (req: any, res: Response) => {
     })
       .lean()
       .select("_id username profile");
+
+    // if valid spaceId
+    if (spaceId && mongoose.isValidObjectId(spaceId)) {
+      const space = await Space.findOne({
+        _id: spaceId,
+        members: {
+          $elemMatch: {
+            memberId: req.user._id,
+            role: SPACE_MEMBER_ROLES.ADMIN,
+          },
+        },
+      })
+        .select("_id members")
+        .lean();
+
+      if (space && space.members.length > 0) {
+        otherUsers = otherUsers.map((u: any) => {
+          if (
+            space.members
+              .map((m: any) => m.memberId.toString())
+              .includes(u._id.toString())
+          ) {
+            return {
+              ...u,
+              isMember: true,
+            };
+          }
+
+          return {
+            ...u,
+            isMember: false,
+          };
+        });
+      }
+    }
 
     res.send({
       success: true,

@@ -1362,11 +1362,11 @@ export const updateMemberRole = async (req: any, res: Response) => {
 
     // if you are now trying to change the the role of any user(including yours) to the same existing one
     if (newRole === targetMember.role) {
-      return res.status(204).send({
+      return res.send({
         success: true,
         data: {},
         message: "The newRole is the already existing role. Nothing to change.",
-        statusCode: 204,
+        statusCode: 200,
       });
     }
 
