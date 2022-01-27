@@ -259,7 +259,7 @@ const RoleDropDown = ({
                       </button>
                     ))}
 
-                {isOnlyAdmin && member._id === user?._id && (
+                {isOnlyAdmin && member._id === user!._id && (
                   <footer className="text-slate-600 font-medium border-t px-4 py-3">
                     You can’t change roles because there must be at least one
                     admin.

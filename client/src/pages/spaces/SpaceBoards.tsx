@@ -57,16 +57,16 @@ const SpaceBoards = ({ spaceId }: Props) => {
         case 500:
           return <Error msg={message} />;
         default:
-          return <Error msg={"Oops, something went wrong!"} />;
+          return <Error msg={"Oops, something went wrong."} />;
       }
     } else if (error?.request) {
       return (
         <Error
-          msg={"Oops, something went wrong, Unable to get response back!"}
+          msg={"Oops, something went wrong, Unable to get response back."}
         />
       );
     } else {
-      return <Error msg={`Oops, something went wrong!`} />;
+      return <Error msg={`Oops, something went wrong.`} />;
     }
   }
 

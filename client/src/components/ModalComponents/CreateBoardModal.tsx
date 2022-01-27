@@ -96,6 +96,8 @@ const CreateBoardModal = ({ spaceId }: Props) => {
   });
 
   const handleSubmit = useCallback((board: BoardObj) => {
+    setIsSubmitting(true);
+    
     axiosInstance
       .post(`/boards`, board, {
         headers: {

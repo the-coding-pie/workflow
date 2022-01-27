@@ -57,6 +57,8 @@ const InviteSpaceMemberModal = ({ spaceId }: Props) => {
       members: members.map((m) => m.value),
     };
 
+    setIsSubmitting(true);
+
     axiosInstance
       .put(`/spaces/${spaceId}/members/bulk`, value, {
         headers: {

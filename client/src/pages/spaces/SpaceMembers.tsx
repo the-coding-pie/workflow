@@ -53,7 +53,7 @@ const SpaceMembers = ({ spaceId, myRole }: Props) => {
     isLoading,
     error,
   } = useQuery<MemberObj[] | undefined, any, MemberObj[], string[]>(
-    ["getSpaceMembers", spaceId!],
+    ["getSpaceMembers", spaceId],
     getSpaceMembers
   );
 
@@ -75,7 +75,7 @@ const SpaceMembers = ({ spaceId, myRole }: Props) => {
         case 403:
           dispatch(addToast({ kind: ERROR, msg: message }));
           // redirect them to home page
-          return <Navigate to={`/spaces/${spaceId}/members`} replace={true} />;
+          return <Navigate to={`/s/${spaceId}/`} replace={true} />;
         case 400:
         case 404:
           dispatch(addToast({ kind: ERROR, msg: message }));
@@ -84,16 +84,16 @@ const SpaceMembers = ({ spaceId, myRole }: Props) => {
         case 500:
           return <Error msg={message} />;
         default:
-          return <Error msg={"Oops, something went wrong!"} />;
+          return <Error msg={"Oops, something went wrong."} />;
       }
     } else if (error?.request) {
       return (
         <Error
-          msg={"Oops, something went wrong, Unable to get response back!"}
+          msg={"Oops, something went wrong, Unable to get response back."}
         />
       );
     } else {
-      return <Error msg={`Oops, something went wrong!`} />;
+      return <Error msg={`Oops, something went wrong.`} />;
     }
   }
 

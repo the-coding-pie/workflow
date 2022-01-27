@@ -18,7 +18,6 @@ import {
   SUCCESS,
 } from "../../types/constants";
 import Profile from "../Profile/Profile";
-import UtilityBtn from "../UtilityBtn/UtilityBtn";
 import RoleDropDown from "./RoleDropdown";
 
 interface Props {

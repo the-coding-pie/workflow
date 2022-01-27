@@ -10,10 +10,6 @@ import { Outlet, useParams } from "react-router-dom";
 import spaces from "../../data/spaces";
 import Avatar from "react-avatar";
 import {
-  HiInformationCircle,
-  HiOutlineInformationCircle,
-  HiOutlineLockClosed,
-  HiOutlinePencil,
   HiOutlineStar,
 } from "react-icons/hi";
 import { ERROR, SPACE_ROLES } from "../../types/constants";

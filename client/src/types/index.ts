@@ -77,7 +77,6 @@ export interface BoardObj {
     | typeof BOARD_ROLES.NORMAL
     | typeof BOARD_ROLES.OBSERVER;
   bgImg: string;
-  spaceId: string;
 }
 
 export interface MemberObj {
@@ -88,6 +87,12 @@ export interface MemberObj {
     | typeof SPACE_ROLES.ADMIN
     | typeof SPACE_ROLES.NORMAL
     | typeof SPACE_ROLES.GUEST;
+}
+
+export interface SettingsObj {
+  icon: string;
+  name: string;
+  description: string;
 }
 
 export interface ToastObj {

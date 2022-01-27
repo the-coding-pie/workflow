@@ -1817,9 +1817,10 @@ export const getSpaceSettings = async (req: any, res: Response) => {
     res.send({
       success: true,
       data: {
-        icon:
-          BASE_PATH_COMPLETE +
-          path.join(STATIC_PATH, SPACE_ICONS_DIR_NAME, space.icon),
+        icon: space.icon
+          ? BASE_PATH_COMPLETE +
+            path.join(STATIC_PATH, SPACE_ICONS_DIR_NAME, space.icon)
+          : undefined,
         name: space.name,
         description: space.description,
       },
