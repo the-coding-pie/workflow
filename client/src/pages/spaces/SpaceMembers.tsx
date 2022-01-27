@@ -36,7 +36,7 @@ const SpaceMembers = ({ spaceId, myRole }: Props) => {
         msg: "You don't have permission to access.",
       })
     );
-    return <Navigate to={`/s/${spaceId}/`} />;
+    return <Navigate to={`/s/${spaceId}/`} replace={true} />;
   }
 
   // if you reached here, then you must be an ADMIN or a NORMAL
@@ -99,56 +99,58 @@ const SpaceMembers = ({ spaceId, myRole }: Props) => {
 
   return (
     <div className="space-members px-8 py-6 mt-2">
-      {members && members.length > 0 ? (
-        <div className="members">
-          <div
-            className={`intro ${
-              myRole === SPACE_ROLES.ADMIN ? "mb-4" : "mb-8"
-            }`}
-          >
-            <h3 className="text-xl font-semibold">Members & Guests</h3>
-            <p className="text-slate-600">
-              A list of all the space members and guests.
-            </p>
-          </div>
-          {myRole === SPACE_ROLES.ADMIN && (
-            <div className="flex justify-end w-full mb-6">
-              <button
-                onClick={() =>
-                  dispatch(
-                    showModal({
-                      modalType: INVITE_SPACE_MEMBER_MODAL,
-                      modalProps: {
-                        spaceId: spaceId,
-                      },
-                    })
-                  )
-                }
-                className="btn-primary text-sm"
-              >
-                Invite Space Members
-              </button>
+      <div className="space-container">
+        {members && members.length > 0 ? (
+          <div className="members">
+            <div
+              className={`intro ${
+                myRole === SPACE_ROLES.ADMIN ? "mb-4" : "mb-8"
+              }`}
+            >
+              <h3 className="text-xl font-semibold">Members & Guests</h3>
+              <p className="text-slate-600">
+                A list of all the space members and guests.
+              </p>
             </div>
-          )}
-          <div className="bg-white border">
-            {members.map((m) => (
-              <SpaceMember
-                key={m._id}
-                isOnlyAdmin={
-                  myRole === SPACE_ROLES.ADMIN &&
-                  members.filter((m) => m.role === SPACE_ROLES.ADMIN).length ===
-                    1
-                }
-                myRole={myRole}
-                spaceId={spaceId}
-                member={m}
-              />
-            ))}
+            {myRole === SPACE_ROLES.ADMIN && (
+              <div className="flex justify-end w-full mb-6">
+                <button
+                  onClick={() =>
+                    dispatch(
+                      showModal({
+                        modalType: INVITE_SPACE_MEMBER_MODAL,
+                        modalProps: {
+                          spaceId: spaceId,
+                        },
+                      })
+                    )
+                  }
+                  className="btn-primary text-sm"
+                >
+                  Invite Space Members
+                </button>
+              </div>
+            )}
+            <div className="bg-white border">
+              {members.map((m) => (
+                <SpaceMember
+                  key={m._id}
+                  isOnlyAdmin={
+                    myRole === SPACE_ROLES.ADMIN &&
+                    members.filter((m) => m.role === SPACE_ROLES.ADMIN)
+                      .length === 1
+                  }
+                  myRole={myRole}
+                  spaceId={spaceId}
+                  member={m}
+                />
+              ))}
+            </div>
           </div>
-        </div>
-      ) : (
-        <p>No Members!</p>
-      )}
+        ) : (
+          <p>No Members!</p>
+        )}
+      </div>
     </div>
   );
 };

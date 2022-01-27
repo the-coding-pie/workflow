@@ -96,20 +96,29 @@ body {
 
   .form-group input {
     border-width: 1.4px;
-    @apply outline-none rounded px-2 py-1.5 mb-0.5 bg-slate-100 w-full;
+    @apply outline-none rounded px-2 py-1.5 mb-0.5 bg-slate-200 w-full;
+  }
+
+  .form-group input[type="file"] {
+    border-width: 1.4px;
+    @apply outline-none rounded px-2 py-1.5 mb-0.5 bg-slate-200  w-full;
   }
 
   .form-group textarea {
     border-width: 1.4px;
-    @apply outline-none rounded px-2 py-1.5 mb-0.5 bg-slate-100 w-full;
+    @apply outline-none rounded px-2 py-1.5 mb-0.5 bg-slate-200 w-full;
   }
 
   .form-group select {
-    @apply bg-slate-100 px-2 py-1.5 rounded outline-none w-full;
+    @apply bg-slate-200 px-2 py-1.5 rounded outline-none w-full;
   }
 }
 
 @layer utilities {
+  .space-container {
+    @apply max-w-6xl mx-auto;
+  }
+
   .text-link {
     @apply text-blue-500;
   }

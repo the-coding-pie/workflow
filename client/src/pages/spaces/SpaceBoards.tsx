@@ -72,15 +72,17 @@ const SpaceBoards = ({ spaceId }: Props) => {
 
   return (
     <div className="space-boards px-8 py-6">
-      {boards && boards.length > 0 ? (
-        <div className="mt-6 flex items-center justify-start flex-wrap gap-x-6 gap-y-6">
-          {boards.map((b) => (
-            <Board key={b._id} spaceId={spaceId} board={b} />
-          ))}
-        </div>
-      ) : (
-        <p>No Boards!</p>
-      )}
+      <div className="space-container">
+        {boards && boards.length > 0 ? (
+          <div className="mt-6 flex items-center justify-start flex-wrap gap-x-6 gap-y-6">
+            {boards.map((b) => (
+              <Board key={b._id} spaceId={spaceId} board={b} />
+            ))}
+          </div>
+        ) : (
+          <p>No Boards!</p>
+        )}
+      </div>
     </div>
   );
 };

@@ -77,6 +77,7 @@ export interface BoardObj {
     | typeof BOARD_ROLES.NORMAL
     | typeof BOARD_ROLES.OBSERVER;
   bgImg: string;
+  spaceId?: string;
 }
 
 export interface MemberObj {

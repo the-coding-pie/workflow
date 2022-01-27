@@ -49,7 +49,7 @@ const BoardItem = ({ board, setShowPlusIcon, setShowBoardOptions }: Props) => {
   useEffect(() => {
     if (isCurrentBoard) {
       dispatch(setCurrentActiveMenu(1));
-      dispatch(setCurrentActiveSpace(board.spaceId));
+      dispatch(setCurrentActiveSpace(board.spaceId!));
     }
   }, [isCurrentBoard]);
 
@@ -74,9 +74,9 @@ const BoardItem = ({ board, setShowPlusIcon, setShowBoardOptions }: Props) => {
         const { data } = response.data;
 
         if (response.status === 201) {
-          if (queryClient.getQueryData(["getSpaceBoards", board.spaceId])) {
+          if (queryClient.getQueryData(["getSpaceBoards", board.spaceId!])) {
             queryClient.setQueryData(
-              ["getSpaceBoards", board.spaceId],
+              ["getSpaceBoards", board.spaceId!],
               (oldData: any) => {
                 return oldData.map((b: BoardObj) => {
                   if (b._id === boardId) {
@@ -158,9 +158,9 @@ const BoardItem = ({ board, setShowPlusIcon, setShowBoardOptions }: Props) => {
       .then((response) => {
         setShowOptions(false);
 
-        if (queryClient.getQueryData(["getSpaceBoards", board.spaceId])) {
+        if (queryClient.getQueryData(["getSpaceBoards", board.spaceId!])) {
           queryClient.setQueryData(
-            ["getSpaceBoards", board.spaceId],
+            ["getSpaceBoards", board.spaceId!],
             (oldData: any) => {
               return oldData.map((b: BoardObj) => {
                 if (b._id === boardId) {

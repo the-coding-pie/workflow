@@ -13,12 +13,7 @@ import * as Yup from "yup";
 import Input from "../../components/FormikComponents/Input";
 import TextArea from "../../components/FormikComponents/TextArea";
 import SubmitBtn from "../../components/FormikComponents/SubmitBtn";
-
-interface SpaceObj {
-  name: string;
-  description: string;
-  icon: string;
-}
+import FileInput from "../../components/FormikComponents/FileInput";
 
 interface Props {
   spaceId: string;
@@ -31,10 +26,6 @@ interface Props {
 const SpaceSettings = ({ spaceId, myRole }: Props) => {
   const dispatch = useDispatch();
 
-  const queryClient = useQueryClient();
-
-  const navigate = useNavigate();
-
   if (myRole !== SPACE_ROLES.ADMIN && myRole !== SPACE_ROLES.NORMAL) {
     dispatch(
       addToast({
@@ -42,8 +33,101 @@ const SpaceSettings = ({ spaceId, myRole }: Props) => {
         msg: "You don't have permission to access.",
       })
     );
-    return <Navigate to={`/s/${spaceId}/`} />;
+    return <Navigate to={`/s/${spaceId}/`} replace={true} />;
   }
+
+  const queryClient = useQueryClient();
+
+  const navigate = useNavigate();
+
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleSubmit = useCallback((settings: SettingsObj) => {
+    const formData = new FormData();
+
+    if (Object.keys(settings).includes("name")) {
+      formData.append("name", settings.name);
+    }
+
+    if (Object.keys(settings).includes("description")) {
+      formData.append("description", settings.description);
+    }
+
+    if (Object.keys(settings).includes("icon")) {
+      formData.append("icon", settings.icon);
+    }
+
+    setIsSubmitting(true);
+
+    axiosInstance
+      .put(`/spaces/${spaceId}/settings`, formData, {
+        headers: {
+          ContentType: "multipart/form-data",
+        },
+      })
+      .then((response) => {
+        const { message } = response.data;
+
+        dispatch(
+          addToast({
+            kind: SUCCESS,
+            msg: message,
+          })
+        );
+
+        queryClient.invalidateQueries(["getSpaceInfo", spaceId]);
+        queryClient.invalidateQueries(["getSpaces"]);
+        queryClient.invalidateQueries(["getFavorites"]);
+
+        setIsSubmitting(false);
+      })
+      .catch((error) => {
+        setIsSubmitting(false);
+
+        // req was made and server responded with error
+        if (error.response) {
+          const response = error.response;
+          const { message } = response.data;
+
+          switch (response.status) {
+            case 404:
+              dispatch(addToast({ kind: ERROR, msg: message }));
+              queryClient.invalidateQueries(["getSpaces"]);
+              queryClient.invalidateQueries(["getFavorites"]);
+              // redirect them to home page
+              navigate("/", { replace: true });
+              break;
+            case 403:
+              dispatch(addToast({ kind: ERROR, msg: message }));
+              break;
+            case 400:
+            case 500:
+              dispatch(
+                addToast({
+                  kind: ERROR,
+                  msg: message,
+                })
+              );
+              break;
+            default:
+              // server error
+              dispatch(
+                addToast({
+                  kind: ERROR,
+                  msg: "Oops, something went wrong",
+                })
+              );
+              break;
+          }
+        } else if (error.request) {
+          dispatch(
+            addToast({ kind: ERROR, msg: "Oops, something went wrong" })
+          );
+        } else {
+          dispatch(addToast({ kind: ERROR, msg: `Error: ${error.message}` }));
+        }
+      });
+  }, []);
 
   // if you reached here, then you must be an ADMIN or a NORMAL
   const getSpaceSettings = async ({ queryKey }: any) => {
@@ -103,12 +187,10 @@ const SpaceSettings = ({ spaceId, myRole }: Props) => {
     }
   }
 
-  const [isSubmitting, setIsSubmitting] = useState(false);
-
-  const initialValues: SpaceObj = {
+  const initialValues: SettingsObj = {
     name: settings?.name ? settings.name : "",
-    description: settings?.icon ? settings.icon : "",
-    icon: settings?.icon ? settings.icon : "",
+    description: settings?.description ? settings.description : "",
+    icon: "",
   };
 
   const validationSchema = Yup.object({
@@ -119,106 +201,60 @@ const SpaceSettings = ({ spaceId, myRole }: Props) => {
       255,
       "Space description should be less than or equal to 255 chars"
     ),
-    icon: Yup.string(),
+    icon: Yup.mixed()
+      .test("fileSize", "File Size is too large", (value) =>
+        value ? value.size <= 1024 * 1024 * 2 : true
+      )
+      .test("fileType", "Unsupported File Format", (value) =>
+        value
+          ? ["image/jpg", "image/jpeg", "image/png"].includes(value.type)
+          : true
+      ),
   });
 
-  const handleSubmit = useCallback((settings: SettingsObj) => {
-    console.log(settings);
-
-    setIsSubmitting(true);
-
-    axiosInstance
-      .put(`/spaces/${spaceId}/settings`)
-      .then((response) => {
-        const { message } = response.data;
-
-        dispatch(
-          addToast({
-            kind: SUCCESS,
-            msg: message,
-          })
-        );
-
-        queryClient.invalidateQueries(["getSpaceInfo", spaceId]);
-
-        setIsSubmitting(false);
-      })
-      .catch((error) => {
-        setIsSubmitting(false);
-
-        // req was made and server responded with error
-        if (error.response) {
-          const response = error.response;
-          const { message } = response.data;
-
-          switch (response.status) {
-            case 404:
-              dispatch(addToast({ kind: ERROR, msg: message }));
-              queryClient.invalidateQueries(["getSpaces"]);
-              queryClient.invalidateQueries(["getFavorites"]);
-              // redirect them to home page
-              navigate("/", { replace: true });
-              break;
-            case 403:
-              dispatch(addToast({ kind: ERROR, msg: message }));
-              break;
-            case 400:
-            case 500:
-              dispatch(
-                addToast({
-                  kind: ERROR,
-                  msg: message,
-                })
-              );
-              break;
-            default:
-              // server error
-              dispatch(
-                addToast({
-                  kind: ERROR,
-                  msg: "Oops, something went wrong",
-                })
-              );
-              break;
-          }
-        } else if (error.request) {
-          dispatch(
-            addToast({ kind: ERROR, msg: "Oops, something went wrong" })
-          );
-        } else {
-          dispatch(addToast({ kind: ERROR, msg: `Error: ${error.message}` }));
-        }
-      });
-  }, []);
-
   return (
-    <div className="space-settings px-8 py-6 border-t bg-white">
-      {settings && (
-        <Formik
-          initialValues={initialValues}
-          validationSchema={validationSchema}
-          onSubmit={(values) => handleSubmit(values)}
-        >
-          <Form className="w-full">
-            <Input
-              label="Space name"
-              id="name"
-              name="name"
-              type="text"
-              optional={false}
-            />
-            <TextArea label="Description" id="description" name="description" />
-
-            <div className="buttons flex justify-center items-center">
-              <SubmitBtn
-                text="Create"
-                classes="mb-4 w-44 mt-4"
-                isSubmitting={isSubmitting}
+    <div className="space-settings px-8 py-6 border-t ">
+      <div className="space-container">
+        {settings && (
+          <Formik
+            initialValues={initialValues}
+            validationSchema={validationSchema}
+            onSubmit={(values) => handleSubmit(values)}
+          >
+            <Form className="w-3/5 max-w-4xl">
+              <FileInput
+                label="Space Icon"
+                id="icon"
+                name="icon"
+                optional={false}
               />
-            </div>
-          </Form>
-        </Formik>
-      )}
+              <Input
+                label="Space name"
+                id="name"
+                name="name"
+                type="text"
+                optional={false}
+              />
+              <TextArea
+                label="Description"
+                id="description"
+                name="description"
+              />
+
+              <div className="buttons flex justify-center items-center">
+                <div className="w-44">
+                  <SubmitBtn
+                    text="Save"
+                    classes="mb-4 w-full mt-4"
+                    noDirtyCheck={true}
+                    isSubmitting={isSubmitting}
+                  />
+                </div>
+              </div>
+            </Form>
+          </Formik>
+        )}
+      </div>
     </div>
   );
 };
