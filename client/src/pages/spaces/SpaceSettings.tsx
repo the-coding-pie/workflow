@@ -8,12 +8,19 @@ import Error from "../../components/Error/Error";
 import Loader from "../../components/Loader/Loader";
 import { addToast } from "../../redux/features/toastSlice";
 import { SettingsObj } from "../../types";
-import { ERROR, SPACE_ROLES, SUCCESS, WARNING } from "../../types/constants";
+import {
+  CONFIRM_DELETE_SPACE_MODAL,
+  ERROR,
+  SPACE_ROLES,
+  SUCCESS,
+  WARNING,
+} from "../../types/constants";
 import * as Yup from "yup";
 import Input from "../../components/FormikComponents/Input";
 import TextArea from "../../components/FormikComponents/TextArea";
 import SubmitBtn from "../../components/FormikComponents/SubmitBtn";
 import FileInput from "../../components/FormikComponents/FileInput";
+import { showModal } from "../../redux/features/modalSlice";
 
 interface Props {
   spaceId: string;
@@ -251,6 +258,26 @@ const SpaceSettings = ({ spaceId, myRole }: Props) => {
                   />
                 </div>
               </div>
+
+              {myRole === SPACE_ROLES.ADMIN && (
+                <button
+                  type="button"
+                  className="my-2 font-medium text-red-500 underline"
+                  onClick={() =>
+                    dispatch(
+                      showModal({
+                        modalType: CONFIRM_DELETE_SPACE_MODAL,
+                        modalProps: {
+                          spaceId: spaceId,
+                        },
+                        modalTitle: "Are you sure want to delete this Space?",
+                      })
+                    )
+                  }
+                >
+                  Delete this Space
+                </button>
+              )}
             </Form>
           </Formik>
         )}

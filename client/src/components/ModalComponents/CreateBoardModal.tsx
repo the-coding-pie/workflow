@@ -151,13 +151,16 @@ const CreateBoardModal = ({ spaceId }: Props) => {
 
           switch (response.status) {
             case 404:
+            case 403:
               dispatch(addToast({ kind: ERROR, msg: message }));
               queryClient.invalidateQueries(["getSpaces"]);
               queryClient.invalidateQueries(["getFavorites"]);
+              if (queryClient.getQueryData(["getSpaceInfo", spaceId])) {
+                queryClient.invalidateQueries(["getSpaceInfo", spaceId]);
+              }
               dispatch(hideModal());
               break;
             case 400:
-            case 403:
             case 500:
               dispatch(addToast({ kind: ERROR, msg: message }));
               break;
