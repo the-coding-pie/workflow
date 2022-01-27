@@ -46,10 +46,10 @@ const FavoriteItemBoard = ({ item }: Props) => {
       .then((response) => {
         setShowOptions(false);
 
-        queryClient.setQueryData(
-          ["getSpaceBoards", item.spaceId],
-          (oldData: any) => {
-            if (oldData) {
+        if (queryClient.getQueryData(["getSpaceBoards", item.spaceId])) {
+          queryClient.setQueryData(
+            ["getSpaceBoards", item.spaceId],
+            (oldData: any) => {
               return oldData.map((b: BoardObj) => {
                 if (b._id === boardId) {
                   return {
@@ -62,17 +62,15 @@ const FavoriteItemBoard = ({ item }: Props) => {
                 return b;
               });
             }
-
-            return oldData;
-          }
-        );
+          );
+        }
 
         queryClient.setQueryData(["getFavorites"], (oldData: any) => {
           return oldData.filter((fav: any) => fav._id.toString() !== favId);
         });
 
-        queryClient.setQueryData(["getSpaces"], (oldData: any) => {
-          if (oldData) {
+        if (queryClient.getQueryData(["getSpaces"])) {
+          queryClient.setQueryData(["getSpaces"], (oldData: any) => {
             return oldData.map((d: SpaceObj) => {
               return {
                 ...d,
@@ -89,10 +87,8 @@ const FavoriteItemBoard = ({ item }: Props) => {
                 }),
               };
             });
-          }
-
-          return oldData;
-        });
+          });
+        }
       })
       .catch((error: AxiosError) => {
         setShowOptions(false);

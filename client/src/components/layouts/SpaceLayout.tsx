@@ -60,8 +60,8 @@ const SpaceLayout = () => {
             }
           );
 
-          queryClient.setQueryData(["getSpaces"], (oldData: any) => {
-            if (oldData) {
+          if (queryClient.getQueryData(["getSpaces"])) {
+            queryClient.setQueryData(["getSpaces"], (oldData: any) => {
               return oldData.map((d: SpaceObj) => {
                 if (d._id === spaceId) {
                   return {
@@ -73,18 +73,14 @@ const SpaceLayout = () => {
 
                 return d;
               });
-            }
+            });
+          }
 
-            return oldData;
-          });
-
-          queryClient.setQueryData(["getFavorites"], (oldData: any) => {
-            if (oldData) {
+          if (queryClient.getQueryData(["getFavorites"])) {
+            queryClient.setQueryData(["getFavorites"], (oldData: any) => {
               return [...oldData, data];
-            }
-
-            return oldData;
-          });
+            });
+          }
         }
       })
       .catch((error: AxiosError) => {
@@ -131,16 +127,14 @@ const SpaceLayout = () => {
           };
         });
 
-        queryClient.setQueryData(["getFavorites"], (oldData: any) => {
-          if (oldData) {
+        if (queryClient.getQueryData(["getFavorites"])) {
+          queryClient.setQueryData(["getFavorites"], (oldData: any) => {
             return oldData.filter((fav: any) => fav._id.toString() !== favId);
-          }
+          });
+        }
 
-          return oldData;
-        });
-
-        queryClient.setQueryData(["getSpaces"], (oldData: any) => {
-          if (oldData) {
+        if (queryClient.getQueryData(["getSpaces"])) {
+          queryClient.setQueryData(["getSpaces"], (oldData: any) => {
             return oldData.map((d: SpaceObj) => {
               if (d._id === spaceId) {
                 return {
@@ -152,10 +146,8 @@ const SpaceLayout = () => {
 
               return d;
             });
-          }
-
-          return oldData;
-        });
+          });
+        }
       })
       .catch((error: AxiosError) => {
         if (error.response) {
@@ -359,7 +351,10 @@ const SpaceLayout = () => {
           <div className="content flex-1">
             <Routes>
               <Route index element={<Navigate to="boards" replace={true} />} />
-              <Route path="boards" element={<SpaceBoards spaceId={space._id} />} />
+              <Route
+                path="boards"
+                element={<SpaceBoards spaceId={space._id} />}
+              />
               <Route
                 path="members"
                 element={

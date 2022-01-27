@@ -74,10 +74,10 @@ const BoardItem = ({ board, setShowPlusIcon, setShowBoardOptions }: Props) => {
         const { data } = response.data;
 
         if (response.status === 201) {
-          queryClient.setQueryData(
-            ["getSpaceBoards", board.spaceId],
-            (oldData: any) => {
-              if (oldData) {
+          if (queryClient.getQueryData(["getSpaceBoards", board.spaceId])) {
+            queryClient.setQueryData(
+              ["getSpaceBoards", board.spaceId],
+              (oldData: any) => {
                 return oldData.map((b: BoardObj) => {
                   if (b._id === boardId) {
                     return {
@@ -90,10 +90,8 @@ const BoardItem = ({ board, setShowPlusIcon, setShowBoardOptions }: Props) => {
                   return b;
                 });
               }
-
-              return oldData;
-            }
-          );
+            );
+          }
 
           queryClient.setQueryData(["getSpaces"], (oldData: any) => {
             return oldData.map((d: SpaceObj) => {
@@ -114,13 +112,11 @@ const BoardItem = ({ board, setShowPlusIcon, setShowBoardOptions }: Props) => {
             });
           });
 
-          queryClient.setQueryData(["getFavorites"], (oldData: any) => {
-            if (oldData) {
+          if (queryClient.getQueryData(["getFavorites"])) {
+            queryClient.setQueryData(["getFavorites"], (oldData: any) => {
               return [...oldData, data];
-            }
-
-            return oldData;
-          });
+            });
+          }
         }
       })
       .catch((error: AxiosError) => {
@@ -162,10 +158,10 @@ const BoardItem = ({ board, setShowPlusIcon, setShowBoardOptions }: Props) => {
       .then((response) => {
         setShowOptions(false);
 
-        queryClient.setQueryData(
-          ["getSpaceBoards", board.spaceId],
-          (oldData: any) => {
-            if (oldData) {
+        if (queryClient.getQueryData(["getSpaceBoards", board.spaceId])) {
+          queryClient.setQueryData(
+            ["getSpaceBoards", board.spaceId],
+            (oldData: any) => {
               return oldData.map((b: BoardObj) => {
                 if (b._id === boardId) {
                   return {
@@ -178,17 +174,14 @@ const BoardItem = ({ board, setShowPlusIcon, setShowBoardOptions }: Props) => {
                 return b;
               });
             }
+          );
+        }
 
-            return oldData;
-          }
-        );
-
-        queryClient.setQueryData(["getFavorites"], (oldData: any) => {
-          if (oldData) {
+        if (queryClient.getQueryData(["getFavorites"])) {
+          queryClient.setQueryData(["getFavorites"], (oldData: any) => {
             return oldData.filter((fav: any) => fav._id.toString() !== favId);
-          }
-          return oldData;
-        });
+          });
+        }
 
         queryClient.setQueryData(["getSpaces"], (oldData: any) => {
           return oldData.map((d: SpaceObj) => {

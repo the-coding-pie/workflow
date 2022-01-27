@@ -51,8 +51,8 @@ const Board = ({ board, spaceId }: Props) => {
             }
           );
 
-          queryClient.setQueryData(["getSpaces"], (oldData: any) => {
-            if (oldData) {
+          if (queryClient.getQueryData(["getSpaces"])) {
+            queryClient.setQueryData(["getSpaces"], (oldData: any) => {
               return oldData.map((d: SpaceObj) => {
                 return {
                   ...d,
@@ -69,18 +69,14 @@ const Board = ({ board, spaceId }: Props) => {
                   }),
                 };
               });
-            }
+            });
+          }
 
-            return oldData;
-          });
-
-          queryClient.setQueryData(["getFavorites"], (oldData: any) => {
-            if (oldData) {
+          if (queryClient.getQueryData(["getFavorites"])) {
+            queryClient.setQueryData(["getFavorites"], (oldData: any) => {
               return [...oldData, data];
-            }
-
-            return oldData;
-          });
+            });
+          }
         }
       })
       .catch((error: AxiosError) => {
@@ -137,15 +133,14 @@ const Board = ({ board, spaceId }: Props) => {
           }
         );
 
-        queryClient.setQueryData(["getFavorites"], (oldData: any) => {
-          if (oldData) {
+        if (queryClient.getQueryData(["getFavorites"])) {
+          queryClient.setQueryData(["getFavorites"], (oldData: any) => {
             return oldData.filter((fav: any) => fav._id.toString() !== favId);
-          }
-          return oldData;
-        });
+          });
+        }
 
-        queryClient.setQueryData(["getSpaces"], (oldData: any) => {
-          if (oldData) {
+        if (queryClient.getQueryData(["getSpaces"])) {
+          queryClient.setQueryData(["getSpaces"], (oldData: any) => {
             return oldData.map((d: SpaceObj) => {
               return {
                 ...d,
@@ -162,10 +157,8 @@ const Board = ({ board, spaceId }: Props) => {
                 }),
               };
             });
-          }
-
-          return oldData;
-        });
+          });
+        }
       })
       .catch((error: AxiosError) => {
         if (error.response) {

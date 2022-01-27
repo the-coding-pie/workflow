@@ -53,24 +53,25 @@ const FavoriteItemSpace = ({ item }: Props) => {
       .then((response) => {
         setShowOptions(false);
 
-        queryClient.setQueryData(["getSpaceInfo", spaceId], (oldData: any) => {
-          if (oldData) {
-            return {
-              ...oldData,
-              isFavorite: false,
-              favoriteId: null,
-            };
-          }
-
-          return oldData;
-        });
+        if (queryClient.getQueryData(["getSpaceInfo", spaceId])) {
+          queryClient.setQueryData(
+            ["getSpaceInfo", spaceId],
+            (oldData: any) => {
+              return {
+                ...oldData,
+                isFavorite: false,
+                favoriteId: null,
+              };
+            }
+          );
+        }
 
         queryClient.setQueryData(["getFavorites"], (oldData: any) => {
           return oldData.filter((fav: any) => fav._id.toString() !== favId);
         });
 
-        queryClient.setQueryData(["getSpaces"], (oldData: any) => {
-          if (oldData) {
+        if (queryClient.getQueryData(["getSpaces"])) {
+          queryClient.setQueryData(["getSpaces"], (oldData: any) => {
             return oldData.map((d: SpaceObj) => {
               if (d._id === spaceId) {
                 return {
@@ -82,10 +83,8 @@ const FavoriteItemSpace = ({ item }: Props) => {
 
               return d;
             });
-          }
-
-          return oldData;
-        });
+          });
+        }
       })
       .catch((error: AxiosError) => {
         setShowOptions(false);

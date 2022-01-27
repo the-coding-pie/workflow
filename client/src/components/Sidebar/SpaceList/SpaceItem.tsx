@@ -89,20 +89,18 @@ const SpaceItem = ({ space }: Props) => {
         const { data } = response.data;
 
         if (response.status === 201) {
-          queryClient.setQueryData(
-            ["getSpaceInfo", spaceId],
-            (oldData: any) => {
-              if (oldData) {
+          if (queryClient.getQueryData(["getSpaceInfo", spaceId])) {
+            queryClient.setQueryData(
+              ["getSpaceInfo", spaceId],
+              (oldData: any) => {
                 return {
                   ...oldData,
                   isFavorite: true,
                   favoriteId: data._id,
                 };
               }
-
-              return oldData;
-            }
-          );
+            );
+          }
 
           queryClient.setQueryData(["getSpaces"], (oldData: any) => {
             return oldData.map((d: SpaceObj) => {
@@ -118,13 +116,11 @@ const SpaceItem = ({ space }: Props) => {
             });
           });
 
-          queryClient.setQueryData(["getFavorites"], (oldData: any) => {
-            if (oldData) {
+          if (queryClient.getQueryData(["getFavorites"])) {
+            queryClient.setQueryData(["getFavorites"], (oldData: any) => {
               return [...oldData, data];
-            }
-
-            return oldData;
-          });
+            });
+          }
         }
       })
       .catch((error: AxiosError) => {
@@ -164,26 +160,25 @@ const SpaceItem = ({ space }: Props) => {
       .delete(`/favorites/${favId}`)
       .then((response) => {
         setShowOptions(false);
-        
-        queryClient.setQueryData(["getSpaceInfo", spaceId], (oldData: any) => {
-          if (oldData) {
-            return {
-              ...oldData,
-              isFavorite: false,
-              favoriteId: null,
-            };
-          }
 
-          return oldData;
-        });
+        if (queryClient.getQueryData(["getSpaceInfo", spaceId])) {
+          queryClient.setQueryData(
+            ["getSpaceInfo", spaceId],
+            (oldData: any) => {
+              return {
+                ...oldData,
+                isFavorite: false,
+                favoriteId: null,
+              };
+            }
+          );
+        }
 
-        queryClient.setQueryData(["getFavorites"], (oldData: any) => {
-          if (oldData) {
+        if (queryClient.getQueryData(["getFavorites"])) {
+          queryClient.setQueryData(["getFavorites"], (oldData: any) => {
             return oldData.filter((fav: any) => fav._id.toString() !== favId);
-          }
-
-          return oldData;
-        });
+          });
+        }
 
         queryClient.setQueryData(["getSpaces"], (oldData: any) => {
           return oldData.map((d: SpaceObj) => {
