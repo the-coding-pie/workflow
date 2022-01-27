@@ -1,14 +1,14 @@
 import { Form, Formik } from "formik";
 import React, { useCallback, useState } from "react";
-import { useQuery } from "react-query";
+import { useQuery, useQueryClient } from "react-query";
 import { useDispatch } from "react-redux";
-import { Navigate } from "react-router-dom";
+import { Navigate, useNavigate } from "react-router-dom";
 import axiosInstance from "../../axiosInstance";
 import Error from "../../components/Error/Error";
 import Loader from "../../components/Loader/Loader";
 import { addToast } from "../../redux/features/toastSlice";
 import { SettingsObj } from "../../types";
-import { ERROR, SPACE_ROLES, WARNING } from "../../types/constants";
+import { ERROR, SPACE_ROLES, SUCCESS, WARNING } from "../../types/constants";
 import * as Yup from "yup";
 import Input from "../../components/FormikComponents/Input";
 import TextArea from "../../components/FormikComponents/TextArea";
@@ -30,6 +30,10 @@ interface Props {
 
 const SpaceSettings = ({ spaceId, myRole }: Props) => {
   const dispatch = useDispatch();
+
+  const queryClient = useQueryClient();
+
+  const navigate = useNavigate();
 
   if (myRole !== SPACE_ROLES.ADMIN && myRole !== SPACE_ROLES.NORMAL) {
     dispatch(
@@ -118,7 +122,74 @@ const SpaceSettings = ({ spaceId, myRole }: Props) => {
     icon: Yup.string(),
   });
 
-  const handleSubmit = useCallback((settings: SettingsObj) => {}, []);
+  const handleSubmit = useCallback((settings: SettingsObj) => {
+    console.log(settings);
+
+    setIsSubmitting(true);
+
+    axiosInstance
+      .put(`/spaces/${spaceId}/settings`)
+      .then((response) => {
+        const { message } = response.data;
+
+        dispatch(
+          addToast({
+            kind: SUCCESS,
+            msg: message,
+          })
+        );
+
+        queryClient.invalidateQueries(["getSpaceInfo", spaceId]);
+
+        setIsSubmitting(false);
+      })
+      .catch((error) => {
+        setIsSubmitting(false);
+
+        // req was made and server responded with error
+        if (error.response) {
+          const response = error.response;
+          const { message } = response.data;
+
+          switch (response.status) {
+            case 404:
+              dispatch(addToast({ kind: ERROR, msg: message }));
+              queryClient.invalidateQueries(["getSpaces"]);
+              queryClient.invalidateQueries(["getFavorites"]);
+              // redirect them to home page
+              navigate("/", { replace: true });
+              break;
+            case 403:
+              dispatch(addToast({ kind: ERROR, msg: message }));
+              break;
+            case 400:
+            case 500:
+              dispatch(
+                addToast({
+                  kind: ERROR,
+                  msg: message,
+                })
+              );
+              break;
+            default:
+              // server error
+              dispatch(
+                addToast({
+                  kind: ERROR,
+                  msg: "Oops, something went wrong",
+                })
+              );
+              break;
+          }
+        } else if (error.request) {
+          dispatch(
+            addToast({ kind: ERROR, msg: "Oops, something went wrong" })
+          );
+        } else {
+          dispatch(addToast({ kind: ERROR, msg: `Error: ${error.message}` }));
+        }
+      });
+  }, []);
 
   return (
     <div className="space-settings px-8 py-6 border-t bg-white">

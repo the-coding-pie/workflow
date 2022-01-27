@@ -97,7 +97,7 @@ const CreateBoardModal = ({ spaceId }: Props) => {
 
   const handleSubmit = useCallback((board: BoardObj) => {
     setIsSubmitting(true);
-    
+
     axiosInstance
       .post(`/boards`, board, {
         headers: {
@@ -150,9 +150,14 @@ const CreateBoardModal = ({ spaceId }: Props) => {
           const { message } = response.data;
 
           switch (response.status) {
+            case 404:
+              dispatch(addToast({ kind: ERROR, msg: message }));
+              queryClient.invalidateQueries(["getSpaces"]);
+              queryClient.invalidateQueries(["getFavorites"]);
+              dispatch(hideModal());
+              break;
             case 400:
             case 403:
-            case 404:
             case 500:
               dispatch(addToast({ kind: ERROR, msg: message }));
               break;
