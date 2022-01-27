@@ -1,16 +1,204 @@
-import React, { useState } from "react";
+import { AxiosError } from "axios";
+import React, { useCallback, useState } from "react";
 import { HiOutlineLockClosed, HiOutlineStar } from "react-icons/hi";
-import { Link } from "react-router-dom";
-import { BoardObj } from "../../types";
-import { BOARD_VISIBILITY_TYPES } from "../../types/constants";
+import { useQueryClient } from "react-query";
+import { useDispatch } from "react-redux";
+import { Link, useNavigate } from "react-router-dom";
+import axiosInstance from "../../axiosInstance";
+import { addToast } from "../../redux/features/toastSlice";
+import { BoardObj, SpaceObj } from "../../types";
+import { BOARD_VISIBILITY_TYPES, ERROR } from "../../types/constants";
 import UtilityBtn from "../UtilityBtn/UtilityBtn";
 
 interface Props {
   board: BoardObj;
+  spaceId: string;
 }
 
-const Board = ({ board }: Props) => {
+const Board = ({ board, spaceId }: Props) => {
+  const dispatch = useDispatch();
+
+  const queryClient = useQueryClient();
+
+  const navigate = useNavigate();
+
   const [isIn, setIsIn] = useState(false);
+
+  const addToFavorite = useCallback((boardId: string) => {
+    axiosInstance
+      .post(`/favorites`, {
+        boardId: boardId,
+      })
+      .then((response) => {
+        const { data } = response.data;
+
+        if (response.status === 201) {
+          // edit this board cache inside space boards
+          queryClient.setQueryData(
+            ["getSpaceBoards", spaceId],
+            (oldData: any) => {
+              return oldData.map((b: BoardObj) => {
+                if (b._id === boardId) {
+                  return {
+                    ...b,
+                    isFavorite: true,
+                    favoriteId: data._id,
+                  };
+                }
+
+                return b;
+              });
+            }
+          );
+
+          queryClient.setQueryData(["getSpaces"], (oldData: any) => {
+            if (oldData) {
+              return oldData.map((d: SpaceObj) => {
+                return {
+                  ...d,
+                  boards: d.boards.map((b: BoardObj) => {
+                    if (b._id === boardId) {
+                      return {
+                        ...b,
+                        isFavorite: true,
+                        favoriteId: data._id,
+                      };
+                    }
+
+                    return b;
+                  }),
+                };
+              });
+            }
+
+            return oldData;
+          });
+
+          queryClient.setQueryData(["getFavorites"], (oldData: any) => {
+            if (oldData) {
+              return [...oldData, data];
+            }
+
+            return oldData;
+          });
+        }
+      })
+      .catch((error: AxiosError) => {
+        if (error.response) {
+          const response = error.response;
+          const { message } = response.data;
+
+          switch (response.status) {
+            case 404:
+              dispatch(addToast({ kind: ERROR, msg: message }));
+              queryClient.invalidateQueries(["getSpaces"]);
+              queryClient.invalidateQueries(["getFavorites"]);
+              // redirect them to home page
+              navigate("/", { replace: true });
+              break;
+            case 400:
+            case 500:
+              dispatch(addToast({ kind: ERROR, msg: message }));
+              break;
+            default:
+              dispatch(
+                addToast({ kind: ERROR, msg: "Oops, something went wrong" })
+              );
+              break;
+          }
+        } else if (error.request) {
+          dispatch(
+            addToast({ kind: ERROR, msg: "Oops, something went wrong" })
+          );
+        } else {
+          dispatch(addToast({ kind: ERROR, msg: `Error: ${error.message}` }));
+        }
+      });
+  }, []);
+
+  const removeFavorite = useCallback((favId: string, boardId: string) => {
+    axiosInstance
+      .delete(`/favorites/${favId}`)
+      .then((response) => {
+        queryClient.setQueryData(
+          ["getSpaceBoards", spaceId],
+          (oldData: any) => {
+            return oldData.map((b: BoardObj) => {
+              if (b._id === boardId) {
+                return {
+                  ...b,
+                  isFavorite: false,
+                  favoriteId: null,
+                };
+              }
+
+              return b;
+            });
+          }
+        );
+
+        queryClient.setQueryData(["getFavorites"], (oldData: any) => {
+          if (oldData) {
+            return oldData.filter((fav: any) => fav._id.toString() !== favId);
+          }
+          return oldData;
+        });
+
+        queryClient.setQueryData(["getSpaces"], (oldData: any) => {
+          if (oldData) {
+            return oldData.map((d: SpaceObj) => {
+              return {
+                ...d,
+                boards: d.boards.map((b: BoardObj) => {
+                  if (b._id === boardId) {
+                    return {
+                      ...b,
+                      isFavorite: false,
+                      favoriteId: null,
+                    };
+                  }
+
+                  return b;
+                }),
+              };
+            });
+          }
+
+          return oldData;
+        });
+      })
+      .catch((error: AxiosError) => {
+        if (error.response) {
+          const response = error.response;
+          const { message } = response.data;
+
+          switch (response.status) {
+            case 404:
+              dispatch(addToast({ kind: ERROR, msg: message }));
+              queryClient.invalidateQueries(["getSpaces"]);
+              queryClient.invalidateQueries(["getFavorites"]);
+              // redirect them to home page
+              navigate("/", { replace: true });
+              break;
+            case 400:
+            case 500:
+              dispatch(addToast({ kind: ERROR, msg: message }));
+              break;
+            default:
+              dispatch(
+                addToast({ kind: ERROR, msg: "Oops, something went wrong" })
+              );
+              break;
+          }
+        } else if (error.request) {
+          dispatch(
+            addToast({ kind: ERROR, msg: "Oops, something went wrong" })
+          );
+        } else {
+          dispatch(addToast({ kind: ERROR, msg: `Error: ${error.message}` }));
+        }
+      });
+  }, []);
 
   return (
     <Link
@@ -21,7 +209,7 @@ const Board = ({ board }: Props) => {
       style={{
         background: board.bgImg ? `url(${board.bgImg})` : board.color,
         backgroundRepeat: "no-repeat",
-        boxShadow:`inset 0 0 0 2000px rgba(0, 0, 0, 0.22)`,
+        boxShadow: `inset 0 0 0 2000px rgba(0, 0, 0, 0.22)`,
         backgroundPosition: "50%",
         backgroundOrigin: "border-box",
         backgroundSize: "cover",
@@ -55,20 +243,22 @@ const Board = ({ board }: Props) => {
             <UtilityBtn
               Icon={HiOutlineStar}
               label="Unfavorite"
-            uniqueId="board-component-unfavorite"
+              uniqueId="board-component-unfavorite"
               iconFillColor="#fbbf24"
               iconColor="#fbbf24"
               onClick={(e: any) => {
                 e.preventDefault();
+                removeFavorite(board.favoriteId!, board._id);
               }}
             />
           ) : (
             <UtilityBtn
               Icon={HiOutlineStar}
               label="Favorite"
-            uniqueId="board-component-favorite"
+              uniqueId="board-component-favorite"
               onClick={(e: any) => {
                 e.preventDefault();
+                addToFavorite(board._id);
               }}
             />
           )}

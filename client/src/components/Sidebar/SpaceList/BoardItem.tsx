@@ -74,6 +74,27 @@ const BoardItem = ({ board, setShowPlusIcon, setShowBoardOptions }: Props) => {
         const { data } = response.data;
 
         if (response.status === 201) {
+          queryClient.setQueryData(
+            ["getSpaceBoards", board.spaceId],
+            (oldData: any) => {
+              if (oldData) {
+                return oldData.map((b: BoardObj) => {
+                  if (b._id === boardId) {
+                    return {
+                      ...b,
+                      isFavorite: true,
+                      favoriteId: data._id,
+                    };
+                  }
+
+                  return b;
+                });
+              }
+
+              return oldData;
+            }
+          );
+
           queryClient.setQueryData(["getSpaces"], (oldData: any) => {
             return oldData.map((d: SpaceObj) => {
               return {
@@ -110,8 +131,12 @@ const BoardItem = ({ board, setShowPlusIcon, setShowBoardOptions }: Props) => {
           const { message } = response.data;
 
           switch (response.status) {
-            case 400:
             case 404:
+              dispatch(addToast({ kind: ERROR, msg: message }));
+              queryClient.invalidateQueries(["getSpaces"]);
+              queryClient.invalidateQueries(["getFavorites"]);
+              break;
+            case 400:
             case 500:
               dispatch(addToast({ kind: ERROR, msg: message }));
               break;
@@ -136,6 +161,27 @@ const BoardItem = ({ board, setShowPlusIcon, setShowBoardOptions }: Props) => {
       .delete(`/favorites/${favId}`)
       .then((response) => {
         setShowOptions(false);
+
+        queryClient.setQueryData(
+          ["getSpaceBoards", board.spaceId],
+          (oldData: any) => {
+            if (oldData) {
+              return oldData.map((b: BoardObj) => {
+                if (b._id === boardId) {
+                  return {
+                    ...b,
+                    isFavorite: false,
+                    favoriteId: null,
+                  };
+                }
+
+                return b;
+              });
+            }
+
+            return oldData;
+          }
+        );
 
         queryClient.setQueryData(["getFavorites"], (oldData: any) => {
           if (oldData) {
@@ -171,8 +217,12 @@ const BoardItem = ({ board, setShowPlusIcon, setShowBoardOptions }: Props) => {
           const { message } = response.data;
 
           switch (response.status) {
-            case 400:
             case 404:
+              dispatch(addToast({ kind: ERROR, msg: message }));
+              queryClient.invalidateQueries(["getSpaces"]);
+              queryClient.invalidateQueries(["getFavorites"]);
+              break;
+            case 400:
             case 500:
               dispatch(addToast({ kind: ERROR, msg: message }));
               break;

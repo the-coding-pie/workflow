@@ -53,6 +53,18 @@ const FavoriteItemSpace = ({ item }: Props) => {
       .then((response) => {
         setShowOptions(false);
 
+        queryClient.setQueryData(["getSpaceInfo", spaceId], (oldData: any) => {
+          if (oldData) {
+            return {
+              ...oldData,
+              isFavorite: false,
+              favoriteId: null,
+            };
+          }
+
+          return oldData;
+        });
+
         queryClient.setQueryData(["getFavorites"], (oldData: any) => {
           return oldData.filter((fav: any) => fav._id.toString() !== favId);
         });
@@ -83,8 +95,12 @@ const FavoriteItemSpace = ({ item }: Props) => {
           const { message } = response.data;
 
           switch (response.status) {
-            case 400:
             case 404:
+              dispatch(addToast({ kind: ERROR, msg: message }));
+              queryClient.invalidateQueries(["getSpaces"]);
+              queryClient.invalidateQueries(["getFavorites"]);
+              break;
+            case 400:
             case 500:
               dispatch(addToast({ kind: ERROR, msg: message }));
               break;

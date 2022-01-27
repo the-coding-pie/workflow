@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useCallback } from "react";
 import {
   Navigate,
   NavLink,
@@ -18,8 +18,8 @@ import {
 } from "react-icons/hi";
 import { ERROR, SPACE_ROLES } from "../../types/constants";
 import axiosInstance from "../../axiosInstance";
-import { useQuery } from "react-query";
-import { SpaceInfoObj } from "../../types";
+import { useQuery, useQueryClient } from "react-query";
+import { SpaceInfoObj, SpaceObj } from "../../types";
 import { useDispatch } from "react-redux";
 import { addToast } from "../../redux/features/toastSlice";
 import Loader from "../Loader/Loader";
@@ -29,11 +29,166 @@ import UtilityBtn from "../UtilityBtn/UtilityBtn";
 import SpaceBoards from "../../pages/spaces/SpaceBoards";
 import SpaceMembers from "../../pages/spaces/SpaceMembers";
 import SpaceSettings from "../../pages/spaces/SpaceSettings";
+import { AxiosError } from "axios";
 
 const SpaceLayout = () => {
   const { id } = useParams();
 
   const dispatch = useDispatch();
+
+  const queryClient = useQueryClient();
+
+  const navigate = useNavigate();
+
+  const addToFavorite = useCallback((spaceId: string) => {
+    axiosInstance
+      .post(`/favorites`, {
+        spaceId: spaceId,
+      })
+      .then((response) => {
+        const { data } = response.data;
+
+        if (response.status === 201) {
+          queryClient.setQueryData(
+            ["getSpaceInfo", spaceId],
+            (oldData: any) => {
+              return {
+                ...oldData,
+                isFavorite: true,
+                favoriteId: data._id,
+              };
+            }
+          );
+
+          queryClient.setQueryData(["getSpaces"], (oldData: any) => {
+            if (oldData) {
+              return oldData.map((d: SpaceObj) => {
+                if (d._id === spaceId) {
+                  return {
+                    ...d,
+                    isFavorite: true,
+                    favoriteId: data._id,
+                  };
+                }
+
+                return d;
+              });
+            }
+
+            return oldData;
+          });
+
+          queryClient.setQueryData(["getFavorites"], (oldData: any) => {
+            if (oldData) {
+              return [...oldData, data];
+            }
+
+            return oldData;
+          });
+        }
+      })
+      .catch((error: AxiosError) => {
+        if (error.response) {
+          const response = error.response;
+          const { message } = response.data;
+
+          switch (response.status) {
+            case 404:
+              dispatch(addToast({ kind: ERROR, msg: message }));
+              queryClient.invalidateQueries(["getSpaces"]);
+              queryClient.invalidateQueries(["getFavorites"]);
+              // redirect them to home page
+              navigate("/", { replace: true });
+              break;
+            case 400:
+            case 500:
+              dispatch(addToast({ kind: ERROR, msg: message }));
+              break;
+            default:
+              dispatch(
+                addToast({ kind: ERROR, msg: "Oops, something went wrong" })
+              );
+          }
+        } else if (error.request) {
+          dispatch(
+            addToast({ kind: ERROR, msg: "Oops, something went wrong" })
+          );
+        } else {
+          dispatch(addToast({ kind: ERROR, msg: `Error: ${error.message}` }));
+        }
+      });
+  }, []);
+
+  const removeFavorite = useCallback((favId: string, spaceId: string) => {
+    axiosInstance
+      .delete(`/favorites/${favId}`)
+      .then((response) => {
+        queryClient.setQueryData(["getSpaceInfo", spaceId], (oldData: any) => {
+          return {
+            ...oldData,
+            isFavorite: false,
+            favoriteId: null,
+          };
+        });
+
+        queryClient.setQueryData(["getFavorites"], (oldData: any) => {
+          if (oldData) {
+            return oldData.filter((fav: any) => fav._id.toString() !== favId);
+          }
+
+          return oldData;
+        });
+
+        queryClient.setQueryData(["getSpaces"], (oldData: any) => {
+          if (oldData) {
+            return oldData.map((d: SpaceObj) => {
+              if (d._id === spaceId) {
+                return {
+                  ...d,
+                  isFavorite: false,
+                  favoriteId: null,
+                };
+              }
+
+              return d;
+            });
+          }
+
+          return oldData;
+        });
+      })
+      .catch((error: AxiosError) => {
+        if (error.response) {
+          const response = error.response;
+          const { message } = response.data;
+
+          switch (response.status) {
+            case 404:
+              dispatch(addToast({ kind: ERROR, msg: message }));
+              queryClient.invalidateQueries(["getSpaces"]);
+              queryClient.invalidateQueries(["getFavorites"]);
+              // redirect them to home page
+              navigate("/", { replace: true });
+              break;
+            case 400:
+            case 500:
+              dispatch(addToast({ kind: ERROR, msg: message }));
+              break;
+            default:
+              dispatch(
+                addToast({ kind: ERROR, msg: "Oops, something went wrong" })
+              );
+              break;
+          }
+        } else if (error.request) {
+          dispatch(
+            addToast({ kind: ERROR, msg: "Oops, something went wrong" })
+          );
+        } else {
+          dispatch(addToast({ kind: ERROR, msg: `Error: ${error.message}` }));
+        }
+      });
+  }, []);
 
   const getSpaceInfo = async ({ queryKey }: any) => {
     const response = await axiosInstance.get(`/spaces/${queryKey[1]}/info`);
@@ -124,6 +279,7 @@ const SpaceLayout = () => {
                   label="Unfavorite"
                   iconFillColor="#fbbf24"
                   iconColor="#fbbf24"
+                  onClick={() => removeFavorite(space.favoriteId!, space._id)}
                   uniqueId="space-layout-unfavorite"
                   classes="bg-slate-100 shadow px-1 py-0.5 rounded text-sm"
                 />
@@ -133,6 +289,7 @@ const SpaceLayout = () => {
                   uniqueId="space-layout-favorite"
                   label="Favorite"
                   classes="bg-slate-100 shadow px-1 py-0.5 rounded text-sm"
+                  onClick={() => addToFavorite(space._id)}
                 />
               )}
             </div>
@@ -140,7 +297,7 @@ const SpaceLayout = () => {
             <ul className="flex pb-2">
               <li className="w-18">
                 <NavLink
-                  to={`/s/${id}/boards`}
+                  to={`/s/${space._id}/boards`}
                   className={({ isActive }) => {
                     return `text-base mr-6 font-medium text-gray-500 ${
                       isActive
@@ -169,7 +326,7 @@ const SpaceLayout = () => {
                 <>
                   <li className="w-18">
                     <NavLink
-                      to={`/s/${id}/members`}
+                      to={`/s/${space._id}/members`}
                       className={({ isActive }) => {
                         return `text-base mr-6 font-medium text-gray-500 ${
                           isActive
@@ -183,7 +340,7 @@ const SpaceLayout = () => {
                   </li>
                   <li className="w-18">
                     <NavLink
-                      to={`/s/${id}/settings`}
+                      to={`/s/${space._id}/settings`}
                       className={({ isActive }) => {
                         return `text-base mr-6 font-medium text-gray-500 ${
                           isActive
@@ -202,10 +359,12 @@ const SpaceLayout = () => {
           <div className="content flex-1">
             <Routes>
               <Route index element={<Navigate to="boards" replace={true} />} />
-              <Route path="boards" element={<SpaceBoards />} />
+              <Route path="boards" element={<SpaceBoards spaceId={space._id} />} />
               <Route
                 path="members"
-                element={<SpaceMembers spaceId={space._id} myRole={space.role} />}
+                element={
+                  <SpaceMembers spaceId={space._id} myRole={space.role} />
+                }
               />
               <Route
                 path="settings"

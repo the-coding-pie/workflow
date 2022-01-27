@@ -89,6 +89,21 @@ const SpaceItem = ({ space }: Props) => {
         const { data } = response.data;
 
         if (response.status === 201) {
+          queryClient.setQueryData(
+            ["getSpaceInfo", spaceId],
+            (oldData: any) => {
+              if (oldData) {
+                return {
+                  ...oldData,
+                  isFavorite: true,
+                  favoriteId: data._id,
+                };
+              }
+
+              return oldData;
+            }
+          );
+
           queryClient.setQueryData(["getSpaces"], (oldData: any) => {
             return oldData.map((d: SpaceObj) => {
               if (d._id === spaceId) {
@@ -120,8 +135,12 @@ const SpaceItem = ({ space }: Props) => {
           const { message } = response.data;
 
           switch (response.status) {
-            case 400:
             case 404:
+              dispatch(addToast({ kind: ERROR, msg: message }));
+              queryClient.invalidateQueries(["getSpaces"]);
+              queryClient.invalidateQueries(["getFavorites"]);
+              break;
+            case 400:
             case 500:
               dispatch(addToast({ kind: ERROR, msg: message }));
               break;
@@ -145,6 +164,18 @@ const SpaceItem = ({ space }: Props) => {
       .delete(`/favorites/${favId}`)
       .then((response) => {
         setShowOptions(false);
+        
+        queryClient.setQueryData(["getSpaceInfo", spaceId], (oldData: any) => {
+          if (oldData) {
+            return {
+              ...oldData,
+              isFavorite: false,
+              favoriteId: null,
+            };
+          }
+
+          return oldData;
+        });
 
         queryClient.setQueryData(["getFavorites"], (oldData: any) => {
           if (oldData) {
@@ -176,8 +207,12 @@ const SpaceItem = ({ space }: Props) => {
           const { message } = response.data;
 
           switch (response.status) {
-            case 400:
             case 404:
+              dispatch(addToast({ kind: ERROR, msg: message }));
+              queryClient.invalidateQueries(["getSpaces"]);
+              queryClient.invalidateQueries(["getFavorites"]);
+              break;
+            case 400:
             case 500:
               dispatch(addToast({ kind: ERROR, msg: message }));
               break;

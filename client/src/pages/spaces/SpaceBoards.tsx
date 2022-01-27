@@ -8,12 +8,13 @@ import Error from "../../components/Error/Error";
 import Loader from "../../components/Loader/Loader";
 import { addToast } from "../../redux/features/toastSlice";
 import { BoardObj } from "../../types";
-import { ERROR, SPACE_ROLES } from "../../types/constants";
+import { ERROR } from "../../types/constants";
 
+interface Props {
+  spaceId: string;
+}
 
-const SpaceBoards = () => {
-  const { id } = useParams();
-
+const SpaceBoards = ({ spaceId }: Props) => {
   const dispatch = useDispatch();
 
   const getSpaceBoards = async ({ queryKey }: any) => {
@@ -29,7 +30,7 @@ const SpaceBoards = () => {
     isLoading,
     error,
   } = useQuery<BoardObj[] | undefined, any, BoardObj[], string[]>(
-    ["getSpaceBoards", id!],
+    ["getSpaceBoards", spaceId],
     getSpaceBoards
   );
 
@@ -74,7 +75,7 @@ const SpaceBoards = () => {
       {boards && boards.length > 0 ? (
         <div className="mt-6 flex items-center justify-start flex-wrap gap-x-6 gap-y-6">
           {boards.map((b) => (
-            <Board key={b._id} board={b} />
+            <Board key={b._id} spaceId={spaceId} board={b} />
           ))}
         </div>
       ) : (
