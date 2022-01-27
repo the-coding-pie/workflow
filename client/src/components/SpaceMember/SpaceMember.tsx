@@ -7,9 +7,16 @@ import { useDispatch, useSelector } from "react-redux";
 import { Navigate, useNavigate } from "react-router-dom";
 import axiosInstance from "../../axiosInstance";
 import { RootState } from "../../redux/app";
+import { showModal } from "../../redux/features/modalSlice";
 import { addToast } from "../../redux/features/toastSlice";
 import { MemberObj } from "../../types";
-import { ERROR, SPACE_ROLES, SUCCESS } from "../../types/constants";
+import {
+  CONFIRM_LEAVE_SPACE_MODAL,
+  CONFIRM_REMOVE_SPACE_MEMBER_MODAL,
+  ERROR,
+  SPACE_ROLES,
+  SUCCESS,
+} from "../../types/constants";
 import Profile from "../Profile/Profile";
 import UtilityBtn from "../UtilityBtn/UtilityBtn";
 import RoleDropDown from "./RoleDropdown";
@@ -97,109 +104,6 @@ const SpaceMember = ({ member, myRole, spaceId, isOnlyAdmin }: Props) => {
       });
   }, []);
 
-  const removeMember = useCallback((spaceId, memberId) => {
-    axiosInstance
-      .delete(`/spaces/${spaceId}/members/${memberId}`)
-      .then((response) => {
-        const { message } = response.data;
-
-        dispatch(
-          addToast({
-            kind: SUCCESS,
-            msg: message,
-          })
-        );
-
-        queryClient.invalidateQueries(["getSpaceMembers", spaceId]);
-      })
-      .catch((error: AxiosError) => {
-        if (error.response) {
-          const response = error.response;
-          const { message } = response.data;
-
-          switch (response.status) {
-            case 404:
-              dispatch(addToast({ kind: ERROR, msg: message }));
-              queryClient.invalidateQueries(["getSpaces"]);
-              queryClient.invalidateQueries(["getFavorites"]);
-              // redirect them to home page
-              navigate("/", { replace: true });
-              break;
-            case 400:
-            case 403:
-            case 500:
-              dispatch(addToast({ kind: ERROR, msg: message }));
-              break;
-            default:
-              dispatch(
-                addToast({ kind: ERROR, msg: "Oops, something went wrong" })
-              );
-              break;
-          }
-        } else if (error.request) {
-          dispatch(
-            addToast({ kind: ERROR, msg: "Oops, something went wrong" })
-          );
-        } else {
-          dispatch(addToast({ kind: ERROR, msg: `Error: ${error.message}` }));
-        }
-      });
-  }, []);
-
-  const leaveFromSpace = useCallback((spaceId) => {
-    axiosInstance
-      .delete(`/spaces/${spaceId}/members`)
-      .then((response) => {
-        const { message } = response.data;
-
-        dispatch(
-          addToast({
-            kind: SUCCESS,
-            msg: message,
-          })
-        );
-
-        queryClient.invalidateQueries(["getSpaces"]);
-        queryClient.invalidateQueries(["getFavorites"]);
-        queryClient.invalidateQueries(["getSpaceInfo", spaceId]);
-        queryClient.invalidateQueries(["getSpaceMembers", spaceId]);
-
-        navigate("/", { replace: true });
-      })
-      .catch((error: AxiosError) => {
-        if (error.response) {
-          const response = error.response;
-          const { message } = response.data;
-
-          switch (response.status) {
-            case 404:
-              dispatch(addToast({ kind: ERROR, msg: message }));
-              queryClient.invalidateQueries(["getSpaces"]);
-              queryClient.invalidateQueries(["getFavorites"]);
-              // redirect them to home page
-              navigate("/", { replace: true });
-              break;
-            case 400:
-            case 403:
-            case 500:
-              dispatch(addToast({ kind: ERROR, msg: message }));
-              break;
-            default:
-              dispatch(
-                addToast({ kind: ERROR, msg: "Oops, something went wrong" })
-              );
-              break;
-          }
-        } else if (error.request) {
-          dispatch(
-            addToast({ kind: ERROR, msg: "Oops, something went wrong" })
-          );
-        } else {
-          dispatch(addToast({ kind: ERROR, msg: `Error: ${error.message}` }));
-        }
-      });
-  }, []);
-
   return (
     <div className="member w-full flex items-center justify-between border-b last:border-b-0 py-4 px-4">
       <div className="left flex flex-1 items-center">
@@ -250,7 +154,17 @@ const SpaceMember = ({ member, myRole, spaceId, isOnlyAdmin }: Props) => {
             <div className="action-btn">
               {user!._id === member._id ? (
                 <button
-                  onClick={() => leaveFromSpace(spaceId)}
+                  onClick={() =>
+                    dispatch(
+                      showModal({
+                        modalType: CONFIRM_LEAVE_SPACE_MODAL,
+                        modalProps: {
+                          spaceId: spaceId,
+                        },
+                        modalTitle: "Are you sure want to Leave?",
+                      })
+                    )
+                  }
                   className="ml-6 btn-slate text-sm"
                   disabled={isOnlyAdmin}
                 >
@@ -259,7 +173,18 @@ const SpaceMember = ({ member, myRole, spaceId, isOnlyAdmin }: Props) => {
               ) : (
                 myRole === SPACE_ROLES.ADMIN && (
                   <button
-                    onClick={() => removeMember(spaceId, member._id)}
+                    onClick={() =>
+                      dispatch(
+                        showModal({
+                          modalType: CONFIRM_REMOVE_SPACE_MEMBER_MODAL,
+                          modalProps: {
+                            spaceId: spaceId,
+                            memberId: member._id,
+                          },
+                          modalTitle: "Are you sure want to remove member?",
+                        })
+                      )
+                    }
                     className="ml-6 btn-slate text-sm"
                   >
                     Remove

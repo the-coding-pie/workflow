@@ -5,6 +5,8 @@ import useEscClose from "../../hooks/useEscClose";
 import { hideModal } from "../../redux/features/modalSlice";
 import { ModalObj } from "../../types";
 import {
+  CONFIRM_LEAVE_SPACE_MODAL,
+  CONFIRM_REMOVE_SPACE_MEMBER_MODAL,
   CREATE_BOARD_MODAL,
   CREATE_SPACE_MODAL,
   INVITE_SPACE_MEMBER_MODAL,
@@ -12,6 +14,8 @@ import {
 import CreateBoardModal from "../ModalComponents/CreateBoardModal";
 import CreateSpaceModal from "../ModalComponents/CreateSpaceModal";
 import InviteSpaceMemberModal from "../ModalComponents/InviteSpaceMemberModal";
+import RemoveMemberSpaceConfirmationModal from "../ModalComponents/RemoveMemberSpaceConfirmationModal";
+import LeaveSpaceConfirmationModal from "../ModalComponents/LeaveSpaceConfirmationModal";
 
 interface Props extends ModalObj {}
 
@@ -42,6 +46,12 @@ const Modal = ({
       break;
     case INVITE_SPACE_MEMBER_MODAL:
       Component = InviteSpaceMemberModal;
+      break;
+    case CONFIRM_LEAVE_SPACE_MODAL:
+      Component = LeaveSpaceConfirmationModal;
+      break;
+    case CONFIRM_REMOVE_SPACE_MEMBER_MODAL:
+      Component = RemoveMemberSpaceConfirmationModal;
       break;
     default:
       Component = null;
