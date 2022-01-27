@@ -141,14 +141,21 @@ export const searchUser = async (req: any, res: Response) => {
 
     // if valid spaceId
     if (spaceId && mongoose.isValidObjectId(spaceId)) {
+      // const space = await Space.findOne({
+      //   _id: spaceId,
+      //   members: {
+      //     $elemMatch: {
+      //       memberId: req.user._id,
+      //       role: SPACE_MEMBER_ROLES.ADMIN,
+      //     },
+      //   },
+      // })
+      //   .select("_id members")
+      //   .lean();
+
+      // has security drawback, bcz if you are not a member of this space, still you will be able to see who are present in this space and who is not
       const space = await Space.findOne({
         _id: spaceId,
-        members: {
-          $elemMatch: {
-            memberId: req.user._id,
-            role: SPACE_MEMBER_ROLES.ADMIN,
-          },
-        },
       })
         .select("_id members")
         .lean();
