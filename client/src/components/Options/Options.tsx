@@ -50,7 +50,7 @@ const Options: React.FC<Props> = ({ children, show, setShow, x, y }) => {
                 }
               : {
                   left: x - 20,
-                  top: y - 20,
+                  top: y - 50,
                   minWidth: "150px",
                 }
           }

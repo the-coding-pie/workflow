@@ -123,7 +123,7 @@ const Sidebar = () => {
                   currentActiveMenu === m.id
                     ? "bg-secondary"
                     : "hover:bg-secondary"
-                }  cursor-pointer sticky top-0 left-0 right-0 z-40 bg-white`}
+                }  cursor-pointer sticky top-0 left-0 right-0 z-20 bg-white`}
               >
                 <div className="left flex items-center">
                   <div className="icon mr-2">
