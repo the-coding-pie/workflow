@@ -229,18 +229,19 @@ export const getBoard = async (req: any, res: Response) => {
       });
     }
 
+    // check favorite
+    const favorite = await Favorite.findOne({
+      resourceId: board._id,
+      userId: req.user._id,
+      type: BOARD,
+    });
+
     // check first if the current user is a member in board, if yes -> then that's it
     if (
       board.members
         .map((m: any) => m.memberId.toString())
         .includes(req.user._id.toString())
     ) {
-      const favorite = await Favorite.findOne({
-        resourceId: board._id,
-        userId: req.user._id,
-        type: BOARD,
-      });
-
       return res.send({
         success: true,
         data: {
@@ -263,6 +264,7 @@ export const getBoard = async (req: any, res: Response) => {
       });
     }
 
+    // you are not a board member now
     // check if he is a part of the space
     if (
       !board.spaceId.members
@@ -277,9 +279,44 @@ export const getBoard = async (req: any, res: Response) => {
       });
     }
 
+    // he is a member of the board, so now find his role
+    // only ADMIN/NORMAL user will be able to see board
+    // space ADMIN can see any board
+    // NORMAL user can see PUBLIC boards (and PRIVATE boards if he is a member of it, but here it won't happen, because we already checked whether he is a member in the board or not above)
+    const role = board.spaceId.members.find(
+      (m: any) => m.memberId.toString() === req.user._id.toString()
+    ).role;
+
+    if (
+      (role !== SPACE_MEMBER_ROLES.ADMIN &&
+        role !== SPACE_MEMBER_ROLES.NORMAL) ||
+      (role === SPACE_MEMBER_ROLES.NORMAL &&
+        board.visibility === BOARD_VISIBILITY.PRIVATE)
+    ) {
+      return res.status(404).send({
+        success: false,
+        data: {},
+        message: "Board not found!",
+        statusCode: 404,
+      });
+    }
+
+    // if you managed to came this far, you can see this board
     res.send({
       success: true,
-      data: board,
+      data: {
+        name: board.name,
+        description: board.description,
+        bgImg: board.bgImg,
+        color: board.color,
+        space: board.space,
+        lists: board.lists,
+        members: board.members,
+        role: role,
+        visibility: board.visibility,
+        isFavorite: favorite ? true : false,
+        favoriteId: favorite && favorite._id,
+      },
       message: "",
       statusCode: 200,
     });
