@@ -1422,7 +1422,6 @@ export const updateMemberRole = async (req: any, res: Response) => {
         b.members = b.members.map((m: any) => {
           if (m.memberId === targetMember.memberId) {
             m.role = m.fallbackRole;
-
             return m;
           }
           return m;

@@ -3,7 +3,9 @@ import mongoose from "mongoose";
 import validator from "validator";
 import Board from "../models/board.model";
 import Space from "../models/space.model";
+import Favorite from "../models/favorite.model";
 import {
+  BOARD,
   BOARD_MEMBER_ROLES,
   BOARD_VISIBILITY,
   SPACE_MEMBER_ROLES,
@@ -175,6 +177,111 @@ export const createBoard = async (req: any, res: Response) => {
       },
       message: "New board has been created!",
       statusCode: 201,
+    });
+  } catch (err) {
+    res.status(500).send({
+      success: false,
+      data: {},
+      message: "Oops, something went wrong!",
+      statusCode: 500,
+    });
+  }
+};
+
+// GET /boards/:id -> get board info
+export const getBoard = async (req: any, res: Response) => {
+  try {
+    const { id } = req.params;
+
+    if (!id) {
+      return res.status(400).send({
+        success: false,
+        data: {},
+        message: "board _id is required",
+        statusCode: 400,
+      });
+    } else if (!mongoose.isValidObjectId(id)) {
+      return res.status(400).send({
+        success: false,
+        data: {},
+        message: "Invalid board _id",
+        statusCode: 400,
+      });
+    }
+
+    // check for the board
+    const board = await Board.findOne({ _id: id })
+      .select(
+        "_id name visibility description bgImg color spaceId lists members"
+      )
+      .populate({
+        path: "spaceId",
+        select: "_id members",
+      })
+      .lean();
+
+    if (!board) {
+      return res.status(404).send({
+        success: false,
+        data: {},
+        message: "Board not found!",
+        statusCode: 404,
+      });
+    }
+
+    // check first if the current user is a member in board, if yes -> then that's it
+    if (
+      board.members
+        .map((m: any) => m.memberId.toString())
+        .includes(req.user._id.toString())
+    ) {
+      const favorite = await Favorite.findOne({
+        resourceId: board._id,
+        userId: req.user._id,
+        type: BOARD,
+      });
+
+      return res.send({
+        success: true,
+        data: {
+          name: board.name,
+          description: board.description,
+          bgImg: board.bgImg,
+          color: board.color,
+          space: board.space,
+          lists: board.lists,
+          members: board.members,
+          role: board.members.find(
+            (m: any) => m.memberId.toString() === req.user._id.toString()
+          ).role,
+          visibility: board.visibility,
+          isFavorite: favorite ? true : false,
+          favoriteId: favorite && favorite._id,
+        },
+        message: "",
+        statusCode: 200,
+      });
+    }
+
+    // check if he is a part of the space
+    if (
+      !board.spaceId.members
+        .map((m: any) => m.memberId.toString())
+        .includes(req.user._id.toString())
+    ) {
+      return res.status(404).send({
+        success: false,
+        data: {},
+        message: "Board not found!",
+        statusCode: 404,
+      });
+    }
+
+    res.send({
+      success: true,
+      data: board,
+      message: "",
+      statusCode: 200,
     });
   } catch (err) {
     res.status(500).send({
