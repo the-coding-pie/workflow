@@ -23,7 +23,7 @@ const ProfileCard = () => {
   };
 
   return (
-    <div className="relative profile-card" ref={ref}>
+    <div className="relative profile-card noselect" ref={ref}>
       {user ? (
         <Profile
           onClick={() => setShow(!show)}

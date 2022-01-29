@@ -6,6 +6,8 @@ import { useDispatch, useSelector } from "react-redux";
 import { Navigate, useNavigate, useParams } from "react-router-dom";
 import ReactTooltip from "react-tooltip";
 import axiosInstance from "../../../axiosInstance";
+import BoardName from "../../../components/BoardName/BoardName";
+import BoardVisibilityDropdown from "../../../components/BoardVisibilityDropdown/BoardVisibilityDropdown";
 import CustomReactToolTip from "../../../components/CustomReactToolTip/CustomReactToolTip";
 import Error from "../../../components/Error/Error";
 import Loader from "../../../components/Loader/Loader";
@@ -13,7 +15,11 @@ import UtilityBtn from "../../../components/UtilityBtn/UtilityBtn";
 import { RootState } from "../../../redux/app";
 import { addToast } from "../../../redux/features/toastSlice";
 import { Board, BoardObj, SpaceObj } from "../../../types";
-import { ERROR } from "../../../types/constants";
+import {
+  BOARD_ROLES,
+  BOARD_VISIBILITY_TYPES,
+  ERROR,
+} from "../../../types/constants";
 
 const BoardDetail = () => {
   const { id } = useParams();
@@ -25,6 +31,19 @@ const BoardDetail = () => {
   const queryClient = useQueryClient();
 
   const navigate = useNavigate();
+
+  const boardVisibilityOptions = [
+    {
+      value: BOARD_VISIBILITY_TYPES.PRIVATE,
+      label: BOARD_VISIBILITY_TYPES.PRIVATE,
+      sub: "Board members and space admins can see and edit this board",
+    },
+    {
+      value: BOARD_VISIBILITY_TYPES.PUBLIC,
+      label: BOARD_VISIBILITY_TYPES.PUBLIC,
+      sub: "All members of the space can see and edit this board",
+    },
+  ];
 
   const addToFavorite = useCallback((boardId: string, spaceId: string) => {
     axiosInstance
@@ -275,11 +294,11 @@ const BoardDetail = () => {
     <div className="board-page">
       {board && (
         <div
-          className="board-wrapper w-screen h-screen overflow-hidden"
+          className="board-wrapper w-screen h-screen overflow-hidden absolute z-0 top-14 right-0 bottom-0 left-0"
           style={{
             background: board.bgImg ? `url(${board.bgImg})` : board.color,
             backgroundRepeat: "no-repeat",
-            boxShadow: `inset 0 0 0 2000px rgba(255, 255, 255, 0.3)`,
+            boxShadow: `inset 0 0 0 2000px rgba(150, 150, 150, 0.3)`,
             backgroundPosition: "100%",
             backgroundOrigin: "border-box",
             backgroundSize: "cover",
@@ -294,17 +313,21 @@ const BoardDetail = () => {
                 show ? "left-60" : "left-0"
               } right-0 mb-14`}
             >
-              <div
-                data-tip="Board name"
-                data-for="board-detail-board-name"
-                className="board-name bg-slate-50 shadow rounded cursor-default px-2 py-1.5 noselect"
-              >
-                {board.name}
-                <CustomReactToolTip
-                  place="bottom"
-                  id="board-detail-board-name"
-                />
-              </div>
+              {board.role === BOARD_ROLES.ADMIN ? (
+                <BoardName initialValue={board.name} />
+              ) : (
+                <div
+                  data-tip="Board name"
+                  data-for="board-detail-board-name"
+                  className="board-name bg-slate-50 shadow rounded cursor-default px-2 py-1.5 noselect"
+                >
+                  {board.name}
+                  <CustomReactToolTip
+                    place="bottom"
+                    id="board-detail-board-name"
+                  />
+                </div>
+              )}
 
               <div className="isfavorite">
                 {board.isFavorite ? (
@@ -321,14 +344,14 @@ const BoardDetail = () => {
                       )
                     }
                     uniqueId="board-detail-unfavorite"
-                    classes="bg-slate-100 shadow p-2 rounded text-sm"
+                    classes="bg-slate-50 shadow p-2 rounded text-sm"
                   />
                 ) : (
                   <UtilityBtn
                     Icon={HiOutlineStar}
                     uniqueId="board-detail-favorite"
                     label="Favorite"
-                    classes="bg-slate-100 shadow p-2 rounded text-sm"
+                    classes="bg-slate-50 shadow p-2 rounded text-sm"
                     onClick={() => addToFavorite(board._id, board.space._id)}
                   />
                 )}
@@ -347,7 +370,24 @@ const BoardDetail = () => {
               </div>
 
               <div className="board-visibility">
-                <button className="rounded bg-stone-50 px-2 py-1.5">{board.visibility}</button>
+                {board.role === BOARD_ROLES.ADMIN ? (
+                  <BoardVisibilityDropdown
+                    options={boardVisibilityOptions}
+                    visibility={board.visibility}
+                  />
+                ) : (
+                  <div
+                    data-tip="Board visibility"
+                    data-for="board-detail-board-visibility"
+                    className="rounded bg-stone-50 px-2 py-1.5 cursor-default noselect"
+                  >
+                    {board.visibility}
+                    <CustomReactToolTip
+                      place="bottom"
+                      id="board-detail-board-visibility"
+                    />
+                  </div>
+                )}
               </div>
             </header>
           </div>
