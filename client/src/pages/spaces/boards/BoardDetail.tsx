@@ -2,12 +2,15 @@ import { AxiosError } from "axios";
 import React, { useCallback } from "react";
 import { HiOutlineStar } from "react-icons/hi";
 import { useQuery, useQueryClient } from "react-query";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { Navigate, useNavigate, useParams } from "react-router-dom";
+import ReactTooltip from "react-tooltip";
 import axiosInstance from "../../../axiosInstance";
+import CustomReactToolTip from "../../../components/CustomReactToolTip/CustomReactToolTip";
 import Error from "../../../components/Error/Error";
 import Loader from "../../../components/Loader/Loader";
 import UtilityBtn from "../../../components/UtilityBtn/UtilityBtn";
+import { RootState } from "../../../redux/app";
 import { addToast } from "../../../redux/features/toastSlice";
 import { Board, BoardObj, SpaceObj } from "../../../types";
 import { ERROR } from "../../../types/constants";
@@ -16,6 +19,8 @@ const BoardDetail = () => {
   const { id } = useParams();
 
   const dispatch = useDispatch();
+
+  const { show } = useSelector((state: RootState) => state.sidebar);
 
   const queryClient = useQueryClient();
 
@@ -284,9 +289,21 @@ const BoardDetail = () => {
           }}
         >
           <div className="board-content w-full h-screen overflow-y-hidden overflow-x-auto">
-            <header className="board-header px-5 py-2 flex items-center gap-x-4">
-              <div className="board-name font-semibold bg-white shadow rounded p-2">
+            <header
+              className={`board-header px-5 py-2 flex items-center gap-x-4 fixed top-14 ${
+                show ? "left-60" : "left-0"
+              } right-0 mb-14`}
+            >
+              <div
+                data-tip="Board name"
+                data-for="board-detail-board-name"
+                className="board-name bg-slate-50 shadow rounded cursor-default px-2 py-1.5 noselect"
+              >
                 {board.name}
+                <CustomReactToolTip
+                  place="bottom"
+                  id="board-detail-board-name"
+                />
               </div>
 
               <div className="isfavorite">
@@ -315,6 +332,22 @@ const BoardDetail = () => {
                     onClick={() => addToFavorite(board._id, board.space._id)}
                   />
                 )}
+              </div>
+
+              <div
+                data-tip="Space name"
+                data-for="board-detail-space-name"
+                className="space-name bg-slate-50 rounded px-2 py-1.5 cursor-default noselect"
+              >
+                {board.space.name}
+                <CustomReactToolTip
+                  place="bottom"
+                  id="board-detail-space-name"
+                />
+              </div>
+
+              <div className="board-visibility">
+                <button className="rounded bg-stone-50 px-2 py-1.5">{board.visibility}</button>
               </div>
             </header>
           </div>

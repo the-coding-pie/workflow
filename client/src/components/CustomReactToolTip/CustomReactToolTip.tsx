@@ -7,7 +7,7 @@ interface Props {
 }
 
 const CustomReactToolTip = ({ id, place }: Props) => {
-  return <ReactTooltip id={id} place={place} />;
+  return <ReactTooltip effect="solid" id={id} place={place} />;
 };
 
 export default CustomReactToolTip;
