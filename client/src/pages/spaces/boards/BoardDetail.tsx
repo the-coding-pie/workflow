@@ -6,6 +6,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { Navigate, useNavigate, useParams } from "react-router-dom";
 import ReactTooltip from "react-tooltip";
 import axiosInstance from "../../../axiosInstance";
+import BoardMembers from "../../../components/BoardMembers/BoardMembers";
 import BoardName from "../../../components/BoardName/BoardName";
 import BoardVisibilityDropdown from "../../../components/BoardVisibilityDropdown/BoardVisibilityDropdown";
 import CustomReactToolTip from "../../../components/CustomReactToolTip/CustomReactToolTip";
@@ -389,6 +390,8 @@ const BoardDetail = () => {
                   </div>
                 )}
               </div>
+
+              <BoardMembers />
             </header>
           </div>
         </div>

@@ -281,6 +281,17 @@ export const getBoard = async (req: any, res: Response) => {
                     m.memberId.profile
                   ),
               role: m.role,
+              isSpaceAdmin:
+                board.spaceId.members.find(
+                  (sm: any) =>
+                    sm.memberId.toString() === m.memberId._id.toString()
+                ) &&
+                board.spaceId.members.find(
+                  (sm: any) =>
+                    sm.memberId.toString() === m.memberId._id.toString()
+                ).role === SPACE_MEMBER_ROLES.ADMIN
+                  ? true
+                  : false,
             };
           }),
           role: board.members.find(
@@ -359,6 +370,17 @@ export const getBoard = async (req: any, res: Response) => {
                   m.memberId.profile
                 ),
             role: m.role,
+            isSpaceAdmin:
+              board.spaceId.members.find(
+                (sm: any) =>
+                  sm.memberId.toString() === m.memberId._id.toString()
+              ) &&
+              board.spaceId.members.find(
+                (sm: any) =>
+                  sm.memberId.toString() === m.memberId._id.toString()
+              ).role === SPACE_MEMBER_ROLES.ADMIN
+                ? true
+                : false,
           };
         }),
         role: role,

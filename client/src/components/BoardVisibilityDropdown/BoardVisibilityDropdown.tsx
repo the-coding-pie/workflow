@@ -3,7 +3,7 @@ import { HiOutlineCheck } from "react-icons/hi";
 import { MdClose } from "react-icons/md";
 import useClose from "../../hooks/useClose";
 import { OptionWithSub } from "../../types";
-import { BOARD_ROLES, BOARD_VISIBILITY_TYPES } from "../../types/constants";
+import { BOARD_VISIBILITY_TYPES } from "../../types/constants";
 
 interface Props {
   options: OptionWithSub[];
@@ -34,7 +34,16 @@ const BoardVisibilityDropdown = ({ options = [], visibility }: Props) => {
     }
   }, [options]);
 
-  const handleVisibilityChange = useCallback(() => {}, []);
+  const handleVisibilityChange = useCallback(
+    (
+      newVisibility:
+        | typeof BOARD_VISIBILITY_TYPES.PRIVATE
+        | typeof BOARD_VISIBILITY_TYPES.PUBLIC
+    ) => {
+      console.log(newVisibility);
+    },
+    []
+  );
 
   return (
     <div
@@ -67,25 +76,27 @@ const BoardVisibilityDropdown = ({ options = [], visibility }: Props) => {
             </button>
           </header>
 
-          {options.map((o) => (
-            <button
-              onClick={() => handleVisibilityChange()}
-              disabled={o.value === currentValue}
-              className={`px-4 py-3
+          <div className="options">
+            {options.map((o) => (
+              <button
+                onClick={() => handleVisibilityChange(o.value)}
+                disabled={o.value === currentValue}
+                className={`px-4 py-3
                         disabled:bg-slate-100 disabled:opacity-60 disabled:cursor-not-allowed
-                       hover:bg-primary_light cursor-pointer
+                       hover:bg-primary_light cursor-pointer rounded-0 last:rounded-b
                     `}
-              key={o.value}
-              role={`button change-role-to${o.value}`}
-            >
-              <div className="title font-medium flex items-center mb-2">
-                <span className="mr-3">{o.label}</span>
-                {currentValue === o.value && <HiOutlineCheck size={15} />}
-              </div>
+                key={o.value}
+                role={`button change-role-to${o.value}`}
+              >
+                <div className="title font-medium flex items-center mb-2">
+                  <span className="mr-3">{o.label}</span>
+                  {currentValue === o.value && <HiOutlineCheck size={15} />}
+                </div>
 
-              <p className="text-left">{o.sub}</p>
-            </button>
-          ))}
+                <p className="text-left">{o.sub}</p>
+              </button>
+            ))}
+          </div>
         </div>
       )}
     </div>
