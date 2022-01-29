@@ -24,7 +24,7 @@ const DefaultLayout = () => {
 
         <main className={`main w-full ${show ? "ml-60" : ""}`}>
           <Header />
-          <div className="h-screen">
+          <div className="h-screen mt-14">
             <Suspense fallback={<div>Loading...</div>}>
               <Routes>
                 <Route path="/" element={<Home />} />

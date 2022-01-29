@@ -11,7 +11,11 @@ const Header = () => {
   const { show } = useSelector((state: RootState) => state.sidebar);
 
   return (
-    <header className="header h-14 z-10 border-b bg-white flex items-center justify-between px-4">
+    <header
+      className={`header h-14 z-20 border-b bg-white flex items-center justify-between px-4 fixed top-0 ${
+        show ? "left-60" : "left-0"
+      } right-0`}
+    >
       <div className="left flex items-center justify-start">
         {!show && (
           <button

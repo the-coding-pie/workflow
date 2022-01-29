@@ -46,6 +46,16 @@ const FavoriteItemBoard = ({ item }: Props) => {
       .then((response) => {
         setShowOptions(false);
 
+        if (queryClient.getQueryData(["getBoard", boardId])) {
+          queryClient.setQueriesData(["getBoard", boardId], (oldData: any) => {
+            return {
+              ...oldData,
+              isFavorite: false,
+              favoriteId: null,
+            };
+          });
+        }
+
         if (queryClient.getQueryData(["getSpaceBoards", item.spaceId])) {
           queryClient.setQueryData(
             ["getSpaceBoards", item.spaceId],
@@ -156,7 +166,7 @@ const FavoriteItemBoard = ({ item }: Props) => {
         )}
         <div className="left flex items-center">
           <div
-            className={`color mr-2 w-2 h-2 rounded-full`}
+            className={`color mr-2 w-2 h-2 rounded-full  border border-slate-600`}
             style={{
               background: item.color,
             }}

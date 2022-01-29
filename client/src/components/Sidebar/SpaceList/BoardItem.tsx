@@ -74,6 +74,19 @@ const BoardItem = ({ board, setShowPlusIcon, setShowBoardOptions }: Props) => {
         const { data } = response.data;
 
         if (response.status === 201) {
+          if (queryClient.getQueryData(["getBoard", boardId])) {
+            queryClient.setQueriesData(
+              ["getBoard", boardId],
+              (oldData: any) => {
+                return {
+                  ...oldData,
+                  isFavorite: true,
+                  favoriteId: data._id,
+                };
+              }
+            );
+          }
+
           if (queryClient.getQueryData(["getSpaceBoards", board.spaceId!])) {
             queryClient.setQueryData(
               ["getSpaceBoards", board.spaceId!],
@@ -157,6 +170,16 @@ const BoardItem = ({ board, setShowPlusIcon, setShowBoardOptions }: Props) => {
       .delete(`/favorites/${favId}`)
       .then((response) => {
         setShowOptions(false);
+
+        if (queryClient.getQueryData(["getBoard", boardId])) {
+          queryClient.setQueriesData(["getBoard", boardId], (oldData: any) => {
+            return {
+              ...oldData,
+              isFavorite: false,
+              favoriteId: null,
+            };
+          });
+        }
 
         if (queryClient.getQueryData(["getSpaceBoards", board.spaceId!])) {
           queryClient.setQueryData(
@@ -265,7 +288,7 @@ const BoardItem = ({ board, setShowPlusIcon, setShowBoardOptions }: Props) => {
         )}
         <div className="left flex items-center">
           <div
-            className={`color mr-2 w-2 h-2 rounded-full`}
+            className={`color border border-slate-600 mr-2 w-2 h-2 rounded-full`}
             style={{
               background: board.color,
             }}

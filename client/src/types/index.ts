@@ -63,6 +63,29 @@ export interface SpaceObj extends Space {
   boards: BoardObj[];
 }
 
+export interface Board {
+  _id: string;
+  name: string;
+  description: string;
+  bgImg: string;
+  color: string;
+  space: {
+    _id: string;
+    name: string;
+  };
+  lists: [];
+  members: BoardMemberObj[];
+  role:
+    | typeof BOARD_ROLES.ADMIN
+    | typeof BOARD_ROLES.NORMAL
+    | typeof BOARD_ROLES.OBSERVER;
+  visibility:
+    | typeof BOARD_VISIBILITY_TYPES.PRIVATE
+    | typeof BOARD_VISIBILITY_TYPES.PUBLIC;
+  isFavorite: boolean;
+  favoriteId: string | null;
+}
+
 export interface BoardObj {
   _id: string;
   name: string;
@@ -79,6 +102,16 @@ export interface BoardObj {
     | typeof BOARD_ROLES.OBSERVER;
   bgImg: string;
   spaceId?: string;
+}
+
+export interface BoardMemberObj {
+  _id: string;
+  username: string;
+  profile: string;
+  role:
+    | typeof BOARD_ROLES.ADMIN
+    | typeof BOARD_ROLES.NORMAL
+    | typeof BOARD_ROLES.OBSERVER;
 }
 
 export interface MemberObj {

@@ -34,6 +34,19 @@ const Board = ({ board, spaceId }: Props) => {
 
         if (response.status === 201) {
           // edit this board cache inside space boards
+          if (queryClient.getQueryData(["getBoard", boardId])) {
+            queryClient.setQueriesData(
+              ["getBoard", boardId],
+              (oldData: any) => {
+                return {
+                  ...oldData,
+                  isFavorite: true,
+                  favoriteId: data._id,
+                };
+              }
+            );
+          }
+
           queryClient.setQueryData(
             ["getSpaceBoards", spaceId],
             (oldData: any) => {
@@ -116,6 +129,16 @@ const Board = ({ board, spaceId }: Props) => {
     axiosInstance
       .delete(`/favorites/${favId}`)
       .then((response) => {
+        if (queryClient.getQueryData(["getBoard", boardId])) {
+          queryClient.setQueriesData(["getBoard", boardId], (oldData: any) => {
+            return {
+              ...oldData,
+              isFavorite: false,
+              favoriteId: null,
+            };
+          });
+        }
+
         queryClient.setQueryData(
           ["getSpaceBoards", spaceId],
           (oldData: any) => {

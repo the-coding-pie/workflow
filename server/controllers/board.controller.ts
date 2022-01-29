@@ -10,6 +10,12 @@ import {
   BOARD_VISIBILITY,
   SPACE_MEMBER_ROLES,
 } from "../types/constants";
+import {
+  BASE_PATH_COMPLETE,
+  PROFILE_PICS_DIR_NAME,
+  STATIC_PATH,
+} from "../config";
+import path from "path";
 
 // POST /boards -> create new board
 export const createBoard = async (req: any, res: Response) => {
@@ -215,8 +221,15 @@ export const getBoard = async (req: any, res: Response) => {
         "_id name visibility description bgImg color spaceId lists members"
       )
       .populate({
+        path: "members",
+        populate: {
+          path: "memberId",
+          select: "_id username profile",
+        },
+      })
+      .populate({
         path: "spaceId",
-        select: "_id members",
+        select: "_id name members",
       })
       .lean();
 
@@ -239,21 +252,39 @@ export const getBoard = async (req: any, res: Response) => {
     // check first if the current user is a member in board, if yes -> then that's it
     if (
       board.members
-        .map((m: any) => m.memberId.toString())
+        .map((m: any) => m.memberId._id.toString())
         .includes(req.user._id.toString())
     ) {
       return res.send({
         success: true,
         data: {
+          _id: board._id,
           name: board.name,
           description: board.description,
           bgImg: board.bgImg,
           color: board.color,
-          space: board.space,
+          space: {
+            _id: board.spaceId._id,
+            name: board.spaceId.name,
+          },
           lists: board.lists,
-          members: board.members,
+          members: board.members.map((m: any) => {
+            return {
+              _id: m.memberId._id,
+              username: m.memberId.username,
+              profile: m.memberId.profile.includes("http")
+                ? m.memberId.profile
+                : BASE_PATH_COMPLETE +
+                  path.join(
+                    STATIC_PATH,
+                    PROFILE_PICS_DIR_NAME,
+                    m.memberId.profile
+                  ),
+              role: m.role,
+            };
+          }),
           role: board.members.find(
-            (m: any) => m.memberId.toString() === req.user._id.toString()
+            (m: any) => m.memberId._id.toString() === req.user._id.toString()
           ).role,
           visibility: board.visibility,
           isFavorite: favorite ? true : false,
@@ -305,13 +336,31 @@ export const getBoard = async (req: any, res: Response) => {
     res.send({
       success: true,
       data: {
+        _id: board._id,
         name: board.name,
         description: board.description,
         bgImg: board.bgImg,
         color: board.color,
-        space: board.space,
+        space: {
+          _id: board.spaceId._id,
+          name: board.spaceId.name,
+        },
         lists: board.lists,
-        members: board.members,
+        members: board.members.map((m: any) => {
+          return {
+            _id: m.memberId._id,
+            username: m.memberId.username,
+            profile: m.memberId.profile.includes("http")
+              ? m.memberId.profile
+              : BASE_PATH_COMPLETE +
+                path.join(
+                  STATIC_PATH,
+                  PROFILE_PICS_DIR_NAME,
+                  m.memberId.profile
+                ),
+            role: m.role,
+          };
+        }),
         role: role,
         visibility: board.visibility,
         isFavorite: favorite ? true : false,
