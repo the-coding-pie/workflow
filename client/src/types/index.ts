@@ -112,6 +112,7 @@ export interface BoardMemberObj {
     | typeof BOARD_ROLES.ADMIN
     | typeof BOARD_ROLES.NORMAL
     | typeof BOARD_ROLES.OBSERVER;
+  isSpaceAdmin: boolean;
 }
 
 export interface MemberObj {

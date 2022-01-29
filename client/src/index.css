@@ -83,6 +83,10 @@ body {
   body {
     @apply bg-stone-100 text-gray-800;
   }
+
+  button {
+    outline: none !important;
+  }
 }
 
 @layer components {

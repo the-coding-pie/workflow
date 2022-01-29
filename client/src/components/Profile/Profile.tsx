@@ -15,6 +15,7 @@ const Profile = ({ src, alt, isAdmin, classes, onClick }: Props) => {
     <div className="relative">
       {src ? (
         <img
+          referrerPolicy="no-referrer"
           className={`w-8 h-8 rounded-full ${classes ? classes : ""}`}
           onClick={onClick}
           src={src}
@@ -30,9 +31,14 @@ const Profile = ({ src, alt, isAdmin, classes, onClick }: Props) => {
       )}
 
       {isAdmin && (
-        <img src={AdminIcon} alt="admin-indicator" className="absolute bottom-0 right-0" style={{
-          width: "11px"
-        }} />
+        <img
+          src={AdminIcon}
+          alt="admin-indicator"
+          className="absolute bottom-0 right-0"
+          style={{
+            width: "11px",
+          }}
+        />
       )}
     </div>
   );

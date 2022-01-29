@@ -11,6 +11,9 @@ import BoardName from "../../../components/BoardName/BoardName";
 import BoardVisibilityDropdown from "../../../components/BoardVisibilityDropdown/BoardVisibilityDropdown";
 import CustomReactToolTip from "../../../components/CustomReactToolTip/CustomReactToolTip";
 import Error from "../../../components/Error/Error";
+import HorizontalSeparator from "../../../components/HorizontalSeparator/HorizontalSeparator";
+import InviteBtn from "../../../components/InviteBtn/InviteBtn";
+import JoinBtn from "../../../components/JoinBtn/JoinBtn";
 import Loader from "../../../components/Loader/Loader";
 import UtilityBtn from "../../../components/UtilityBtn/UtilityBtn";
 import { RootState } from "../../../redux/app";
@@ -28,6 +31,7 @@ const BoardDetail = () => {
   const dispatch = useDispatch();
 
   const { show } = useSelector((state: RootState) => state.sidebar);
+  const { user } = useSelector((state: RootState) => state.auth);
 
   const queryClient = useQueryClient();
 
@@ -358,6 +362,8 @@ const BoardDetail = () => {
                 )}
               </div>
 
+              <HorizontalSeparator />
+
               <div
                 data-tip="Space name"
                 data-for="board-detail-space-name"
@@ -369,6 +375,8 @@ const BoardDetail = () => {
                   id="board-detail-space-name"
                 />
               </div>
+
+              <HorizontalSeparator />
 
               <div className="board-visibility">
                 {board.role === BOARD_ROLES.ADMIN ? (
@@ -391,7 +399,28 @@ const BoardDetail = () => {
                 )}
               </div>
 
-              <BoardMembers />
+              <HorizontalSeparator />
+
+              <BoardMembers role={board.role} members={board.members} />
+
+              {board.role === BOARD_ROLES.ADMIN && (
+                <>
+                  <InviteBtn />
+                  {!board.members.find((m: any) => m._id === user!._id) && (
+                    <JoinBtn />
+                  )}
+                </>
+              )}
+
+              {board.role === BOARD_ROLES.NORMAL && (
+                <>
+                  {!board.members.find((m: any) => m._id === user!._id) ? (
+                    <JoinBtn />
+                  ) : (
+                    <InviteBtn />
+                  )}
+                </>
+              )}
             </header>
           </div>
         </div>

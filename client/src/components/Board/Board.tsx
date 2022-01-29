@@ -33,7 +33,6 @@ const Board = ({ board, spaceId }: Props) => {
         const { data } = response.data;
 
         if (response.status === 201) {
-          // edit this board cache inside space boards
           if (queryClient.getQueryData(["getBoard", boardId])) {
             queryClient.setQueriesData(
               ["getBoard", boardId],
@@ -47,6 +46,7 @@ const Board = ({ board, spaceId }: Props) => {
             );
           }
 
+          // edit this board cache inside space boards
           queryClient.setQueryData(
             ["getSpaceBoards", spaceId],
             (oldData: any) => {
