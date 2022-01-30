@@ -269,7 +269,9 @@ const RoleDropDown = ({
             ))}
         </div>
       ) : (
-        <div className="px-3 py-2 rounded bg-slate-200 w-24 h-8"></div>
+        <div className="px-3 py-2 rounded bg-slate-200 w-24 h-8">
+          No roles found!
+        </div>
       )}
     </div>
   );

@@ -312,9 +312,9 @@ const BoardDetail = () => {
             backgroundBlendMode: "overlay",
           }}
         >
-          <div className="board-content w-full h-screen overflow-y-hidden overflow-x-auto">
+          <div className="board-content w-full h-screen text-sm overflow-y-hidden overflow-x-auto">
             <header
-              className={`board-header px-5 py-2 flex items-center gap-x-4 fixed top-14 ${
+              className={`board-header px-5 py-2 noselect flex items-center gap-x-4 fixed top-14 ${
                 show ? "left-60" : "left-0"
               } right-0 mb-14`}
             >
