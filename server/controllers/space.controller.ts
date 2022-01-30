@@ -1115,7 +1115,7 @@ export const addSpaceMembers = async (req: any, res: Response) => {
       });
     }
 
-    // // now we can asssure, we have some valid _id(s)
+    // now we can asssure, we have some valid _id(s)
 
     // now we have space _id & memberId(s)
     // check if the space if valid + the current user is atleast a member in it
