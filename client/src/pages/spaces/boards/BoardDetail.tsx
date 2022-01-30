@@ -1,12 +1,13 @@
 import { AxiosError } from "axios";
-import React, { useCallback } from "react";
-import { HiOutlineStar } from "react-icons/hi";
+import React, { useCallback, useState } from "react";
+import { HiDotsHorizontal, HiOutlineStar } from "react-icons/hi";
 import { useQuery, useQueryClient } from "react-query";
 import { useDispatch, useSelector } from "react-redux";
 import { Navigate, useNavigate, useParams } from "react-router-dom";
 import ReactTooltip from "react-tooltip";
 import axiosInstance from "../../../axiosInstance";
 import BoardMembers from "../../../components/BoardMembers/BoardMembers";
+import BoardMenu from "../../../components/BoardMenu/BoardMenu";
 import BoardName from "../../../components/BoardName/BoardName";
 import BoardVisibilityDropdown from "../../../components/BoardVisibilityDropdown/BoardVisibilityDropdown";
 import CustomReactToolTip from "../../../components/CustomReactToolTip/CustomReactToolTip";
@@ -32,6 +33,8 @@ const BoardDetail = () => {
 
   const { show } = useSelector((state: RootState) => state.sidebar);
   const { user } = useSelector((state: RootState) => state.auth);
+
+  const [showMenu, setShowMenu] = useState(false);
 
   const queryClient = useQueryClient();
 
@@ -314,115 +317,129 @@ const BoardDetail = () => {
         >
           <div className="board-content w-full h-screen text-sm overflow-y-hidden overflow-x-auto">
             <header
-              className={`board-header px-5 py-2 noselect flex items-center gap-x-4 fixed top-14 ${
+              className={`board-header px-5 py-2 noselect flex items-center justify-between fixed top-14 ${
                 show ? "left-60" : "left-0"
               } right-0 mb-14`}
             >
-              {board.role === BOARD_ROLES.ADMIN ? (
-                <BoardName initialValue={board.name} />
-              ) : (
-                <div
-                  data-tip="Board name"
-                  data-for="board-detail-board-name"
-                  className="board-name bg-slate-50 shadow rounded cursor-default px-2 py-1.5 noselect"
-                >
-                  {board.name}
-                  <CustomReactToolTip
-                    place="bottom"
-                    id="board-detail-board-name"
-                  />
-                </div>
-              )}
-
-              <div className="isfavorite">
-                {board.isFavorite ? (
-                  <UtilityBtn
-                    Icon={HiOutlineStar}
-                    label="Unfavorite"
-                    iconFillColor="#fbbf24"
-                    iconColor="#fbbf24"
-                    onClick={() =>
-                      removeFavorite(
-                        board.favoriteId!,
-                        board._id,
-                        board.space._id
-                      )
-                    }
-                    uniqueId="board-detail-unfavorite"
-                    classes="bg-slate-50 shadow p-2 rounded text-sm"
-                  />
-                ) : (
-                  <UtilityBtn
-                    Icon={HiOutlineStar}
-                    uniqueId="board-detail-favorite"
-                    label="Favorite"
-                    classes="bg-slate-50 shadow p-2 rounded text-sm"
-                    onClick={() => addToFavorite(board._id, board.space._id)}
-                  />
-                )}
-              </div>
-
-              <HorizontalSeparator />
-
-              <div
-                data-tip="Space name"
-                data-for="board-detail-space-name"
-                className="space-name bg-slate-50 rounded px-2 py-1.5 cursor-default noselect"
-              >
-                {board.space.name}
-                <CustomReactToolTip
-                  place="bottom"
-                  id="board-detail-space-name"
-                />
-              </div>
-
-              <HorizontalSeparator />
-
-              <div className="board-visibility">
+              <div className="left flex items-center gap-x-4">
                 {board.role === BOARD_ROLES.ADMIN ? (
-                  <BoardVisibilityDropdown
-                    options={boardVisibilityOptions}
-                    visibility={board.visibility}
-                  />
+                  <BoardName initialValue={board.name} />
                 ) : (
                   <div
-                    data-tip="Board visibility"
-                    data-for="board-detail-board-visibility"
-                    className="rounded bg-stone-50 px-2 py-1.5 cursor-default noselect"
+                    data-tip="Board name"
+                    data-for="board-detail-board-name"
+                    className="board-name bg-slate-50 shadow rounded cursor-default px-2 py-1.5 noselect"
                   >
-                    {board.visibility}
+                    {board.name}
                     <CustomReactToolTip
                       place="bottom"
-                      id="board-detail-board-visibility"
+                      id="board-detail-board-name"
                     />
                   </div>
                 )}
-              </div>
 
-              <HorizontalSeparator />
-
-              <BoardMembers role={board.role} members={board.members} />
-
-              {board.role === BOARD_ROLES.ADMIN && (
-                <>
-                  <InviteBtn />
-                  {!board.members.find((m: any) => m._id === user!._id) && (
-                    <JoinBtn />
-                  )}
-                </>
-              )}
-
-              {board.role === BOARD_ROLES.NORMAL && (
-                <>
-                  {!board.members.find((m: any) => m._id === user!._id) ? (
-                    <JoinBtn />
+                <div className="isfavorite">
+                  {board.isFavorite ? (
+                    <UtilityBtn
+                      Icon={HiOutlineStar}
+                      label="Unfavorite"
+                      iconFillColor="#fbbf24"
+                      iconColor="#fbbf24"
+                      onClick={() =>
+                        removeFavorite(
+                          board.favoriteId!,
+                          board._id,
+                          board.space._id
+                        )
+                      }
+                      uniqueId="board-detail-unfavorite"
+                      classes="bg-slate-50 shadow p-2 rounded text-sm"
+                    />
                   ) : (
-                    <InviteBtn />
+                    <UtilityBtn
+                      Icon={HiOutlineStar}
+                      uniqueId="board-detail-favorite"
+                      label="Favorite"
+                      classes="bg-slate-50 shadow p-2 rounded text-sm"
+                      onClick={() => addToFavorite(board._id, board.space._id)}
+                    />
                   )}
-                </>
-              )}
+                </div>
+
+                <HorizontalSeparator />
+
+                <div
+                  data-tip="Space name"
+                  data-for="board-detail-space-name"
+                  className="space-name bg-slate-50 rounded px-2 py-1.5 cursor-default noselect"
+                >
+                  {board.space.name}
+                  <CustomReactToolTip
+                    place="bottom"
+                    id="board-detail-space-name"
+                  />
+                </div>
+
+                <HorizontalSeparator />
+
+                <div className="board-visibility">
+                  {board.role === BOARD_ROLES.ADMIN ? (
+                    <BoardVisibilityDropdown
+                      options={boardVisibilityOptions}
+                      visibility={board.visibility}
+                    />
+                  ) : (
+                    <div
+                      data-tip="Board visibility"
+                      data-for="board-detail-board-visibility"
+                      className="rounded bg-stone-50 px-2 py-1.5 cursor-default noselect"
+                    >
+                      {board.visibility}
+                      <CustomReactToolTip
+                        place="bottom"
+                        id="board-detail-board-visibility"
+                      />
+                    </div>
+                  )}
+                </div>
+
+                <HorizontalSeparator />
+
+                <BoardMembers role={board.role} members={board.members} />
+
+                {board.role === BOARD_ROLES.ADMIN && (
+                  <>
+                    <InviteBtn />
+                    {!board.members.find((m: any) => m._id === user!._id) && (
+                      <JoinBtn />
+                    )}
+                  </>
+                )}
+
+                {board.role === BOARD_ROLES.NORMAL && (
+                  <>
+                    {!board.members.find((m: any) => m._id === user!._id) ? (
+                      <JoinBtn />
+                    ) : (
+                      <InviteBtn />
+                    )}
+                  </>
+                )}
+              </div>
+              <div className="right flex items-center gap-x-4">
+                <button
+                  onClick={() => setShowMenu((prevValue) => !prevValue)}
+                  className="flex items-center bg-slate-50 px-2 py-1.5 rounded"
+                >
+                  <HiDotsHorizontal className="mr-2" size={14} />
+                  Show Menu
+                </button>
+              </div>
             </header>
           </div>
+          {showMenu && (
+            <BoardMenu myRole={board.role} setShowMenu={setShowMenu} />
+          )}
         </div>
       )}
     </div>
