@@ -1,10 +1,15 @@
 import React, { useState } from "react";
 import { MdClose } from "react-icons/md";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import useClose from "../../hooks/useClose";
 import { RootState } from "../../redux/app";
+import { showModal } from "../../redux/features/modalSlice";
 import { BoardMemberObj } from "../../types";
-import { BOARD_ROLES } from "../../types/constants";
+import {
+  BOARD_ROLES,
+  CONFIRM_LEAVE_BOARD_MODAL,
+  CONFIRM_REMOVE_BOARD_MEMBER_MODAL,
+} from "../../types/constants";
 import Profile from "../Profile/Profile";
 import BoardRoleDropdown from "./BoardRoleDropdown";
 
@@ -18,6 +23,8 @@ interface Props {
 }
 
 const BoardMember = ({ member, boardAdmins, myRole }: Props) => {
+  const dispatch = useDispatch();
+
   const { user } = useSelector((state: RootState) => state.auth);
 
   const rolesOptions = [
@@ -98,6 +105,16 @@ const BoardMember = ({ member, boardAdmins, myRole }: Props) => {
                 {member._id === user!._id ? (
                   <li>
                     <button
+                      onClick={() => {
+                        setShowOptions(false);
+                        dispatch(
+                          showModal({
+                            modalType: CONFIRM_LEAVE_BOARD_MODAL,
+                            modalProps: {},
+                            modalTitle: "Are you sure want to leave the board?",
+                          })
+                        );
+                      }}
                       disabled={isMeOnlyAdmin}
                       className="disabled:cursor-not-allowed disabled:text-slate-400 disabled:hover:bg-white hover:bg-slate-200 w-full text-left px-3 py-1.5"
                     >
@@ -107,7 +124,20 @@ const BoardMember = ({ member, boardAdmins, myRole }: Props) => {
                 ) : (
                   myRole === BOARD_ROLES.ADMIN && (
                     <li>
-                      <button className="disabled:cursor-not-allowed disabled:text-slate-400 disabled:hover:bg-white hover:bg-slate-200 w-full text-left px-3 py-1.5">
+                      <button
+                        onClick={() => {
+                          setShowOptions(false);
+                          dispatch(
+                            showModal({
+                              modalType: CONFIRM_REMOVE_BOARD_MEMBER_MODAL,
+                              modalProps: {},
+                              modalTitle:
+                                "Are you sure want to remove board member?",
+                            })
+                          );
+                        }}
+                        className="disabled:cursor-not-allowed disabled:text-slate-400 disabled:hover:bg-white hover:bg-slate-200 w-full text-left px-3 py-1.5"
+                      >
                         Remove from board
                       </button>
                     </li>

@@ -6,7 +6,9 @@ import { hideModal } from "../../redux/features/modalSlice";
 import { ModalObj } from "../../types";
 import {
   CONFIRM_DELETE_SPACE_MODAL,
+  CONFIRM_LEAVE_BOARD_MODAL,
   CONFIRM_LEAVE_SPACE_MODAL,
+  CONFIRM_REMOVE_BOARD_MEMBER_MODAL,
   CONFIRM_REMOVE_SPACE_MEMBER_MODAL,
   CREATE_BOARD_MODAL,
   CREATE_SPACE_MODAL,
@@ -18,6 +20,8 @@ import InviteSpaceMemberModal from "../ModalComponents/InviteSpaceMemberModal";
 import RemoveMemberSpaceConfirmationModal from "../ModalComponents/RemoveMemberSpaceConfirmationModal";
 import LeaveSpaceConfirmationModal from "../ModalComponents/LeaveSpaceConfirmationModal";
 import DeleteSpaceConfirmationModal from "../ModalComponents/DeleteSpaceConfirmationModal";
+import LeaveBoardConfirmationModal from "../ModalComponents/LeaveBoardConfirmationModal";
+import RemoveMemberBoardConfirmationModal from "../ModalComponents/RemoveMemberBoardConfirmationModal";
 
 interface Props extends ModalObj {}
 
@@ -57,6 +61,12 @@ const Modal = ({
       break;
     case CONFIRM_DELETE_SPACE_MODAL:
       Component = DeleteSpaceConfirmationModal;
+      break;
+    case CONFIRM_LEAVE_BOARD_MODAL:
+      Component = LeaveBoardConfirmationModal;
+      break;
+    case CONFIRM_REMOVE_BOARD_MEMBER_MODAL:
+      Component = RemoveMemberBoardConfirmationModal;
       break;
     default:
       Component = null;
