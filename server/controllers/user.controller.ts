@@ -12,6 +12,7 @@ import User from "../models/user.model";
 import Space from "../models/space.model";
 import mongoose from "mongoose";
 import { SPACE_MEMBER_ROLES } from "../types/constants";
+import Board from "../models/board.model";
 
 // DELETE /users
 export const deleteCurrentUser = async (req: any, res: Response) => {
@@ -184,6 +185,91 @@ export const searchUser = async (req: any, res: Response) => {
     res.send({
       success: true,
       data: otherUsers.map((user) => {
+        return {
+          ...user,
+          profile: user.profile.includes("http")
+            ? user.profile
+            : BASE_PATH_COMPLETE +
+              path.join(STATIC_PATH, PROFILE_PICS_DIR_NAME, user.profile),
+        };
+      }),
+      message: "",
+      statusCode: 200,
+    });
+  } catch {
+    res.status(500).send({
+      success: false,
+      data: {},
+      message: "Oops, something went wrong!",
+      statusCode: 500,
+    });
+  }
+};
+
+// GET /users/search/board?q=query search users
+export const searchUserBoard = async (req: any, res: Response) => {
+  try {
+    const { q, boardId } = req.query;
+
+    if (!q) {
+      return res.status(400).send({
+        success: false,
+        data: {},
+        message: "Query string is required",
+        statusCode: 400,
+      });
+    }
+
+    // find other users including current searching user
+    let users = await User.find({
+      $and: [
+        {
+          $or: [
+            { username: { $regex: q, $options: "i" } },
+            { email: { $regex: q, $options: "i" } },
+          ],
+        },
+        {
+          emailVerified: true,
+        },
+      ],
+    })
+      .lean()
+      .select("_id username profile");
+
+    // if valid spaceId
+    if (boardId && mongoose.isValidObjectId(boardId)) {
+      // has security drawback, bcz if you are not a member of this board or space, still you will be able to see who are present in this space and who is not
+      const board = await Board.findOne({
+        _id: boardId,
+      })
+        .select("_id members")
+        .lean();
+
+      if (board && board.members.length > 0) {
+        users = users.map((u: any) => {
+          if (
+            board.members
+              .map((m: any) => m.memberId.toString())
+              .includes(u._id.toString())
+          ) {
+            return {
+              ...u,
+              isMember: true,
+            };
+          }
+
+          return {
+            ...u,
+            isMember: false,
+          };
+        });
+      }
+    }
+
+    res.send({
+      success: true,
+      data: users.map((user) => {
         return {
           ...user,
           profile: user.profile.includes("http")

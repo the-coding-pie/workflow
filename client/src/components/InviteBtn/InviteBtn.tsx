@@ -26,10 +26,10 @@ interface MembersObj {
 }
 
 interface Props {
-  spaceId: string;
+  boardId: string;
 }
 
-const InviteBtn = () => {
+const InviteBtn = ({ boardId }: Props) => {
   const [showDropdown, setShowDropdown] = useState(false);
 
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -79,7 +79,7 @@ const InviteBtn = () => {
   const searchUsers = async (query: string) => {
     if (query) {
       const response = await axiosInstance.get(
-        `/users/search?q=${query}&spaceId=${""}`
+        `/users/search/board?q=${query}&boardId=${boardId}`
       );
 
       const { data } = response.data;

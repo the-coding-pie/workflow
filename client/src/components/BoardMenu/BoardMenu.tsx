@@ -101,6 +101,8 @@ const BoardMenu = ({ setShowMenu, myRole }: Props) => {
               </button>
             </li>
           )}
+
+          {myRole === BOARD_ROLES.ADMIN && <li className="w-full px-3 py-3 text-left hover:bg-slate-200 text-red-500 cursor-pointer">Delete board</li>}
         </ul>
       ) : (
         <div className="option">{component && component}</div>

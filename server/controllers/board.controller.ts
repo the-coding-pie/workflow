@@ -16,6 +16,8 @@ import {
   STATIC_PATH,
 } from "../config";
 import path from "path";
+import { checkAllString, getUniqueValues } from "../utils/helpers";
+import User from "../models/user.model";
 
 // POST /boards -> create new board
 export const createBoard = async (req: any, res: Response) => {
@@ -389,6 +391,261 @@ export const getBoard = async (req: any, res: Response) => {
         favoriteId: favorite && favorite._id,
       },
       message: "",
+      statusCode: 200,
+    });
+  } catch (err) {
+    res.status(500).send({
+      success: false,
+      data: {},
+      message: "Oops, something went wrong!",
+      statusCode: 500,
+    });
+  }
+};
+
+// PUT /boards/members/:id/bulk -> invite one or more members to the board
+export const addBoardMembers = async (req: any, res: Response) => {
+  try {
+    const { id } = req.params;
+    const { members, role } = req.body;
+
+    let uniqueMemberIds: string[] = [];
+
+    if (!id) {
+      return res.status(400).send({
+        success: false,
+        data: {},
+        message: "board _id is required",
+        statusCode: 400,
+      });
+    } else if (!mongoose.isValidObjectId(id)) {
+      return res.status(400).send({
+        success: false,
+        data: {},
+        message: "Invalid board _id",
+        statusCode: 400,
+      });
+    }
+
+    if (!role) {
+      return res.status(400).send({
+        success: false,
+        data: {},
+        message: "role is required",
+        statusCode: 400,
+      });
+    } else if (
+      ![BOARD_MEMBER_ROLES.NORMAL, BOARD_MEMBER_ROLES.OBSERVER].includes(role)
+    ) {
+      return res.status(400).send({
+        success: false,
+        data: {},
+        message: "role should be either NORMAL or OBSERVER",
+        statusCode: 400,
+      });
+    }
+
+    if (!members) {
+      // board members validation
+      return res.status(400).send({
+        success: false,
+        data: {},
+        message: "members array is required",
+        statusCode: 400,
+      });
+    } else if (!Array.isArray(members) || !checkAllString(members)) {
+      return res.status(400).send({
+        success: false,
+        data: {},
+        message: "members value should be an array of _id(s)",
+        statusCode: 400,
+      });
+    } else if (members.length === 0) {
+      return res.status(400).send({
+        success: false,
+        data: {},
+        message: "Please provide atleast a member _id inside array",
+        statusCode: 400,
+      });
+    } else if (members.find((m) => !mongoose.isValidObjectId(m))) {
+      return res.status(400).send({
+        success: false,
+        data: {},
+        message: "Invalid member _id(s)",
+        statusCode: 400,
+      });
+    }
+
+    // now we can trust, the members is an array and has atleast one valid _id
+    // extract unique values
+    uniqueMemberIds = getUniqueValues<string>(members);
+
+    // remove empty strings from array
+    uniqueMemberIds = uniqueMemberIds.filter((id) => id);
+
+    if (uniqueMemberIds.length === 0) {
+      return res.status(400).send({
+        success: false,
+        data: {},
+        message: "Invalid member _id(s)",
+        statusCode: 400,
+      });
+    }
+
+    // now we can asssure, we have some valid _id(s)
+
+    // check a board with that _id exists
+    const board = await Board.findOne({ _id: id })
+      .select("_id spaceId members visibility")
+      .populate({
+        path: "spaceId",
+        select: "_id name members",
+      });
+
+    if (!board) {
+      return res.status(404).send({
+        success: false,
+        data: {},
+        message: "Board not found!",
+        statusCode: 404,
+      });
+    }
+    
+    const space = await Space.findOne({ _id: board.spaceId._id }).select(
+      "_id members"
+    );
+
+    // next check if the current user has the rights to do that
+    const boardMember = board.members.find(
+      (m: any) => m.memberId.toString() === req.user._id.toString()
+    );
+    const spaceMember = board.spaceId.members.find(
+      (m: any) => m.memberId.toString() === req.user._id.toString()
+    );
+
+    // conditions necessary for inviting
+    // you should be either:
+    // board ADMIN / NORMAL
+    // space ADMIN / NORMAL + board PUBLIC
+
+    if (
+      (!boardMember && !spaceMember) ||
+      (!boardMember &&
+        spaceMember &&
+        spaceMember.role === SPACE_MEMBER_ROLES.GUEST) ||
+      (!boardMember &&
+        spaceMember &&
+        spaceMember.role === SPACE_MEMBER_ROLES.NORMAL &&
+        board.visibility === BOARD_VISIBILITY.PRIVATE)
+    ) {
+      // you can't invite other users
+      return res.status(404).send({
+        success: false,
+        data: {},
+        message: "Board not found",
+        statusCode: 404,
+      });
+    }
+
+    // you are now eligible to see the board
+    // now you should be either a boardMember or spaceMember
+    // now check if you have the rights to invite
+    if (
+      boardMember &&
+      ![BOARD_MEMBER_ROLES.ADMIN, BOARD_MEMBER_ROLES.NORMAL].includes(
+        boardMember.role
+      )
+    ) {
+      // you can't invite other users
+      return res.status(403).send({
+        success: false,
+        data: {},
+        message: "You don't have the rights to invite users",
+        statusCode: 403,
+      });
+    }
+
+    // if they are not board member, but space NORMAL member and board is PUBLIC
+    if (!boardMember && spaceMember.role === SPACE_MEMBER_ROLES.NORMAL) {
+      // you must join first to invite a user
+      return res.status(403).send({
+        success: false,
+        data: {},
+        message: "You must join the board first to invite members",
+        statusCode: 403,
+      });
+    }
+
+    // if you reached this far, that means:
+    // you are either a SPACE ADMIN / BOARD ADMIN / BOARD NORMAL
+    const alreadyBoardMembers = board.members.map((m: any) =>
+      m.memberId.toString()
+    );
+    const spaceAdmins = board.spaceId.members
+      .filter((m: any) => m.role === SPACE_MEMBER_ROLES.ADMIN)
+      .map((m: any) => m.memberId.toString());
+
+    // filter out users who are already a board member
+    uniqueMemberIds = uniqueMemberIds.filter(
+      (id: any) => !alreadyBoardMembers.includes(id)
+    );
+
+    // now you have a fresh user id(s) who are not a part of this board
+    let validMembers = await User.find({
+      _id: { $in: uniqueMemberIds },
+      emailVerified: true,
+    })
+      .select("_id")
+      .lean();
+
+    // array of string _id(s)
+    validMembers = validMembers.map((m: any) => m._id.toString());
+
+    // valid unique member _id(s) who are not part of board yet
+    const valuesToInsert = validMembers.map((id: any) => {
+      return {
+        memberId: id,
+        role: spaceAdmins.includes(id) ? BOARD_MEMBER_ROLES.ADMIN : role,
+        fallbackRole: spaceAdmins.includes(id)
+          ? BOARD_MEMBER_ROLES.ADMIN
+          : role,
+      };
+    });
+
+    // push them to the board members
+    if (valuesToInsert.length > 0) {
+      board.members.push(...valuesToInsert);
+    }
+
+    // changes to space
+    // add whoever is not a part of space yet as SPACE GUEST
+    const spaceMembers = board.spaceId.members.map((m: any) =>
+      m.memberId.toString()
+    );
+
+    const validNotSpaceMembersYet = validMembers.filter(
+      (id: any) => !spaceMembers.includes(id)
+    );
+
+    // add them as GUEST in space
+    const valuesToInsertSpace = validNotSpaceMembersYet.map((m: any) => {
+      return {
+        memberId: m,
+        role: SPACE_MEMBER_ROLES.GUEST,
+      };
+    });
+
+    if (valuesToInsertSpace.length > 0) {
+      space.members.push(...valuesToInsertSpace);
+    }
+
+    await board.save();
+    await space.save();
+
+    return res.send({
+      success: true,
+      data: {},
+      message: "Members added to the board",
       statusCode: 200,
     });
   } catch (err) {
