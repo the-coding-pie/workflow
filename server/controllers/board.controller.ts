@@ -1006,7 +1006,42 @@ export const removeMember = async (req: any, res: Response) => {
       (m: any) => m.memberId.toString() !== targetMember.memberId.toString()
     );
 
+    // check if the target member is a GUEST user of the space
+    // if so, if he is only in this board in this board, then remove him from the space as well
+    const IsUserSpaceGuest = board.spaceId.members.find(
+      (m: any) =>
+        m.memberId.toString() === targetMember.memberId.toString() &&
+        m.role === SPACE_MEMBER_ROLES.GUEST
+    );
+
+    if (IsUserSpaceGuest) {
+      // check if he is a member of any other boards in this space
+      // if so do nothing
+      // or else, if he is only member of this board only, then remove him as a GUEST from space
+
+      // find all other boards in this space in which the GUEST member we are going to remove is part of
+      const partOfOtherBoards = await Board.find({
+        _id: {
+          $ne: board._id,
+        },
+        spaceId: board.spaceId._id,
+        members: {
+          $elemMatch: {
+            memberId: targetMember.memberId,
+          },
+        },
+      });
+
+      if (partOfOtherBoards.length === 0) {
+        //  the GUEST is not part of other boards, he is only part of this board
+        board.spaceId.members = board.spaceId.members.filter(
+          (m: any) => m.memberId.toString() !== targetMember.memberId.toString()
+        );
+      }
+    }
+
     await board.save();
+    await board.spaceId.save();
 
     res.send({
       success: true,
@@ -1015,6 +1050,7 @@ export const removeMember = async (req: any, res: Response) => {
       statusCode: 200,
     });
   } catch (err) {
+    console.log(err);
     res.status(500).send({
       success: false,
       data: {},
