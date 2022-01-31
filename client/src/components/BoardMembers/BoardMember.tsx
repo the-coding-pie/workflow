@@ -125,7 +125,6 @@ const BoardMember = ({ member, boardAdmins, myRole }: Props) => {
                   myRole === BOARD_ROLES.ADMIN && (
                     <li>
                       <button
-                        // disabled={isHeOnlyBoardAdmin}
                         onClick={() => {
                           setShowOptions(false);
                           dispatch(

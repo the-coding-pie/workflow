@@ -854,7 +854,167 @@ export const updateMemberRole = async (req: any, res: Response) => {
       statusCode: 200,
     });
   } catch (err) {
-    console.log(err);
+    res.status(500).send({
+      success: false,
+      data: {},
+      message: "Oops, something went wrong!",
+      statusCode: 500,
+    });
+  }
+};
+
+// DELETE /boards/:id/members/:memberId -> remove from this board
+export const removeMember = async (req: any, res: Response) => {
+  try {
+    const { id, memberId } = req.params;
+
+    if (!id) {
+      return res.status(400).send({
+        success: false,
+        data: {},
+        message: "board _id is required",
+        statusCode: 400,
+      });
+    } else if (!mongoose.isValidObjectId(id)) {
+      return res.status(400).send({
+        success: false,
+        data: {},
+        message: "Invalid board _id",
+        statusCode: 400,
+      });
+    }
+
+    if (!memberId) {
+      return res.status(400).send({
+        success: false,
+        data: {},
+        message: "memberId is required",
+        statusCode: 400,
+      });
+    } else if (!mongoose.isValidObjectId(memberId)) {
+      return res.status(400).send({
+        success: false,
+        data: {},
+        message: "Invalid memberId",
+        statusCode: 400,
+      });
+    }
+
+    // now we have the board _id & memberId
+    // check if the board is valid & check current user has the rights to do this
+    const board = await Board.findOne({ _id: id })
+      .select("_id spaceId members visibility")
+      .populate({
+        path: "spaceId",
+        select: "_id name members",
+      });
+
+    if (!board) {
+      return res.status(404).send({
+        success: false,
+        data: {},
+        message: "Board not found!",
+        statusCode: 404,
+      });
+    }
+
+    // check whether this board is visible to the current user first
+    const boardMember = board.members.find(
+      (m: any) => m.memberId.toString() === req.user._id.toString()
+    );
+    const spaceMember = board.spaceId.members.find(
+      (m: any) => m.memberId.toString() === req.user._id.toString()
+    );
+
+    if (
+      (!boardMember && !spaceMember) ||
+      (!boardMember &&
+        spaceMember &&
+        spaceMember.role === SPACE_MEMBER_ROLES.GUEST) ||
+      (!boardMember &&
+        spaceMember &&
+        spaceMember.role === SPACE_MEMBER_ROLES.NORMAL &&
+        board.visibility === BOARD_VISIBILITY.PRIVATE)
+    ) {
+      // you can't see this board at all
+      return res.status(404).send({
+        success: false,
+        data: {},
+        message: "Board not found",
+        statusCode: 404,
+      });
+    }
+
+    // now it is clear that the current user can see this board
+    // but that's not enough for the current user to update the member's role
+    // only board ADMIN or space ADMIN can do this
+    if (
+      !(boardMember && boardMember.role === BOARD_MEMBER_ROLES.ADMIN) &&
+      !(spaceMember && spaceMember.role === SPACE_MEMBER_ROLES.ADMIN)
+    ) {
+      return res.status(403).send({
+        success: false,
+        data: {},
+        message: "You don't have permission to perform this action",
+        statusCode: 403,
+      });
+    }
+
+    // now you have the rights to remove a board member
+    // check if the intended user exists as board member
+    const targetMember = board.members.find(
+      (m: any) => m.memberId.toString() === memberId
+    );
+
+    if (!targetMember) {
+      return res.status(404).send({
+        success: false,
+        data: {},
+        message: "Such a member doesn't exists on this board",
+        statusCode: 404,
+      });
+    }
+
+    if (req.user._id.toString() === targetMember.memberId.toString()) {
+      return res.status(403).send({
+        success: false,
+        data: {},
+        message: "You can't remove yourself. Try leaving.",
+        statusCode: 403,
+      });
+    }
+
+    // now understood, you are a space ADMIN or board ADMIN and that target member is not you
+    const boardAdmins = board.members
+      .filter((m: any) => m.role === BOARD_MEMBER_ROLES.ADMIN)
+      .map((m: any) => m.memberId.toString());
+
+    // if this person is the only board ADMIN, that means you are not a board ADMIN but a space ADMIN
+    // you can simply block this op or make you as a board ADMIN by replacing him (because you are a space ADMIN)
+    // i am going to do the latter
+    if (boardAdmins.length === 1 && boardAdmins[0] === memberId) {
+      // replace you (space ADMIN as board ADMIN)
+      board.members.push({
+        memberId: req.user._id,
+        role: BOARD_MEMBER_ROLES.ADMIN,
+        fallbackRole: BOARD_MEMBER_ROLES.ADMIN,
+      });
+    }
+
+    // 100% op allowed
+    board.members = board.members.filter(
+      (m: any) => m.memberId.toString() !== targetMember.memberId.toString()
+    );
+
+    await board.save();
+
+    res.send({
+      success: true,
+      data: {},
+      message: "Member removed successfully!",
+      statusCode: 200,
+    });
+  } catch (err) {
     res.status(500).send({
       success: false,
       data: {},
