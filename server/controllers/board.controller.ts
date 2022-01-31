@@ -1344,7 +1344,7 @@ export const changeBoardVisibility = async (req: any, res: Response) => {
       return res.status(400).send({
         success: false,
         data: {},
-        message: "visibility is required",
+        message: "newVisibility is required",
         statusCode: 400,
       });
     } else if (
@@ -1355,7 +1355,7 @@ export const changeBoardVisibility = async (req: any, res: Response) => {
       return res.status(400).send({
         success: false,
         data: {},
-        message: "visibility should be either PRIVATE/PUBLIC",
+        message: "newVisibility should be either PRIVATE/PUBLIC",
         statusCode: 400,
       });
     }
