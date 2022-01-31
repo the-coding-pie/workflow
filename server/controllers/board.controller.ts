@@ -1451,3 +1451,389 @@ export const changeBoardVisibility = async (req: any, res: Response) => {
     });
   }
 };
+
+// PUT /boards/:id/name -> update board name
+export const updateBoardName = async (req: any, res: Response) => {
+  try {
+    const { id } = req.params;
+    const { name } = req.body;
+
+    if (!id) {
+      return res.status(400).send({
+        success: false,
+        data: {},
+        message: "board _id is required",
+        statusCode: 400,
+      });
+    } else if (!mongoose.isValidObjectId(id)) {
+      return res.status(400).send({
+        success: false,
+        data: {},
+        message: "Invalid board _id",
+        statusCode: 400,
+      });
+    }
+
+    if (!name) {
+      return res.status(400).send({
+        success: false,
+        data: {},
+        message: "Board name is required",
+        statusCode: 400,
+      });
+    } else if (name.length > 512) {
+      return res.status(400).send({
+        success: false,
+        data: {},
+        message: "Board name should be less than or equal to 512 chars",
+        statusCode: 400,
+      });
+    }
+
+    // now we have the board _id & name
+    // check if the board is valid & check current user has the rights to do this
+    const board = await Board.findOne({ _id: id })
+      .select("_id spaceId members visibility")
+      .populate({
+        path: "spaceId",
+        select: "_id name members",
+      });
+
+    if (!board) {
+      return res.status(404).send({
+        success: false,
+        data: {},
+        message: "Board not found!",
+        statusCode: 404,
+      });
+    }
+
+    // check whether this board is visible to the current user first
+    const boardMember = board.members.find(
+      (m: any) => m.memberId.toString() === req.user._id.toString()
+    );
+    const spaceMember = board.spaceId.members.find(
+      (m: any) => m.memberId.toString() === req.user._id.toString()
+    );
+
+    if (
+      (!boardMember && !spaceMember) ||
+      (!boardMember &&
+        spaceMember &&
+        spaceMember.role === SPACE_MEMBER_ROLES.GUEST) ||
+      (!boardMember &&
+        spaceMember &&
+        spaceMember.role === SPACE_MEMBER_ROLES.NORMAL &&
+        board.visibility === BOARD_VISIBILITY.PRIVATE)
+    ) {
+      // you can't see this board at all
+      return res.status(404).send({
+        success: false,
+        data: {},
+        message: "Board not found",
+        statusCode: 404,
+      });
+    }
+
+    // now it is clear that the current user can see this board
+    // but that's not enough for the current user to update the board's name
+    // only board ADMIN or space ADMIN can do this
+    if (
+      !(boardMember && boardMember.role === BOARD_MEMBER_ROLES.ADMIN) &&
+      !(spaceMember && spaceMember.role === SPACE_MEMBER_ROLES.ADMIN)
+    ) {
+      return res.status(403).send({
+        success: false,
+        data: {},
+        message: "You don't have permission to perform this action",
+        statusCode: 403,
+      });
+    }
+
+    // update board name
+    board.name = validator.escape(name);
+
+    await board.save();
+
+    res.send({
+      success: true,
+      data: {},
+      message: "Board name updated successfully.",
+      statusCode: 200,
+    });
+  } catch (err) {
+    res.status(500).send({
+      success: false,
+      data: {},
+      message: "Oops, something went wrong!",
+      statusCode: 500,
+    });
+  }
+};
+
+// PUT /boards/:id/desc -> update board description
+export const updateBoardDesc = async (req: any, res: Response) => {
+  try {
+    const { id } = req.params;
+    const { description } = req.body;
+
+    if (!id) {
+      return res.status(400).send({
+        success: false,
+        data: {},
+        message: "board _id is required",
+        statusCode: 400,
+      });
+    } else if (!mongoose.isValidObjectId(id)) {
+      return res.status(400).send({
+        success: false,
+        data: {},
+        message: "Invalid board _id",
+        statusCode: 400,
+      });
+    }
+
+    if (!Object.keys(req.body).includes("description")) {
+      return res.status(400).send({
+        success: false,
+        data: {},
+        message: "Board description is required",
+        statusCode: 400,
+      });
+    } else if (description.length > 512) {
+      return res.status(400).send({
+        success: false,
+        data: {},
+        message: "Board name should be less than or equal to 512 chars",
+        statusCode: 400,
+      });
+    }
+
+    // now we have the board _id & description
+    // check if the board is valid & check current user has the rights to do this
+    const board = await Board.findOne({ _id: id })
+      .select("_id spaceId members visibility description")
+      .populate({
+        path: "spaceId",
+        select: "_id name members",
+      });
+
+    if (!board) {
+      return res.status(404).send({
+        success: false,
+        data: {},
+        message: "Board not found!",
+        statusCode: 404,
+      });
+    }
+
+    // check whether this board is visible to the current user first
+    const boardMember = board.members.find(
+      (m: any) => m.memberId.toString() === req.user._id.toString()
+    );
+    const spaceMember = board.spaceId.members.find(
+      (m: any) => m.memberId.toString() === req.user._id.toString()
+    );
+
+    if (
+      (!boardMember && !spaceMember) ||
+      (!boardMember &&
+        spaceMember &&
+        spaceMember.role === SPACE_MEMBER_ROLES.GUEST) ||
+      (!boardMember &&
+        spaceMember &&
+        spaceMember.role === SPACE_MEMBER_ROLES.NORMAL &&
+        board.visibility === BOARD_VISIBILITY.PRIVATE)
+    ) {
+      // you can't see this board at all
+      return res.status(404).send({
+        success: false,
+        data: {},
+        message: "Board not found",
+        statusCode: 404,
+      });
+    }
+
+    // check if you are either a ADMIN / NORMAL
+    if (
+      boardMember &&
+      ![BOARD_MEMBER_ROLES.ADMIN, BOARD_MEMBER_ROLES.NORMAL].includes(
+        boardMember.role
+      )
+    ) {
+      // you can't edit description
+      return res.status(403).send({
+        success: false,
+        data: {},
+        message: "You don't have the rights to edit the description",
+        statusCode: 403,
+      });
+    }
+
+    // now if you are a board member, then you must be ADMIN / NORMAL
+    // else you are a space member and the role must be ADMIN / NORMAL (if board is PUBLIC)
+    board.description = validator.escape(description);
+
+    await board.save();
+
+    return res.status(200).send({
+      success: false,
+      data: {},
+      message: "Board description updated successfully",
+      statusCode: 200,
+    });
+  } catch (err) {
+    res.status(500).send({
+      success: false,
+      data: {},
+      message: "Oops, something went wrong!",
+      statusCode: 500,
+    });
+  }
+};
+
+// PUT /boards/:id/desc -> update board description
+export const updateBoardBackground = async (req: any, res: Response) => {
+  try {
+    const { id } = req.params;
+    const { bgImg, color } = req.body;
+
+    if (!id) {
+      return res.status(400).send({
+        success: false,
+        data: {},
+        message: "board _id is required",
+        statusCode: 400,
+      });
+    } else if (!mongoose.isValidObjectId(id)) {
+      return res.status(400).send({
+        success: false,
+        data: {},
+        message: "Invalid board _id",
+        statusCode: 400,
+      });
+    }
+
+    // bgImg is not necessary, but if it is present, then make sure it is an url
+    if (!Object.keys(req.body).includes("bgImg")) {
+      return res.status(400).send({
+        success: false,
+        data: {},
+        message:
+          "bgImg is required, if no image then please provide an empty string as value",
+        statusCode: 400,
+      });
+    } else if (
+      bgImg &&
+      !validator.isURL(bgImg, {
+        require_protocol: true,
+      })
+    ) {
+      return res.status(400).send({
+        success: false,
+        data: {},
+        message: "Invalid Image URL",
+        statusCode: 400,
+      });
+    }
+
+    // color
+    if (!color) {
+      return res.status(400).send({
+        success: false,
+        data: {},
+        message: "Color cannot be empty",
+        statusCode: 400,
+      });
+    } else if (!color.startsWith("#", 0) || color.length !== 7) {
+      return res.status(400).send({
+        success: false,
+        data: {},
+        message: "Invalid color hex",
+        statusCode: 400,
+      });
+    }
+
+    // now we have the board _id & bgImg & color
+    // check if the board is valid & check current user has the rights to do this
+    const board = await Board.findOne({ _id: id })
+      .select("_id spaceId members visibility color bgImg")
+      .populate({
+        path: "spaceId",
+        select: "_id name members",
+      });
+
+    if (!board) {
+      return res.status(404).send({
+        success: false,
+        data: {},
+        message: "Board not found!",
+        statusCode: 404,
+      });
+    }
+
+    // check whether this board is visible to the current user first
+    const boardMember = board.members.find(
+      (m: any) => m.memberId.toString() === req.user._id.toString()
+    );
+    const spaceMember = board.spaceId.members.find(
+      (m: any) => m.memberId.toString() === req.user._id.toString()
+    );
+
+    if (
+      (!boardMember && !spaceMember) ||
+      (!boardMember &&
+        spaceMember &&
+        spaceMember.role === SPACE_MEMBER_ROLES.GUEST) ||
+      (!boardMember &&
+        spaceMember &&
+        spaceMember.role === SPACE_MEMBER_ROLES.NORMAL &&
+        board.visibility === BOARD_VISIBILITY.PRIVATE)
+    ) {
+      // you can't see this board at all
+      return res.status(404).send({
+        success: false,
+        data: {},
+        message: "Board not found",
+        statusCode: 404,
+      });
+    }
+
+    // check if you are either a ADMIN / NORMAL
+    if (
+      boardMember &&
+      ![BOARD_MEMBER_ROLES.ADMIN, BOARD_MEMBER_ROLES.NORMAL].includes(
+        boardMember.role
+      )
+    ) {
+      // you can't update background
+      return res.status(403).send({
+        success: false,
+        data: {},
+        message: "You don't have the rights to update the background",
+        statusCode: 403,
+      });
+    }
+
+    // now if you are a board member, then you must be ADMIN / NORMAL
+    // else you are a space member and the role must be ADMIN / NORMAL (if board is PUBLIC)
+    board.color = color;
+    board.bgImg = bgImg;
+
+    await board.save();
+
+    return res.status(200).send({
+      success: false,
+      data: {},
+      message: "Board background updated successfully",
+      statusCode: 200,
+    });
+  } catch (err) {
+    res.status(500).send({
+      success: false,
+      data: {},
+      message: "Oops, something went wrong!",
+      statusCode: 500,
+    });
+  }
+};

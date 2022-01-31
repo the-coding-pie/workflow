@@ -47,9 +47,11 @@ const boardSchema = new mongoose.Schema(
       required: false,
       validate: {
         validator: function (value: string) {
-          return validator.isURL(value, {
-            require_protocol: true,
-          });
+          return value
+            ? validator.isURL(value, {
+                require_protocol: true,
+              })
+            : true;
         },
         message: `Invalid Image URL`,
       },

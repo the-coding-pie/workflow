@@ -25,6 +25,7 @@ const ChangeBgMenu = () => {
 
   const handleSubmit = useCallback((boardBg: BoardBGObj) => {
     setIsSubmitting(true);
+    console.log(boardBg)
   }, []);
 
   return (

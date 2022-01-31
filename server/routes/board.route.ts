@@ -14,6 +14,20 @@ boardRouter.put(
   authMiddleware,
   boardController.changeBoardVisibility
 );
+// Protected(Auth) PUT /boards/:id/name -> update board name
+boardRouter.put("/:id/name", authMiddleware, boardController.updateBoardName);
+// Protected(Auth) PUT /boards/:id/description -> update board description
+boardRouter.put(
+  "/:id/description",
+  authMiddleware,
+  boardController.updateBoardDesc
+);
+// Protected(Auth) PUT /boards/:id/background -> update board background
+boardRouter.put(
+  "/:id/background",
+  authMiddleware,
+  boardController.updateBoardBackground
+);
 // Protected(Auth) PUT /boards/:id/members/bulk -> add one or more members to board
 boardRouter.put(
   "/:id/members/bulk",
