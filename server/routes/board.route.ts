@@ -8,6 +8,12 @@ const boardRouter = express.Router();
 boardRouter.post("/", authMiddleware, boardController.createBoard);
 // Protected(Auth) GET /boards/:id -> get board info
 boardRouter.get("/:id", authMiddleware, boardController.getBoard);
+// Protected(Auth) PUT /boards/:id/visibility -> update board visibility
+boardRouter.put(
+  "/:id/visibility",
+  authMiddleware,
+  boardController.changeBoardVisibility
+);
 // Protected(Auth) PUT /boards/:id/members/bulk -> add one or more members to board
 boardRouter.put(
   "/:id/members/bulk",
