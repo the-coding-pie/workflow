@@ -26,5 +26,11 @@ boardRouter.delete(
   authMiddleware,
   boardController.removeMember
 );
+// Protected(Auth) DELETE /boards/:id/members -> remove board member
+boardRouter.delete(
+  "/:id/members",
+  authMiddleware,
+  boardController.leaveFromBoard
+);
 
 export default boardRouter;

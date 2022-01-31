@@ -1050,7 +1050,163 @@ export const removeMember = async (req: any, res: Response) => {
       statusCode: 200,
     });
   } catch (err) {
-    console.log(err);
+    res.status(500).send({
+      success: false,
+      data: {},
+      message: "Oops, something went wrong!",
+      statusCode: 500,
+    });
+  }
+};
+
+// DELETE /boards/:id/members -> leave from board
+export const leaveFromBoard = async (req: any, res: Response) => {
+  try {
+    const { id } = req.params;
+
+    if (!id) {
+      return res.status(400).send({
+        success: false,
+        data: {},
+        message: "board _id is required",
+        statusCode: 400,
+      });
+    } else if (!mongoose.isValidObjectId(id)) {
+      return res.status(400).send({
+        success: false,
+        data: {},
+        message: "Invalid board _id",
+        statusCode: 400,
+      });
+    }
+
+    // now we have the board _id
+    // check if the board is valid & check current user has the rights to do this
+    const board = await Board.findOne({ _id: id })
+      .select("_id spaceId members visibility")
+      .populate({
+        path: "spaceId",
+        select: "_id name members",
+      });
+
+    if (!board) {
+      return res.status(404).send({
+        success: false,
+        data: {},
+        message: "Board not found!",
+        statusCode: 404,
+      });
+    }
+
+    // check whether this board is visible to the current user first
+    const boardMember = board.members.find(
+      (m: any) => m.memberId.toString() === req.user._id.toString()
+    );
+    const spaceMember = board.spaceId.members.find(
+      (m: any) => m.memberId.toString() === req.user._id.toString()
+    );
+
+    if (
+      (!boardMember && !spaceMember) ||
+      (!boardMember &&
+        spaceMember &&
+        spaceMember.role === SPACE_MEMBER_ROLES.GUEST) ||
+      (!boardMember &&
+        spaceMember &&
+        spaceMember.role === SPACE_MEMBER_ROLES.NORMAL &&
+        board.visibility === BOARD_VISIBILITY.PRIVATE)
+    ) {
+      // you can't see this board at all
+      return res.status(404).send({
+        success: false,
+        data: {},
+        message: "Board not found",
+        statusCode: 404,
+      });
+    }
+
+    // now it is clear that the current user can see this board
+    // now check if current user is a member of this board or not
+    const targetMember = board.members.find(
+      (m: any) => m.memberId.toString() === req.user._id.toString()
+    );
+
+    if (!targetMember) {
+      return res.status(403).send({
+        success: false,
+        data: {},
+        message: "You are not a member of this board. In order to leave, you must join first.",
+        statusCode: 403,
+      });
+    }
+
+    // now check if you are the only board ADMIN
+    // if so block the op
+    const boardAdmins = board.members
+      .filter((m: any) => m.role === BOARD_MEMBER_ROLES.ADMIN)
+      .map((m: any) => m.memberId.toString());
+
+    if (
+      boardAdmins.length === 1 &&
+      boardAdmins[0] === targetMember.memberId.toString()
+    ) {
+      return res.status(403).send({
+        success: false,
+        data: {},
+        message:
+          "You can't leave the board, because there must be atleast one admin in the board.",
+        statusCode: 403,
+      });
+    }
+
+    // now you are good to go
+    board.members = board.members.filter(
+      (m: any) => m.memberId.toString() !== targetMember.memberId.toString()
+    );
+    
+    // remove you from space, if you are a GUEST and you are only a member of this board in this space
+    const IsUserSpaceGuest = board.spaceId.members.find(
+      (m: any) =>
+        m.memberId.toString() === targetMember.memberId.toString() &&
+        m.role === SPACE_MEMBER_ROLES.GUEST
+    );
+
+    if (IsUserSpaceGuest) {
+      // check if he is a member of any other boards in this space
+      // if so do nothing
+      // or else, if he is only member of this board only, then remove him as a GUEST from space
+
+      // find all other boards in this space in which the GUEST member we are going to remove is part of
+      const partOfOtherBoards = await Board.find({
+        _id: {
+          $ne: board._id,
+        },
+        spaceId: board.spaceId._id,
+        members: {
+          $elemMatch: {
+            memberId: targetMember.memberId,
+          },
+        },
+      });
+
+      if (partOfOtherBoards.length === 0) {
+        //  the GUEST is not part of other boards, he is only part of this board
+        board.spaceId.members = board.spaceId.members.filter(
+          (m: any) => m.memberId.toString() !== targetMember.memberId.toString()
+        );
+      }
+    }
+
+    await board.save();
+    await board.spaceId.save();
+
+    res.send({
+      success: true,
+      data: {},
+      message: "Removed successfully from Board!",
+      statusCode: 200,
+    });
+  } catch (err) {
     res.status(500).send({
       success: false,
       data: {},
