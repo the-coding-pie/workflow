@@ -510,7 +510,7 @@ export const addBoardMembers = async (req: any, res: Response) => {
         statusCode: 404,
       });
     }
-    
+
     const space = await Space.findOne({ _id: board.spaceId._id }).select(
       "_id members"
     );
@@ -527,7 +527,6 @@ export const addBoardMembers = async (req: any, res: Response) => {
     // you should be either:
     // board ADMIN / NORMAL
     // space ADMIN / NORMAL + board PUBLIC
-
     if (
       (!boardMember && !spaceMember) ||
       (!boardMember &&
@@ -649,6 +648,213 @@ export const addBoardMembers = async (req: any, res: Response) => {
       statusCode: 200,
     });
   } catch (err) {
+    res.status(500).send({
+      success: false,
+      data: {},
+      message: "Oops, something went wrong!",
+      statusCode: 500,
+    });
+  }
+};
+
+// PUT /boards/:id/members/:memberId -> update member role in board
+export const updateMemberRole = async (req: any, res: Response) => {
+  try {
+    const { id, memberId } = req.params;
+    const { newRole } = req.body;
+
+    if (!id) {
+      return res.status(400).send({
+        success: false,
+        data: {},
+        message: "board _id is required",
+        statusCode: 400,
+      });
+    } else if (!mongoose.isValidObjectId(id)) {
+      return res.status(400).send({
+        success: false,
+        data: {},
+        message: "Invalid board _id",
+        statusCode: 400,
+      });
+    }
+
+    if (!memberId) {
+      return res.status(400).send({
+        success: false,
+        data: {},
+        message: "memberId is required",
+        statusCode: 400,
+      });
+    } else if (!mongoose.isValidObjectId(memberId)) {
+      return res.status(400).send({
+        success: false,
+        data: {},
+        message: "Invalid memberId",
+        statusCode: 400,
+      });
+    }
+
+    // validation for new role
+    if (!newRole) {
+      return res.status(400).send({
+        success: false,
+        data: {},
+        message: "newRole is required",
+        statusCode: 400,
+      });
+    } else if (
+      ![
+        BOARD_MEMBER_ROLES.ADMIN,
+        BOARD_MEMBER_ROLES.NORMAL,
+        BOARD_MEMBER_ROLES.OBSERVER,
+      ].includes(newRole)
+    ) {
+      return res.status(400).send({
+        success: false,
+        data: {},
+        message: "newRole should be either ADMIN/NORMAL/OBSERVER",
+        statusCode: 400,
+      });
+    }
+
+    // now we have the board _id & memberId & newRole
+    // check if the board is valid & check current user has the rights to do this
+    const board = await Board.findOne({ _id: id })
+      .select("_id spaceId members visibility")
+      .populate({
+        path: "spaceId",
+        select: "_id name members",
+      });
+
+    if (!board) {
+      return res.status(404).send({
+        success: false,
+        data: {},
+        message: "Board not found!",
+        statusCode: 404,
+      });
+    }
+
+    // check whether this board is visible to the current user first
+    const boardMember = board.members.find(
+      (m: any) => m.memberId.toString() === req.user._id.toString()
+    );
+    const spaceMember = board.spaceId.members.find(
+      (m: any) => m.memberId.toString() === req.user._id.toString()
+    );
+
+    if (
+      (!boardMember && !spaceMember) ||
+      (!boardMember &&
+        spaceMember &&
+        spaceMember.role === SPACE_MEMBER_ROLES.GUEST) ||
+      (!boardMember &&
+        spaceMember &&
+        spaceMember.role === SPACE_MEMBER_ROLES.NORMAL &&
+        board.visibility === BOARD_VISIBILITY.PRIVATE)
+    ) {
+      // you can't see this board at all
+      return res.status(404).send({
+        success: false,
+        data: {},
+        message: "Board not found",
+        statusCode: 404,
+      });
+    }
+
+    // now it is clear that the current user can see this board
+    // but that's not enough for the current user to update the member's role
+    // only board ADMIN or space ADMIN can do this
+    if (
+      !(boardMember && boardMember.role === BOARD_MEMBER_ROLES.ADMIN) &&
+      !(spaceMember && spaceMember.role === SPACE_MEMBER_ROLES.ADMIN)
+    ) {
+      return res.status(403).send({
+        success: false,
+        data: {},
+        message: "You don't have permission to perform this action",
+        statusCode: 403,
+      });
+    }
+
+    // now you have the rights to update a member role
+    // check if the intended user exists as board member
+    const targetMember = board.members.find(
+      (m: any) => m.memberId.toString() === memberId
+    );
+
+    if (!targetMember) {
+      return res.status(404).send({
+        success: false,
+        data: {},
+        message: "Such a member doesn't exists on this board",
+        statusCode: 404,
+      });
+    }
+
+    // check if that board member is a space ADMIN
+    if (
+      board.spaceId.members
+        .filter((m: any) => m.role === SPACE_MEMBER_ROLES.ADMIN)
+        .map((m: any) => m.memberId.toString())
+        .includes(memberId)
+    ) {
+      return res.status(403).send({
+        success: false,
+        data: {},
+        message:
+          "A space ADMIN will always remain a board ADMIN, you can't toggle that.",
+        statusCode: 403,
+      });
+    }
+
+    const boardAdmins = board.members
+      .filter((m: any) => m.role === BOARD_MEMBER_ROLES.ADMIN)
+      .map((m: any) => m.memberId.toString());
+
+    // if this person is the only board ADMIN
+    if (boardAdmins.length === 1 && boardAdmins[0] === memberId) {
+      return res.status(403).send({
+        success: false,
+        data: {},
+        message:
+          "You can’t change roles because there must be at least one admin.",
+        statusCode: 403,
+      });
+    }
+
+    // if you are now trying to change the the role of any user(including yours) to the same existing one
+    if (newRole === targetMember.role) {
+      return res.send({
+        success: true,
+        data: {},
+        message: "The newRole is the already existing role. Nothing to change.",
+        statusCode: 200,
+      });
+    }
+
+    // 100% op allowed
+    // update corresponding persons role
+    board.members = board.members.map((m: any) => {
+      if (m.memberId === targetMember.memberId) {
+        m.role = newRole;
+        m.fallbackRole = newRole;
+        return m;
+      }
+      return m;
+    });
+
+    await board.save();
+
+    res.send({
+      success: true,
+      data: {},
+      message: "Role updated successfully.",
+      statusCode: 200,
+    });
+  } catch (err) {
+    console.log(err);
     res.status(500).send({
       success: false,
       data: {},

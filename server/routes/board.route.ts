@@ -14,5 +14,11 @@ boardRouter.put(
   authMiddleware,
   boardController.addBoardMembers
 );
+// Protected(Auth) PUT /boards/:id/members/:memberId -> update board member role
+boardRouter.put(
+  "/:id/members/:memberId",
+  authMiddleware,
+  boardController.updateMemberRole
+);
 
 export default boardRouter;
