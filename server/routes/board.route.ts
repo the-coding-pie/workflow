@@ -14,6 +14,8 @@ boardRouter.put(
   authMiddleware,
   boardController.addBoardMembers
 );
+// Protected(Auth) PUT /boards/:id/members/join -> join as board member
+boardRouter.put("/:id/members/join", authMiddleware, boardController.joinBoard);
 // Protected(Auth) PUT /boards/:id/members/:memberId -> update board member role
 boardRouter.put(
   "/:id/members/:memberId",

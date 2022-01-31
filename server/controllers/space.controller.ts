@@ -1025,7 +1025,7 @@ export const addAMember = async (req: any, res: Response) => {
 
     await space.save();
 
-    return res.send({
+    res.send({
       success: true,
       data: {},
       message: "Member added to the space",

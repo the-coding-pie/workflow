@@ -1135,7 +1135,8 @@ export const leaveFromBoard = async (req: any, res: Response) => {
       return res.status(403).send({
         success: false,
         data: {},
-        message: "You are not a member of this board. In order to leave, you must join first.",
+        message:
+          "You are not a member of this board. In order to leave, you must join first.",
         statusCode: 403,
       });
     }
@@ -1163,7 +1164,7 @@ export const leaveFromBoard = async (req: any, res: Response) => {
     board.members = board.members.filter(
       (m: any) => m.memberId.toString() !== targetMember.memberId.toString()
     );
-    
+
     // remove you from space, if you are a GUEST and you are only a member of this board in this space
     const IsUserSpaceGuest = board.spaceId.members.find(
       (m: any) =>
@@ -1204,6 +1205,107 @@ export const leaveFromBoard = async (req: any, res: Response) => {
       success: true,
       data: {},
       message: "Removed successfully from Board!",
+      statusCode: 200,
+    });
+  } catch (err) {
+    res.status(500).send({
+      success: false,
+      data: {},
+      message: "Oops, something went wrong!",
+      statusCode: 500,
+    });
+  }
+};
+
+// PUT /boards/:id/members/join -> join as board member
+export const joinBoard = async (req: any, res: Response) => {
+  try {
+    const { id } = req.params;
+
+    if (!id) {
+      return res.status(400).send({
+        success: false,
+        data: {},
+        message: "board _id is required",
+        statusCode: 400,
+      });
+    } else if (!mongoose.isValidObjectId(id)) {
+      return res.status(400).send({
+        success: false,
+        data: {},
+        message: "Invalid board _id",
+        statusCode: 400,
+      });
+    }
+
+    // check a board with that _id exists
+    const board = await Board.findOne({ _id: id })
+      .select("_id spaceId members visibility")
+      .populate({
+        path: "spaceId",
+        select: "_id name members",
+      });
+
+    if (!board) {
+      return res.status(404).send({
+        success: false,
+        data: {},
+        message: "Board not found!",
+        statusCode: 404,
+      });
+    }
+
+    // next check if the current user has the rights to do that
+    const boardMember = board.members.find(
+      (m: any) => m.memberId.toString() === req.user._id.toString()
+    );
+    const spaceMember = board.spaceId.members.find(
+      (m: any) => m.memberId.toString() === req.user._id.toString()
+    );
+
+    // if already a board member, then stop
+    if (boardMember) {
+      // you can't invite other users
+      return res.status(403).send({
+        success: false,
+        data: {},
+        message: "You are already a board member",
+        statusCode: 403,
+      });
+    }
+
+    // you are not a board member yet
+    // if not a space member
+    if (
+      !spaceMember ||
+      (spaceMember && spaceMember.role === SPACE_MEMBER_ROLES.GUEST) ||
+      (spaceMember &&
+        spaceMember.role === SPACE_MEMBER_ROLES.NORMAL &&
+        board.visibility === BOARD_VISIBILITY.PRIVATE)
+    ) {
+      // you can't join the board, bcz you can't even see it exists
+      return res.status(404).send({
+        success: false,
+        data: {},
+        message: "Board not found",
+        statusCode: 404,
+      });
+    }
+
+    //  now it is clear that you are not a board member yet and you are either a space ADMIN or space NORMAL user + board PUBLIC
+    // so add him to the board members
+    board.members.push({
+      memberId: req.user._id,
+      role: spaceMember.role,
+      fallbackRole: spaceMember.role,
+    });
+
+    await board.save();
+
+    res.send({
+      success: true,
+      data: {},
+      message: "You are now a part of the board!",
       statusCode: 200,
     });
   } catch (err) {
