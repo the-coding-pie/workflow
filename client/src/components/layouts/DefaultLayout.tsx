@@ -19,7 +19,7 @@ const DefaultLayout = () => {
 
   return (
     <div className="relative">
-      <div className="flex">
+      <div>
         <Sidebar />
 
         <main className={`main w-full ${show ? "ml-60" : ""}`}>
