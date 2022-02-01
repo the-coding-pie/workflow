@@ -58,13 +58,13 @@ const CreateSpaceModal = () => {
   });
 
   const handleSubmit = useCallback((space: SpaceObj) => {
-    setIsSubmitting(true);
-
     const value = {
       ...space,
       members: space.members.map((m) => m.value),
     };
     
+    setIsSubmitting(true);
+
     axiosInstance
       .post(`/spaces`, value, {
         headers: {

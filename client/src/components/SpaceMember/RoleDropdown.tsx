@@ -83,6 +83,7 @@ const RoleDropDown = ({
 
           queryClient.invalidateQueries(["getSpaceInfo", spaceId]);
           queryClient.invalidateQueries(["getSpaceMembers", spaceId]);
+          queryClient.invalidateQueries(["getBoard"]);
         })
         .catch((error: AxiosError) => {
           setShowDropDown(false);

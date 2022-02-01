@@ -409,7 +409,7 @@ const BoardDetail = () => {
 
                 {board.role === BOARD_ROLES.ADMIN && (
                   <>
-                    <InviteBtn boardId={board._id} />
+                    <InviteBtn spaceId={board.space._id} boardId={board._id} />
                     {!board.members.find((m: any) => m._id === user!._id) && (
                       <JoinBtn />
                     )}
@@ -421,7 +421,7 @@ const BoardDetail = () => {
                     {!board.members.find((m: any) => m._id === user!._id) ? (
                       <JoinBtn />
                     ) : (
-                      <InviteBtn boardId={board._id} />
+                      <InviteBtn spaceId={board.space._id} boardId={board._id} />
                     )}
                   </>
                 )}

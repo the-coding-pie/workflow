@@ -2,7 +2,7 @@ import { Form, Formik } from "formik";
 import React, { useCallback, useState } from "react";
 import { HiOutlineUserAdd, HiUserAdd } from "react-icons/hi";
 import { Option } from "../../types";
-import { BOARD_ROLES } from "../../types/constants";
+import { BOARD_ROLES, ERROR, SUCCESS } from "../../types/constants";
 import * as Yup from "yup";
 import debounce from "debounce-promise";
 import SubmitBtn from "../FormikComponents/SubmitBtn";
@@ -12,6 +12,11 @@ import axiosInstance from "../../axiosInstance";
 import useClose from "../../hooks/useClose";
 import Select from "../FormikComponents/Select";
 import { MdClose } from "react-icons/md";
+import { AxiosError } from "axios";
+import { useDispatch } from "react-redux";
+import { useQueryClient } from "react-query";
+import { addToast } from "../../redux/features/toastSlice";
+import { useNavigate } from "react-router-dom";
 
 interface UserObj {
   _id: string;
@@ -27,14 +32,115 @@ interface MembersObj {
 
 interface Props {
   boardId: string;
+  spaceId: string;
 }
 
-const InviteBtn = ({ boardId }: Props) => {
+const InviteBtn = ({ boardId, spaceId }: Props) => {
+  const dispatch = useDispatch();
+  const queryClient = useQueryClient();
+
+  const navigate = useNavigate();
+
   const [showDropdown, setShowDropdown] = useState(false);
 
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const ref = useClose(() => setShowDropdown(false));
+
+  const handleSubmit = useCallback(({ members, role }: MembersObj) => {
+    const value = {
+      members: members.map((m) => m.value),
+      role: role,
+    };
+
+    setIsSubmitting(true);
+
+    axiosInstance
+      .put(`/boards/${boardId}/members/bulk`, value, {
+        headers: {
+          ContentType: "application/json",
+        },
+      })
+      .then((response) => {
+        const { message } = response.data;
+
+        dispatch(
+          addToast({
+            kind: SUCCESS,
+            msg: message,
+          })
+        );
+
+        setIsSubmitting(false);
+        setShowDropdown(false);
+
+        queryClient.invalidateQueries(["getBoard", boardId]);
+      })
+      .catch((error: AxiosError) => {
+        setIsSubmitting(false);
+
+        if (error.response) {
+          const response = error.response;
+          const { message } = response.data;
+
+          switch (response.status) {
+            case 404:
+            case 403:
+              setShowDropdown(false);
+              dispatch(addToast({ kind: ERROR, msg: message }));
+              queryClient.invalidateQueries(["getSpaces"]);
+              queryClient.invalidateQueries(["getFavorites"]);
+              queryClient.invalidateQueries(["getBoard", boardId]);
+              queryClient.invalidateQueries(["getSpaceBoards", spaceId]);
+              queryClient.invalidateQueries(["getSpaceInfo", spaceId]);
+              break;
+            case 400:
+            case 500:
+              dispatch(addToast({ kind: ERROR, msg: message }));
+              break;
+            default:
+              dispatch(
+                addToast({ kind: ERROR, msg: "Oops, something went wrong" })
+              );
+              break;
+          }
+        } else if (error.request) {
+          dispatch(
+            addToast({ kind: ERROR, msg: "Oops, something went wrong" })
+          );
+        } else {
+          dispatch(addToast({ kind: ERROR, msg: `Error: ${error.message}` }));
+        }
+      });
+  }, []);
+
+  const searchUsers = async (query: string) => {
+    if (query) {
+      const response = await axiosInstance.get(
+        `/users/search/board?q=${query}&boardId=${boardId}`
+      );
+
+      const { data } = response.data;
+
+      return data.map((user: UserObj) => {
+        return {
+          value: user._id,
+          label: user.username,
+          profile: user.profile,
+          isDisabled: Object.keys(user).includes("isMember")
+            ? user.isMember
+            : false,
+        };
+      });
+    }
+  };
+
+  const delayLoadUsers = useCallback(debounce(searchUsers, 300), []);
+
+  // return a promise which is the remote api call
+  const loadUsers = (inputValue: string) => {
+    return delayLoadUsers(inputValue);
+  };
 
   const roleOptions: Option[] = [
     {
@@ -66,43 +172,6 @@ const InviteBtn = ({ boardId }: Props) => {
       .oneOf([BOARD_ROLES.NORMAL, BOARD_ROLES.OBSERVER], "Invalid role type")
       .required("Board role is required"),
   });
-
-  const handleSubmit = useCallback(({ members, role }: MembersObj) => {
-    const value = {
-      members: members.map((m) => m.value),
-      role: role,
-    };
-
-    console.log(value);
-  }, []);
-
-  const searchUsers = async (query: string) => {
-    if (query) {
-      const response = await axiosInstance.get(
-        `/users/search/board?q=${query}&boardId=${boardId}`
-      );
-
-      const { data } = response.data;
-
-      return data.map((user: UserObj) => {
-        return {
-          value: user._id,
-          label: user.username,
-          profile: user.profile,
-          isDisabled: Object.keys(user).includes("isMember")
-            ? user.isMember
-            : false,
-        };
-      });
-    }
-  };
-
-  const delayLoadUsers = useCallback(debounce(searchUsers, 300), []);
-
-  // return a promise which is the remote api call
-  const loadUsers = (inputValue: string) => {
-    return delayLoadUsers(inputValue);
-  };
 
   return (
     <div className="invite relative" ref={ref}>
