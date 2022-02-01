@@ -70,6 +70,10 @@ const BoardRoleDropdown = ({
 
           switch (response.status) {
             case 403:
+              resetOptions();
+
+              dispatch(addToast({ kind: ERROR, msg: message }));
+
               queryClient.invalidateQueries(["getBoard", boardId]);
               queryClient.invalidateQueries(["getSpaces"]);
               queryClient.invalidateQueries(["getFavorites"]);
@@ -83,8 +87,10 @@ const BoardRoleDropdown = ({
               queryClient.invalidateQueries(["getSpaces"]);
               queryClient.invalidateQueries(["getFavorites"]);
 
-              queryClient.invalidateQueries(["getSpaceBoards", spaceId]);
               queryClient.invalidateQueries(["getSpaceInfo", spaceId]);
+              queryClient.invalidateQueries(["getSpaceBoards", spaceId]);
+              queryClient.invalidateQueries(["getSpaceMembers", spaceId]);
+              queryClient.invalidateQueries(["getSpaceSettings", spaceId]);
               break;
             case 400:
             case 500:
@@ -115,7 +121,7 @@ const BoardRoleDropdown = ({
     ) {
       setShowConfirmScreen(true);
     } else {
-      changeRole(o.value, member._id, boardId);
+      changeRole(o.value, boardId, member._id);
     }
   }, []);
 

@@ -10,21 +10,26 @@ import { ERROR, SUCCESS } from "../../types/constants";
 
 interface Props {
   spaceId: string;
+  boardId: string;
   memberId: string;
 }
 
-const RemoveMemberBoardConfirmationModal = ({ spaceId, memberId }: Props) => {
+const RemoveMemberBoardConfirmationModal = ({
+  spaceId,
+  boardId,
+  memberId,
+}: Props) => {
   const dispatch = useDispatch();
 
   const queryClient = useQueryClient();
 
   const navigate = useNavigate();
 
-  const removeMember = useCallback((spaceId, memberId) => {
+  const removeMember = useCallback((boardId, memberId, spaceId) => {
     dispatch(hideModal());
 
     axiosInstance
-      .delete(`/spaces/${spaceId}/members/${memberId}`)
+      .delete(`/boards/${boardId}/members/${memberId}`)
       .then((response) => {
         const { message } = response.data;
 
@@ -35,7 +40,7 @@ const RemoveMemberBoardConfirmationModal = ({ spaceId, memberId }: Props) => {
           })
         );
 
-        queryClient.invalidateQueries(["getSpaceMembers", spaceId]);
+        queryClient.invalidateQueries(["getBoard", boardId]);
       })
       .catch((error: AxiosError) => {
         if (error.response) {
@@ -43,15 +48,26 @@ const RemoveMemberBoardConfirmationModal = ({ spaceId, memberId }: Props) => {
           const { message } = response.data;
 
           switch (response.status) {
-            case 404:
+            case 403:
               dispatch(addToast({ kind: ERROR, msg: message }));
+
+              queryClient.invalidateQueries(["getBoard", boardId]);
               queryClient.invalidateQueries(["getSpaces"]);
               queryClient.invalidateQueries(["getFavorites"]);
-              // redirect them to home page
-              navigate("/", { replace: true });
+              break;
+            case 404:
+              dispatch(addToast({ kind: ERROR, msg: message }));
+
+              queryClient.invalidateQueries(["getBoard", boardId]);
+              queryClient.invalidateQueries(["getSpaces"]);
+              queryClient.invalidateQueries(["getFavorites"]);
+
+              queryClient.invalidateQueries(["getSpaceInfo", spaceId]);
+              queryClient.invalidateQueries(["getSpaceBoards", spaceId]);
+              queryClient.invalidateQueries(["getSpaceMembers", spaceId]);
+              queryClient.invalidateQueries(["getSpaceSettings", spaceId]);
               break;
             case 400:
-            case 403:
             case 500:
               dispatch(addToast({ kind: ERROR, msg: message }));
               break;
@@ -90,7 +106,7 @@ const RemoveMemberBoardConfirmationModal = ({ spaceId, memberId }: Props) => {
           Cancel
         </button>
         <button
-          onClick={() => removeMember(spaceId, memberId)}
+          onClick={() => removeMember(boardId, memberId, spaceId)}
           className="btn-danger"
         >
           Remove
