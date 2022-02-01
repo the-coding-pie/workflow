@@ -1,18 +1,34 @@
+import { AxiosError } from "axios";
 import React, { useCallback, useEffect, useState } from "react";
 import { HiOutlineCheck } from "react-icons/hi";
 import { MdClose } from "react-icons/md";
+import { useQueryClient } from "react-query";
+import { useDispatch } from "react-redux";
+import axiosInstance from "../../axiosInstance";
 import useClose from "../../hooks/useClose";
+import { addToast } from "../../redux/features/toastSlice";
 import { OptionWithSub } from "../../types";
-import { BOARD_VISIBILITY_TYPES } from "../../types/constants";
+import { BOARD_VISIBILITY_TYPES, ERROR, SUCCESS } from "../../types/constants";
 
 interface Props {
+  spaceId: string;
+  boardId: string;
   options: OptionWithSub[];
   visibility?:
     | typeof BOARD_VISIBILITY_TYPES.PRIVATE
     | typeof BOARD_VISIBILITY_TYPES.PUBLIC;
 }
 
-const BoardVisibilityDropdown = ({ options = [], visibility }: Props) => {
+const BoardVisibilityDropdown = ({
+  spaceId,
+  boardId,
+  options = [],
+  visibility,
+}: Props) => {
+  const dispatch = useDispatch();
+
+  const queryClient = useQueryClient();
+
   const [currentValue, setCurrentValue] = useState("");
 
   const [showDropDown, setShowDropDown] = useState(false);
@@ -40,7 +56,74 @@ const BoardVisibilityDropdown = ({ options = [], visibility }: Props) => {
         | typeof BOARD_VISIBILITY_TYPES.PRIVATE
         | typeof BOARD_VISIBILITY_TYPES.PUBLIC
     ) => {
-      console.log(newVisibility);
+      axiosInstance
+        .put(
+          `/boards/${boardId}/visibility`,
+          {
+            newVisibility,
+          },
+          {
+            headers: {
+              ContentType: "application/json",
+            },
+          }
+        )
+        .then((response) => {
+          setShowDropDown(false);
+
+          queryClient.invalidateQueries(["getBoard", boardId]);
+          queryClient.invalidateQueries(["getSpaces"]);
+          queryClient.invalidateQueries(["getFavorites"]);
+
+          queryClient.invalidateQueries(["getSpaceBoards", spaceId]);
+        })
+        .catch((error: AxiosError) => {
+          if (error.response) {
+            const response = error.response;
+            const { message } = response.data;
+
+            switch (response.status) {
+              case 403:
+                setShowDropDown(false);
+
+                dispatch(addToast({ kind: ERROR, msg: message }));
+
+                queryClient.invalidateQueries(["getBoard", boardId]);
+                queryClient.invalidateQueries(["getSpaces"]);
+                queryClient.invalidateQueries(["getFavorites"]);
+                break;
+              case 404:
+                setShowDropDown(false);
+
+                dispatch(addToast({ kind: ERROR, msg: message }));
+
+                queryClient.invalidateQueries(["getBoard", boardId]);
+                queryClient.invalidateQueries(["getSpaces"]);
+                queryClient.invalidateQueries(["getFavorites"]);
+
+                queryClient.invalidateQueries(["getSpaceInfo", spaceId]);
+                queryClient.invalidateQueries(["getSpaceBoards", spaceId]);
+                queryClient.invalidateQueries(["getSpaceMembers", spaceId]);
+                queryClient.invalidateQueries(["getSpaceSettings", spaceId]);
+                break;
+              case 400:
+              case 500:
+                dispatch(addToast({ kind: ERROR, msg: message }));
+                break;
+              default:
+                dispatch(
+                  addToast({ kind: ERROR, msg: "Oops, something went wrong" })
+                );
+                break;
+            }
+          } else if (error.request) {
+            dispatch(
+              addToast({ kind: ERROR, msg: "Oops, something went wrong" })
+            );
+          } else {
+            dispatch(addToast({ kind: ERROR, msg: `Error: ${error.message}` }));
+          }
+        });
     },
     []
   );

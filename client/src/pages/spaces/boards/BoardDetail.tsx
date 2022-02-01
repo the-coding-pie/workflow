@@ -385,6 +385,8 @@ const BoardDetail = () => {
                 <div className="board-visibility">
                   {board.role === BOARD_ROLES.ADMIN ? (
                     <BoardVisibilityDropdown
+                      spaceId={board.space._id}
+                      boardId={board._id}
                       options={boardVisibilityOptions}
                       visibility={board.visibility}
                     />
@@ -405,13 +407,18 @@ const BoardDetail = () => {
 
                 <HorizontalSeparator />
 
-                <BoardMembers boardId={board._id} role={board.role} members={board.members} spaceId={board.space._id} />
+                <BoardMembers
+                  boardId={board._id}
+                  role={board.role}
+                  members={board.members}
+                  spaceId={board.space._id}
+                />
 
                 {board.role === BOARD_ROLES.ADMIN && (
                   <>
                     <InviteBtn spaceId={board.space._id} boardId={board._id} />
                     {!board.members.find((m: any) => m._id === user!._id) && (
-                      <JoinBtn />
+                      <JoinBtn spaceId={board.space._id} boardId={board._id} />
                     )}
                   </>
                 )}
@@ -419,9 +426,12 @@ const BoardDetail = () => {
                 {board.role === BOARD_ROLES.NORMAL && (
                   <>
                     {!board.members.find((m: any) => m._id === user!._id) ? (
-                      <JoinBtn />
+                      <JoinBtn spaceId={board.space._id} boardId={board._id} />
                     ) : (
-                      <InviteBtn spaceId={board.space._id} boardId={board._id} />
+                      <InviteBtn
+                        spaceId={board.space._id}
+                        boardId={board._id}
+                      />
                     )}
                   </>
                 )}

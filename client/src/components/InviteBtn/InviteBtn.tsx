@@ -75,6 +75,10 @@ const InviteBtn = ({ boardId, spaceId }: Props) => {
         setShowDropdown(false);
 
         queryClient.invalidateQueries(["getBoard", boardId]);
+        queryClient.invalidateQueries(["getSpaces"]);
+        queryClient.invalidateQueries(["getFavorites"]);
+
+        queryClient.invalidateQueries(["getSpaceBoards", spaceId]);
       })
       .catch((error: AxiosError) => {
         setIsSubmitting(false);
@@ -85,13 +89,27 @@ const InviteBtn = ({ boardId, spaceId }: Props) => {
 
           switch (response.status) {
             case 403:
-            case 404:
               setShowDropdown(false);
+
               dispatch(addToast({ kind: ERROR, msg: message }));
 
+              queryClient.invalidateQueries(["getBoard", boardId]);
               queryClient.invalidateQueries(["getSpaces"]);
               queryClient.invalidateQueries(["getFavorites"]);
+              break;
+            case 404:
+              setShowDropdown(false);
+
+              dispatch(addToast({ kind: ERROR, msg: message }));
+
               queryClient.invalidateQueries(["getBoard", boardId]);
+              queryClient.invalidateQueries(["getSpaces"]);
+              queryClient.invalidateQueries(["getFavorites"]);
+
+              queryClient.invalidateQueries(["getSpaceInfo", spaceId]);
+              queryClient.invalidateQueries(["getSpaceBoards", spaceId]);
+              queryClient.invalidateQueries(["getSpaceMembers", spaceId]);
+              queryClient.invalidateQueries(["getSpaceSettings", spaceId]);
               break;
             case 400:
             case 500:
