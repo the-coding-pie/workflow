@@ -1403,13 +1403,13 @@ export const updateMemberRole = async (req: any, res: Response) => {
     if (newRole === SPACE_MEMBER_ROLES.ADMIN) {
       for (const b of boards) {
         b.members = b.members.map((m: any) => {
-          if (m.memberId === targetMember.memberId) {
+          if (m.memberId.toString() === targetMember.memberId.toString()) {
             m.role = BOARD_MEMBER_ROLES.ADMIN;
             return m;
           }
           return m;
         });
-
+        
         await b.save();
       }
     } else if (
@@ -1420,7 +1420,7 @@ export const updateMemberRole = async (req: any, res: Response) => {
       // update this user's board role in every board he is member of to the fallbackRole and save
       for (const b of boards) {
         b.members = b.members.map((m: any) => {
-          if (m.memberId === targetMember.memberId) {
+          if (m.memberId.toString() === targetMember.memberId.toString()) {
             m.role = m.fallbackRole;
             return m;
           }
