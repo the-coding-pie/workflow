@@ -118,7 +118,10 @@ const BoardMember = ({
                         dispatch(
                           showModal({
                             modalType: CONFIRM_LEAVE_BOARD_MODAL,
-                            modalProps: {},
+                            modalProps: {
+                              spaceId,
+                              boardId,
+                            },
                             modalTitle: "Are you sure want to leave the board?",
                           })
                         );
@@ -138,7 +141,11 @@ const BoardMember = ({
                           dispatch(
                             showModal({
                               modalType: CONFIRM_REMOVE_BOARD_MEMBER_MODAL,
-                              modalProps: {},
+                              modalProps: {
+                                spaceId,
+                                boardId,
+                                memberId: member._id,
+                              },
                               modalTitle:
                                 "Are you sure want to remove board member?",
                             })

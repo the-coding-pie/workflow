@@ -1063,6 +1063,7 @@ export const removeMember = async (req: any, res: Response) => {
 export const leaveFromBoard = async (req: any, res: Response) => {
   try {
     const { id } = req.params;
+    let isSpacePart = true;
 
     if (!id) {
       return res.status(400).send({
@@ -1191,6 +1192,7 @@ export const leaveFromBoard = async (req: any, res: Response) => {
       });
 
       if (partOfOtherBoards.length === 0) {
+        isSpacePart = false;
         //  the GUEST is not part of other boards, he is only part of this board
         board.spaceId.members = board.spaceId.members.filter(
           (m: any) => m.memberId.toString() !== targetMember.memberId.toString()
@@ -1203,7 +1205,9 @@ export const leaveFromBoard = async (req: any, res: Response) => {
 
     res.send({
       success: true,
-      data: {},
+      data: {
+        isSpacePart: isSpacePart,
+      },
       message: "Removed successfully from Board!",
       statusCode: 200,
     });

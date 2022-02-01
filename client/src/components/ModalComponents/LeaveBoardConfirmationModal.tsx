@@ -10,22 +10,23 @@ import { ERROR, SUCCESS } from "../../types/constants";
 
 interface Props {
   spaceId: string;
+  boardId: string;
 }
 
-const LeaveBoardConfirmationModal = ({ spaceId }: Props) => {
+const LeaveBoardConfirmationModal = ({ spaceId, boardId }: Props) => {
   const dispatch = useDispatch();
 
   const queryClient = useQueryClient();
 
   const navigate = useNavigate();
 
-  const leaveFromSpace = useCallback((spaceId) => {
+  const leaveFromSpace = useCallback((boardId, spaceId) => {
     dispatch(hideModal());
 
     axiosInstance
-      .delete(`/spaces/${spaceId}/members`)
+      .delete(`/boards/${boardId}/members`)
       .then((response) => {
-        const { message } = response.data;
+        const { message, data } = response.data;
 
         dispatch(
           addToast({
@@ -34,12 +35,18 @@ const LeaveBoardConfirmationModal = ({ spaceId }: Props) => {
           })
         );
 
+        queryClient.invalidateQueries(["getBoard", boardId]);
         queryClient.invalidateQueries(["getSpaces"]);
         queryClient.invalidateQueries(["getFavorites"]);
+        
         queryClient.invalidateQueries(["getSpaceInfo", spaceId]);
+        queryClient.invalidateQueries(["getSpaceBoards", spaceId]);
         queryClient.invalidateQueries(["getSpaceMembers", spaceId]);
+        queryClient.invalidateQueries(["getSpaceSettings", spaceId]);
 
-        navigate("/", { replace: true });
+        if (!data.isSpacePart) {
+          navigate(`/`, { replace: true });
+        }
       })
       .catch((error: AxiosError) => {
         if (error.response) {
@@ -47,15 +54,26 @@ const LeaveBoardConfirmationModal = ({ spaceId }: Props) => {
           const { message } = response.data;
 
           switch (response.status) {
-            case 404:
+            case 403:
               dispatch(addToast({ kind: ERROR, msg: message }));
+
+              queryClient.invalidateQueries(["getBoard", boardId]);
               queryClient.invalidateQueries(["getSpaces"]);
               queryClient.invalidateQueries(["getFavorites"]);
-              // redirect them to home page
-              navigate("/", { replace: true });
+              break;
+            case 404:
+              dispatch(addToast({ kind: ERROR, msg: message }));
+
+              queryClient.invalidateQueries(["getBoard", boardId]);
+              queryClient.invalidateQueries(["getSpaces"]);
+              queryClient.invalidateQueries(["getFavorites"]);
+
+              queryClient.invalidateQueries(["getSpaceInfo", spaceId]);
+              queryClient.invalidateQueries(["getSpaceBoards", spaceId]);
+              queryClient.invalidateQueries(["getSpaceMembers", spaceId]);
+              queryClient.invalidateQueries(["getSpaceSettings", spaceId]);
               break;
             case 400:
-            case 403:
             case 500:
               dispatch(addToast({ kind: ERROR, msg: message }));
               break;
@@ -92,7 +110,10 @@ const LeaveBoardConfirmationModal = ({ spaceId }: Props) => {
         >
           Cancel
         </button>
-        <button onClick={() => leaveFromSpace(spaceId)} className="btn-danger">
+        <button
+          onClick={() => leaveFromSpace(boardId, spaceId)}
+          className="btn-danger"
+        >
           Leave
         </button>
       </div>
