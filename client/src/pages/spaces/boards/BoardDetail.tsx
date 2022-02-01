@@ -63,7 +63,7 @@ const BoardDetail = () => {
 
         if (response.status === 201) {
           // edit this board cache inside space boards
-          queryClient.setQueriesData(["getBoard", boardId], (oldData: any) => {
+          queryClient.setQueryData(["getBoard", boardId], (oldData: any) => {
             return {
               ...oldData,
               isFavorite: true,
@@ -156,7 +156,7 @@ const BoardDetail = () => {
       axiosInstance
         .delete(`/favorites/${favId}`)
         .then((response) => {
-          queryClient.setQueriesData(["getBoard", boardId], (oldData: any) => {
+          queryClient.setQueryData(["getBoard", boardId], (oldData: any) => {
             return {
               ...oldData,
               isFavorite: false,
@@ -323,7 +323,11 @@ const BoardDetail = () => {
             >
               <div className="left flex items-center gap-x-4">
                 {board.role === BOARD_ROLES.ADMIN ? (
-                  <BoardName initialValue={board.name} />
+                  <BoardName
+                    spaceId={board.space._id}
+                    boardId={board._id}
+                    initialValue={board.name}
+                  />
                 ) : (
                   <div
                     data-tip="Board name"
@@ -448,7 +452,13 @@ const BoardDetail = () => {
             </header>
           </div>
           {showMenu && (
-            <BoardMenu myRole={board.role} setShowMenu={setShowMenu} />
+            <BoardMenu
+              description={board.description}
+              spaceId={board.space._id}
+              boardId={board._id}
+              myRole={board.role}
+              setShowMenu={setShowMenu}
+            />
           )}
         </div>
       )}

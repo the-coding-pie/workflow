@@ -1,6 +1,11 @@
 import React from "react";
 
-const LabelMenu = () => {
+interface Props {
+  spaceId: string;
+  boardId: string;
+}
+
+const LabelMenu = ({ spaceId, boardId }: Props) => {
   return <div className="board-labels px-4">Labels</div>;
 };
 

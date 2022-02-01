@@ -47,7 +47,7 @@ const FavoriteItemBoard = ({ item }: Props) => {
         setShowOptions(false);
 
         if (queryClient.getQueryData(["getBoard", boardId])) {
-          queryClient.setQueriesData(["getBoard", boardId], (oldData: any) => {
+          queryClient.setQueryData(["getBoard", boardId], (oldData: any) => {
             return {
               ...oldData,
               isFavorite: false,
@@ -171,7 +171,10 @@ const FavoriteItemBoard = ({ item }: Props) => {
               background: item.color,
             }}
           ></div>
-          <span>{item.name}</span>
+          <span>
+            {" "}
+            {item.name.length > 12 ? item.name.slice(0, 12) + "..." : item.name}
+          </span>
         </div>
 
         <div className="right text-gray-600 flex items-center">

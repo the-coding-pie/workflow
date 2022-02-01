@@ -1575,7 +1575,7 @@ export const updateBoardName = async (req: any, res: Response) => {
   }
 };
 
-// PUT /boards/:id/desc -> update board description
+// PUT /boards/:id/description -> update board description
 export const updateBoardDesc = async (req: any, res: Response) => {
   try {
     const { id } = req.params;

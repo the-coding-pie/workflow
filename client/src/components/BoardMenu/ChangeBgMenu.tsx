@@ -9,7 +9,12 @@ interface BoardBGObj {
   color: string;
 }
 
-const ChangeBgMenu = () => {
+interface Props {
+  spaceId: string;
+  boardId: string;
+}
+
+const ChangeBgMenu = ({ spaceId, boardId }: Props) => {
   const initialValues: BoardBGObj = {
     bgImg: "",
     color: "",
@@ -25,7 +30,7 @@ const ChangeBgMenu = () => {
 
   const handleSubmit = useCallback((boardBg: BoardBGObj) => {
     setIsSubmitting(true);
-    console.log(boardBg)
+    console.log(boardBg);
   }, []);
 
   return (

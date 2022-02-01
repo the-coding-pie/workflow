@@ -75,16 +75,13 @@ const BoardItem = ({ board, setShowPlusIcon, setShowBoardOptions }: Props) => {
 
         if (response.status === 201) {
           if (queryClient.getQueryData(["getBoard", boardId])) {
-            queryClient.setQueriesData(
-              ["getBoard", boardId],
-              (oldData: any) => {
-                return {
-                  ...oldData,
-                  isFavorite: true,
-                  favoriteId: data._id,
-                };
-              }
-            );
+            queryClient.setQueryData(["getBoard", boardId], (oldData: any) => {
+              return {
+                ...oldData,
+                isFavorite: true,
+                favoriteId: data._id,
+              };
+            });
           }
 
           if (queryClient.getQueryData(["getSpaceBoards", board.spaceId!])) {
@@ -172,7 +169,7 @@ const BoardItem = ({ board, setShowPlusIcon, setShowBoardOptions }: Props) => {
         setShowOptions(false);
 
         if (queryClient.getQueryData(["getBoard", boardId])) {
-          queryClient.setQueriesData(["getBoard", boardId], (oldData: any) => {
+          queryClient.setQueryData(["getBoard", boardId], (oldData: any) => {
             return {
               ...oldData,
               isFavorite: false,
@@ -293,7 +290,11 @@ const BoardItem = ({ board, setShowPlusIcon, setShowBoardOptions }: Props) => {
               background: board.color,
             }}
           ></div>
-          <span className="mr-1">{board.name}</span>
+          <span className="mr-1">
+            {board.name.length > 12
+              ? board.name.slice(0, 12) + "..."
+              : board.name}
+          </span>
           {board.visibility === BOARD_VISIBILITY_TYPES.PRIVATE && (
             <UtilityBtn
               iconSize={14}

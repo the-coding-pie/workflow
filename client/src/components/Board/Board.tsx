@@ -34,7 +34,7 @@ const Board = ({ board, spaceId }: Props) => {
 
         if (response.status === 201) {
           if (queryClient.getQueryData(["getBoard", boardId])) {
-            queryClient.setQueriesData(
+            queryClient.setQueryData(
               ["getBoard", boardId],
               (oldData: any) => {
                 return {
@@ -130,7 +130,7 @@ const Board = ({ board, spaceId }: Props) => {
       .delete(`/favorites/${favId}`)
       .then((response) => {
         if (queryClient.getQueryData(["getBoard", boardId])) {
-          queryClient.setQueriesData(["getBoard", boardId], (oldData: any) => {
+          queryClient.setQueryData(["getBoard", boardId], (oldData: any) => {
             return {
               ...oldData,
               isFavorite: false,

@@ -6,6 +6,9 @@ import ChangeBgMenu from "./ChangeBgMenu";
 import LabelMenu from "./LabelMenu";
 
 interface Props {
+  description: string;
+  spaceId: string;
+  boardId: string;
   myRole:
     | typeof BOARD_ROLES.ADMIN
     | typeof BOARD_ROLES.NORMAL
@@ -13,7 +16,13 @@ interface Props {
   setShowMenu: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-const BoardMenu = ({ setShowMenu, myRole }: Props) => {
+const BoardMenu = ({
+  description,
+  spaceId,
+  boardId,
+  setShowMenu,
+  myRole,
+}: Props) => {
   const [showOption, setShowOption] = useState(false);
   const [currentOption, setCurrentOption] = useState<string | null>(null);
 
@@ -23,15 +32,24 @@ const BoardMenu = ({ setShowMenu, myRole }: Props) => {
     switch (currentOption) {
       case "About":
         setShowOption(true);
-        setCurrentComponent(<AboutMenu myRole={myRole} />);
+        setCurrentComponent(
+          <AboutMenu
+            description={description}
+            myRole={myRole}
+            spaceId={spaceId}
+            boardId={boardId}
+          />
+        );
         break;
       case "ChangeBG":
         setShowOption(true);
-        setCurrentComponent(<ChangeBgMenu />);
+        setCurrentComponent(
+          <ChangeBgMenu spaceId={spaceId} boardId={boardId} />
+        );
         break;
       case "Labels":
         setShowOption(true);
-        setCurrentComponent(<LabelMenu />);
+        setCurrentComponent(<LabelMenu spaceId={spaceId} boardId={boardId} />);
         break;
       default:
         setCurrentComponent(null);
@@ -102,7 +120,11 @@ const BoardMenu = ({ setShowMenu, myRole }: Props) => {
             </li>
           )}
 
-          {myRole === BOARD_ROLES.ADMIN && <li className="w-full px-3 py-3 text-left hover:bg-slate-200 text-red-500 cursor-pointer">Delete board</li>}
+          {myRole === BOARD_ROLES.ADMIN && (
+            <li className="w-full px-3 py-3 text-left hover:bg-slate-200 text-red-500 cursor-pointer">
+              Delete board
+            </li>
+          )}
         </ul>
       ) : (
         <div className="option">{component && component}</div>
