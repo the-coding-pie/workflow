@@ -405,7 +405,7 @@ const BoardDetail = () => {
 
                 <HorizontalSeparator />
 
-                <BoardMembers role={board.role} members={board.members} />
+                <BoardMembers boardId={board._id} role={board.role} members={board.members} spaceId={board.space._id} />
 
                 {board.role === BOARD_ROLES.ADMIN && (
                   <>

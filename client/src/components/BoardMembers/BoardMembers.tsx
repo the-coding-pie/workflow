@@ -4,6 +4,8 @@ import { BOARD_ROLES } from "../../types/constants";
 import BoardMember from "./BoardMember";
 
 interface Props {
+  boardId: string;
+  spaceId: string;
   role:
     | typeof BOARD_ROLES.ADMIN
     | typeof BOARD_ROLES.NORMAL
@@ -11,7 +13,7 @@ interface Props {
   members: BoardMemberObj[];
 }
 
-const BoardMembers = ({ role, members }: Props) => {
+const BoardMembers = ({ boardId, spaceId, role, members }: Props) => {
   const boardAdmins = members.filter((m: any) => m.role === BOARD_ROLES.ADMIN);
 
   return (
@@ -20,8 +22,10 @@ const BoardMembers = ({ role, members }: Props) => {
         <BoardMember
           key={m._id}
           member={m}
+          boardId={boardId}
           boardAdmins={boardAdmins}
           myRole={role}
+          spaceId={spaceId}
         />
       ))}
     </div>

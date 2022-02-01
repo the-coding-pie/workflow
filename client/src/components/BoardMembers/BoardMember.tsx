@@ -14,6 +14,8 @@ import Profile from "../Profile/Profile";
 import BoardRoleDropdown from "./BoardRoleDropdown";
 
 interface Props {
+  spaceId: string;
+  boardId: string;
   member: BoardMemberObj;
   boardAdmins: BoardMemberObj[];
   myRole:
@@ -22,7 +24,13 @@ interface Props {
     | typeof BOARD_ROLES.OBSERVER;
 }
 
-const BoardMember = ({ member, boardAdmins, myRole }: Props) => {
+const BoardMember = ({
+  spaceId,
+  boardId,
+  member,
+  boardAdmins,
+  myRole,
+}: Props) => {
   const dispatch = useDispatch();
 
   const { user } = useSelector((state: RootState) => state.auth);
@@ -165,11 +173,13 @@ const BoardMember = ({ member, boardAdmins, myRole }: Props) => {
             </div>
           ) : (
             <BoardRoleDropdown
+              boardId={boardId}
               options={rolesOptions}
               setIsFirstScreen={setIsFirstScreen}
               setShowOptions={setShowOptions}
               isHeOnlyBoardAdmin={isHeOnlyBoardAdmin}
               member={member}
+              spaceId={spaceId}
             />
           )}
         </div>

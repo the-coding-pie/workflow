@@ -84,15 +84,14 @@ const InviteBtn = ({ boardId, spaceId }: Props) => {
           const { message } = response.data;
 
           switch (response.status) {
-            case 404:
             case 403:
+            case 404:
               setShowDropdown(false);
               dispatch(addToast({ kind: ERROR, msg: message }));
+
               queryClient.invalidateQueries(["getSpaces"]);
               queryClient.invalidateQueries(["getFavorites"]);
               queryClient.invalidateQueries(["getBoard", boardId]);
-              queryClient.invalidateQueries(["getSpaceBoards", spaceId]);
-              queryClient.invalidateQueries(["getSpaceInfo", spaceId]);
               break;
             case 400:
             case 500:

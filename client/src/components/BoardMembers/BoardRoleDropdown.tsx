@@ -1,12 +1,18 @@
+import { AxiosError } from "axios";
 import React, { useCallback, useState } from "react";
 import { HiOutlineCheck } from "react-icons/hi";
 import { MdChevronLeft, MdClose } from "react-icons/md";
-import { useSelector } from "react-redux";
+import { useQueryClient } from "react-query";
+import { useDispatch, useSelector } from "react-redux";
+import axiosInstance from "../../axiosInstance";
 import { RootState } from "../../redux/app";
+import { addToast } from "../../redux/features/toastSlice";
 import { BoardMemberObj, OptionWithSub } from "../../types";
-import { BOARD_ROLES } from "../../types/constants";
+import { BOARD_ROLES, ERROR, SUCCESS } from "../../types/constants";
 
 interface Props {
+  boardId: string;
+  spaceId: string;
   options: OptionWithSub[];
   isHeOnlyBoardAdmin: boolean;
   member: BoardMemberObj;
@@ -15,18 +21,90 @@ interface Props {
 }
 
 const BoardRoleDropdown = ({
+  boardId,
+  spaceId,
   options,
   member,
   isHeOnlyBoardAdmin,
   setIsFirstScreen,
   setShowOptions,
 }: Props) => {
+  const dispatch = useDispatch();
+
   const [showConfirmScreen, setShowConfirmScreen] = useState(false);
   const [newRole, setNewRole] = useState("");
+  const queryClient = useQueryClient();
 
   const { user } = useSelector((state: RootState) => state.auth);
 
-  const changeRole = useCallback(() => {}, []);
+  const resetOptions = useCallback(() => {
+    setShowOptions(false);
+    setIsFirstScreen(true);
+  }, []);
+
+  const changeRole = useCallback((newRole, boardId, memberId) => {
+    axiosInstance
+      .put(`boards/${boardId}/members/${memberId}`, {
+        newRole: newRole,
+      })
+      .then((response) => {
+        const { message } = response.data;
+
+        dispatch(
+          addToast({
+            kind: SUCCESS,
+            msg: message,
+          })
+        );
+
+        queryClient.invalidateQueries(["getBoard", boardId]);
+        queryClient.invalidateQueries(["getSpaces"]);
+        queryClient.invalidateQueries(["getFavorites"]);
+
+        resetOptions();
+      })
+      .catch((error: AxiosError) => {
+        if (error.response) {
+          const response = error.response;
+          const { message } = response.data;
+
+          switch (response.status) {
+            case 403:
+              queryClient.invalidateQueries(["getBoard", boardId]);
+              queryClient.invalidateQueries(["getSpaces"]);
+              queryClient.invalidateQueries(["getFavorites"]);
+              break;
+            case 404:
+              resetOptions();
+
+              dispatch(addToast({ kind: ERROR, msg: message }));
+
+              queryClient.invalidateQueries(["getBoard", boardId]);
+              queryClient.invalidateQueries(["getSpaces"]);
+              queryClient.invalidateQueries(["getFavorites"]);
+
+              queryClient.invalidateQueries(["getSpaceBoards", spaceId]);
+              queryClient.invalidateQueries(["getSpaceInfo", spaceId]);
+              break;
+            case 400:
+            case 500:
+              dispatch(addToast({ kind: ERROR, msg: message }));
+              break;
+            default:
+              dispatch(
+                addToast({ kind: ERROR, msg: "Oops, something went wrong" })
+              );
+              break;
+          }
+        } else if (error.request) {
+          dispatch(
+            addToast({ kind: ERROR, msg: "Oops, something went wrong" })
+          );
+        } else {
+          dispatch(addToast({ kind: ERROR, msg: `Error: ${error.message}` }));
+        }
+      });
+  }, []);
 
   const handleChangeRole = useCallback((o: OptionWithSub) => {
     // downgrading -> you ADMIN is trying to change to NORMAL/OBSERVER user
@@ -37,7 +115,7 @@ const BoardRoleDropdown = ({
     ) {
       setShowConfirmScreen(true);
     } else {
-      //   changeRole(o.value, member._id, spaceId);
+      changeRole(o.value, member._id, boardId);
     }
   }, []);
 
@@ -59,8 +137,7 @@ const BoardRoleDropdown = ({
 
               <button
                 onClick={() => {
-                  setShowOptions(false);
-                  setIsFirstScreen(true);
+                  resetOptions();
                 }}
                 type="button"
                 role="close-dropdown-options"
@@ -76,7 +153,14 @@ const BoardRoleDropdown = ({
             </p>
 
             <div className="flex items-center justify-center px-4 py-3 pb-6">
-              <button className="btn-slate">Make me a {newRole} member</button>
+              <button
+                onClick={() => {
+                  changeRole(newRole, boardId, member._id);
+                }}
+                className="btn-slate"
+              >
+                Make me a {newRole} member
+              </button>
             </div>
           </div>
         ) : (
@@ -94,8 +178,7 @@ const BoardRoleDropdown = ({
 
               <button
                 onClick={() => {
-                  setShowOptions(false);
-                  setIsFirstScreen(true);
+                  resetOptions();
                 }}
                 type="button"
                 role="close-dropdown-options"

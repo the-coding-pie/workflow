@@ -785,11 +785,11 @@ export const updateMemberRole = async (req: any, res: Response) => {
     );
 
     if (!targetMember) {
-      return res.status(404).send({
+      return res.status(403).send({
         success: false,
         data: {},
         message: "Such a member doesn't exists on this board",
-        statusCode: 404,
+        statusCode: 403,
       });
     }
 
