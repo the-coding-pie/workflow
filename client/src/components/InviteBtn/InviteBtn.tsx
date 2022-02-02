@@ -207,7 +207,7 @@ const InviteBtn = ({ boardId, spaceId }: Props) => {
           onSubmit={(values) => handleSubmit(values)}
         >
           <Form
-            className="pb-3 mr-4 mt-6 absolute bg-white z-20 top-6 left-0 shadow-lg rounded"
+            className="pb-3 mr-4 mt-6 absolute bg-white z-40 top-6 left-0 shadow-lg rounded"
             style={{
               width: "350px",
             }}

@@ -142,7 +142,7 @@ const BoardVisibilityDropdown = ({
 
       {showDropDown && (
         <div
-          className="dropdown absolute bg-white z-20 top-10 left-0 shadow-lg rounded noselect"
+          className="dropdown absolute bg-white z-40 top-10 left-0 shadow-lg rounded noselect"
           style={{
             width: "360px",
           }}

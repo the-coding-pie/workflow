@@ -57,7 +57,7 @@ const BoardMenu = ({
   }, [currentOption]);
 
   return (
-    <div className="h-screen w-80 bg-slate-100 z-40 fixed right-0 top-14 bottom-0 overflow-x-hidden overflow-y-auto">
+    <div className="w-80 bg-slate-100 z-20 fixed right-0 top-14 bottom-0 overflow-x-hidden overflow-y-auto">
       <header className="px-4 py-3 flex items-center justify-between border-b mb-4">
         {showOption ? (
           <button

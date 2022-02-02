@@ -41,7 +41,7 @@ const ProfileCard = () => {
 
       {show && (
         <div
-          className="absolute right-0 z-30 flex flex-col bg-white rounded-md shadow-lg extra-options arrow top-12"
+          className="absolute right-0 z-40 flex flex-col bg-white rounded-md shadow-lg extra-options arrow top-12"
           style={{
             minWidth: "160px",
           }}

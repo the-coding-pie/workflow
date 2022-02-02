@@ -81,7 +81,7 @@ const BoardMember = ({
 
       {showOptions && (
         <div
-          className="board-member-dropdown absolute bg-white z-20 top-10 left-0 shadow-lg rounded noselect text-sm text-slate-600"
+          className="board-member-dropdown absolute bg-white z-40 top-10 left-0 shadow-lg rounded noselect text-sm text-slate-600"
           style={{
             width: "320px",
           }}

@@ -55,13 +55,6 @@ const ChangeBgMenu = ({ spaceId, boardId }: Props) => {
       .then((response) => {
         const { message } = response.data;
 
-        dispatch(
-          addToast({
-            kind: SUCCESS,
-            msg: message,
-          })
-        );
-
         setIsSubmitting(false);
 
         queryClient.invalidateQueries(["getBoard", boardId]);

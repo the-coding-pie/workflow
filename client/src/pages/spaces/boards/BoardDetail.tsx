@@ -300,27 +300,26 @@ const BoardDetail = () => {
   }
 
   return (
-    <div className="board-page">
+    <div className="board-page h-full w-full max-h-full overflow-hidden">
       {board && (
-        <div
-          className="board-wrapper w-screen h-screen overflow-hidden absolute z-0 top-0 right-0 bottom-0 left-0"
-          style={{
-            background: board.bgImg ? `url(${board.bgImg})` : board.color,
-            backgroundRepeat: "no-repeat",
-            boxShadow: `inset 0 0 0 2000px rgba(150, 150, 150, 0.3)`,
-            backgroundPosition: "100%",
-            backgroundOrigin: "border-box",
-            backgroundSize: "cover",
-            width: "100%",
-            maxWidth: "100%",
-            backgroundBlendMode: "overlay",
-          }}
-        >
-          <div className="board-content w-full h-full text-sm overflow-y-hidden overflow-x-auto">
+        <>
+          <div
+            className="board-background fixed top-0 right-0 bottom-0 left-0"
+            style={{
+              zIndex: 1,
+              backgroundImage: `url(${board.bgImg})`,
+              backgroundColor: !board.bgImg ? board.color : "",
+              boxShadow: `inset 0 0 0 2000px rgba(150, 150, 150, 0.3)`,
+              backgroundRepeat: "no-repeat",
+              backgroundSize: "cover",
+              backgroundPosition: "50%",
+              backgroundBlendMode: "overlay",
+            }}
+          ></div>
+
+          <div className="board-content w-full h-full text-sm relative">
             <header
-              className={`board-header px-5 py-2 noselect flex items-center justify-between fixed top-14 ${
-                show ? "left-60" : "left-0"
-              } right-0 mb-14`}
+              className={`board-header px-5 py-2 noselect flex items-center justify-between absolute z-10 top-0 left-0 right-0`}
             >
               <div className="left flex items-center gap-x-4">
                 {board.role === BOARD_ROLES.ADMIN ? (
@@ -450,20 +449,21 @@ const BoardDetail = () => {
                   Show Menu
                 </button>
               </div>
+
+              {showMenu && (
+                <BoardMenu
+                  description={board.description}
+                  spaceId={board.space._id}
+                  boardId={board._id}
+                  myRole={board.role}
+                  setShowMenu={setShowMenu}
+                />
+              )}
             </header>
 
             <BoardLists />
           </div>
-          {showMenu && (
-            <BoardMenu
-              description={board.description}
-              spaceId={board.space._id}
-              boardId={board._id}
-              myRole={board.role}
-              setShowMenu={setShowMenu}
-            />
-          )}
-        </div>
+        </>
       )}
     </div>
   );

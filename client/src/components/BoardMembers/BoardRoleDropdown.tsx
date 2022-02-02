@@ -126,7 +126,7 @@ const BoardRoleDropdown = ({
   }, []);
 
   return (
-    <div className="board-member-role-dropdown">
+    <div className="board-member-role-dropdown z-50">
       {options.length > 0 ? (
         showConfirmScreen ? (
           <div className="dropdown noselect">
