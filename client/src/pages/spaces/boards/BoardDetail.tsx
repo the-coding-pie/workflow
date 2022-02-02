@@ -300,7 +300,7 @@ const BoardDetail = () => {
   }
 
   return (
-    <div className="board-page h-full w-full max-h-full overflow-hidden">
+    <div className="board-page h-full w-full">
       {board && (
         <>
           <div
@@ -317,9 +317,9 @@ const BoardDetail = () => {
             }}
           ></div>
 
-          <div className="board-content w-full h-full text-sm relative">
+          <div className="board-content w-full h-full flex flex-col text-sm">
             <header
-              className={`board-header px-5 py-2 noselect flex items-center justify-between absolute z-10 top-0 left-0 right-0`}
+              className={`board-header px-5 py-2 noselect flex items-center justify-between z-10`}
             >
               <div className="left flex items-center gap-x-4">
                 {board.role === BOARD_ROLES.ADMIN ? (
@@ -461,7 +461,14 @@ const BoardDetail = () => {
               )}
             </header>
 
-            <BoardLists />
+            <div
+              className="board-list flex-1"
+              style={{
+                zIndex: 5,
+              }}
+            >
+              <BoardLists />
+            </div>
           </div>
         </>
       )}
