@@ -33,14 +33,14 @@ const Options: React.FC<Props> = ({ children, show, setShow, x, y }) => {
   return (
     show && (
       <div
-        className="backdrop fixed top-0 bottom-0 left-0 right-0 z-40 flex items-center justify-center w-full h-full m-auto bg-black bg-opacity-0"
+        className="backdrop fixed top-0 bottom-0 left-0 right-0 z-50 flex items-center justify-center w-full h-full m-auto bg-black bg-opacity-0"
         style={{
           maxHeight: "100vh",
         }}
       >
         <ul
           ref={optionsBoxRef}
-          className="z-50 absolute options block bg-white rounded shadow-lg"
+          className="absolute options block bg-white rounded shadow-lg"
           style={
             y > window.innerHeight / 2 + 20
               ? {

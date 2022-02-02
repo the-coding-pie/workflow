@@ -65,7 +65,7 @@ const Sidebar = () => {
 
   return (
     <aside
-      className={`sidebar z-20 shadow-xl fixed left-0 top-0 bottom-0 overflow-x-hidden box-border ${
+      className={`sidebar z-30 shadow-xl fixed left-0 top-0 bottom-0 overflow-x-hidden box-border ${
         show ? "w-60" : "hidden"
       } bg-white h-screen flex flex-col transition-all`}
     >
