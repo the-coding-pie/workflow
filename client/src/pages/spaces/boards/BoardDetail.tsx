@@ -300,7 +300,7 @@ const BoardDetail = () => {
   }
 
   return (
-    <div className="board-page h-full w-full">
+    <div className="board-page h-full">
       {board && (
         <>
           <div
@@ -317,9 +317,9 @@ const BoardDetail = () => {
             }}
           ></div>
 
-          <div className="board-content h-full w-full flex flex-col text-sm">
+          <div className="board-content flex flex-col text-sm">
             <header
-              className={`board-header box-border h-14 w-full px-5 py-2 noselect flex items-center justify-between z-10`}
+              className={`board-header h-14 w-full px-5 py-2 noselect flex items-center justify-between z-10`}
             >
               <div className="left flex items-center gap-x-4">
                 {board.role === BOARD_ROLES.ADMIN ? (
