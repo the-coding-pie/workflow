@@ -321,7 +321,7 @@ const BoardDetail = () => {
             <header
               className={`board-header h-14 w-full px-5 py-2 noselect flex items-center justify-between z-10`}
             >
-              <div className="left flex items-center gap-x-4">
+              <div className="left flex items-center flex-1 gap-x-4">
                 {board.role === BOARD_ROLES.ADMIN ? (
                   <BoardName
                     spaceId={board.space._id}
@@ -440,7 +440,7 @@ const BoardDetail = () => {
                   </>
                 )}
               </div>
-              <div className="right flex items-center gap-x-4">
+              <div className="right flex items-center">
                 <button
                   onClick={() => setShowMenu((prevValue) => !prevValue)}
                   className="flex items-center bg-slate-50 px-2 py-1.5 rounded"
