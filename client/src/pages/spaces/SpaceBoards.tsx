@@ -36,7 +36,7 @@ const SpaceBoards = ({ spaceId }: Props) => {
 
   if (isLoading) {
     return (
-      <div className="h-full pb-12 w-full flex items-center justify-center">
+      <div className="h-full w-full flex items-center justify-center">
         <Loader />
       </div>
     );

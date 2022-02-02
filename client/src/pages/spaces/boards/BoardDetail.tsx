@@ -6,6 +6,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { Navigate, useNavigate, useParams } from "react-router-dom";
 import ReactTooltip from "react-tooltip";
 import axiosInstance from "../../../axiosInstance";
+import BoardLists from "../../../components/BoardLists/BoardLists";
 import BoardMembers from "../../../components/BoardMembers/BoardMembers";
 import BoardMenu from "../../../components/BoardMenu/BoardMenu";
 import BoardName from "../../../components/BoardName/BoardName";
@@ -264,7 +265,7 @@ const BoardDetail = () => {
 
   if (isLoading) {
     return (
-      <div className="h-full pb-12 w-full flex items-center justify-center">
+      <div className="h-full w-full flex items-center justify-center">
         <Loader />
       </div>
     );
@@ -302,7 +303,7 @@ const BoardDetail = () => {
     <div className="board-page">
       {board && (
         <div
-          className="board-wrapper w-screen h-screen overflow-hidden absolute z-0 top-14 right-0 bottom-0 left-0"
+          className="board-wrapper w-screen h-screen overflow-hidden absolute z-0 top-0 right-0 bottom-0 left-0"
           style={{
             background: board.bgImg ? `url(${board.bgImg})` : board.color,
             backgroundRepeat: "no-repeat",
@@ -315,7 +316,7 @@ const BoardDetail = () => {
             backgroundBlendMode: "overlay",
           }}
         >
-          <div className="board-content w-full h-screen text-sm overflow-y-hidden overflow-x-auto">
+          <div className="board-content w-full h-full text-sm overflow-y-hidden overflow-x-auto">
             <header
               className={`board-header px-5 py-2 noselect flex items-center justify-between fixed top-14 ${
                 show ? "left-60" : "left-0"
@@ -450,6 +451,8 @@ const BoardDetail = () => {
                 </button>
               </div>
             </header>
+
+            <BoardLists />
           </div>
           {showMenu && (
             <BoardMenu

@@ -18,13 +18,17 @@ const DefaultLayout = () => {
   const modal = useSelector((state: RootState) => state.modal);
 
   return (
-    <div className="relative">
-      <div>
+    <div className="layout relative">
+      <div className="layout__content flex">
         <Sidebar />
 
-        <main className={`main w-full ${show ? "ml-60" : ""}`}>
+        <main
+          className={`main h-screen flex-1 flex flex-col ${
+            show ? "ml-60" : ""
+          }`}
+        >
           <Header />
-          <div className="h-screen mt-14">
+          <div className="page-wrapper flex-1 mt-14">
             <Suspense fallback={<div>Loading...</div>}>
               <Routes>
                 <Route path="/" element={<Home />} />
