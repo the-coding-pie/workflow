@@ -10,6 +10,10 @@ const cardSchema = new mongoose.Schema(
       maxlength: 512,
       trim: true,
     },
+    pos: {
+      type: Number,
+      required: true,
+    },
     listId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "List",

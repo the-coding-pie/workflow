@@ -1,5 +1,7 @@
 import React from "react";
+import { Droppable } from "react-beautiful-dnd";
 import { HiOutlinePlus } from "react-icons/hi";
+import { CardObj, ListObj } from "../../types";
 import { BOARD_ROLES } from "../../types/constants";
 import Card from "./Card";
 
@@ -8,9 +10,11 @@ interface Props {
     | typeof BOARD_ROLES.ADMIN
     | typeof BOARD_ROLES.NORMAL
     | typeof BOARD_ROLES.OBSERVER;
+  list: ListObj;
+  cards: CardObj[];
 }
 
-const List = ({ myRole }: Props) => {
+const List = ({ myRole, list, cards }: Props) => {
   return (
     <div
       className="list first:ml-4 p-2 rounded flex flex-col h-min"
@@ -21,21 +25,25 @@ const List = ({ myRole }: Props) => {
       }}
     >
       <header className="list__header mb-1">
-        <h3 className="list-title font-semibold text-base px-2">Hello</h3>
+        <h3 className="list-title font-semibold text-base px-2">{list.name}</h3>
       </header>
 
-      <ul
-        id="list-items"
-        className="list-items flex-1 flex flex-col overflow-y-auto pr-1 justify-start"
-      >
-        <Card myRole={myRole} />
-        <Card myRole={myRole} />
-        <Card myRole={myRole} />
-        <Card myRole={myRole} />
-        <Card myRole={myRole} />
-        <Card myRole={myRole} />
-        <Card myRole={myRole} />
-      </ul>
+      <Droppable droppableId={list._id}>
+        {(provided, snapshot) => (
+          <div ref={provided.innerRef} {...provided.droppableProps}>
+            <ul
+              id="list-items"
+              className="list-items flex-1 flex flex-col overflow-auto overflow-x-hidden pr-1"
+            >
+              {cards.map((c) => (
+                <Card key={c._id} card={c} myRole={myRole} />
+              ))}
+
+              {provided.placeholder}
+            </ul>
+          </div>
+        )}
+      </Droppable>
 
       <button className="w-full cursor-pointer flex items-center px-2 py-1.5 hover:bg-gray-300 rounded text-gray-700 hover:text-gray-900 mt-1">
         <HiOutlinePlus className="mr-1" size={18} />

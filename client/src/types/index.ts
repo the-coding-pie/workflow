@@ -173,3 +173,18 @@ export interface OptionWithSub {
   label: string;
   sub: string;
 }
+
+// list obj
+export interface ListObj {
+  _id: string;
+  name: string;
+  pos: number;
+}
+
+export interface CardObj {
+  _id: string;
+  name: string;
+  description: string;
+  listId: string;
+  pos: number;
+}

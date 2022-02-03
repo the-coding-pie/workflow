@@ -312,14 +312,17 @@ const BoardDetail = () => {
               boxShadow: `inset 0 0 0 2000px rgba(150, 150, 150, 0.3)`,
               backgroundRepeat: "no-repeat",
               backgroundSize: "cover",
-              backgroundPosition: "center",
+              backgroundPosition: "50%",
               backgroundBlendMode: "overlay",
             }}
           ></div>
 
           <div className="board-content flex flex-col text-sm">
             <header
-              className={`board-header h-14 w-full px-5 py-2 noselect flex items-center justify-between z-10`}
+              className={`board-header h-14 w-full px-5 py-2 noselect flex items-center justify-between`}
+              style={{
+                zIndex: "2"
+              }}
             >
               <div className="left flex items-center flex-1 gap-x-4">
                 {board.role === BOARD_ROLES.ADMIN ? (
