@@ -18,9 +18,12 @@ const List = () => {
 
       <ul
         id="list-items"
-        className="list-items flex-1 flex flex-col overflow-y-auto pr-1"
+        className="list-items flex-1 flex flex-col overflow-y-auto pr-1 justify-start"
       >
-       
+        <Card />
+        <Card />
+        <Card />
+        <Card /><Card /><Card /><Card />
       </ul>
 
       <button className="w-full cursor-pointer flex items-center px-2 py-1.5 hover:bg-gray-300 rounded text-gray-700 hover:text-gray-900 mt-1">
