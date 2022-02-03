@@ -461,7 +461,8 @@ const BoardDetail = () => {
               )}
             </header>
 
-            <BoardLists />
+          
+              <BoardLists />
           </div>
         </>
       )}

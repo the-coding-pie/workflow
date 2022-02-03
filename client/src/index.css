@@ -20,8 +20,8 @@
   box-sizing: border-box !important;
 }
 
-::after,
-::before {
+*::after,
+*::before {
   box-sizing: border-box;
 }
 
@@ -63,6 +63,27 @@ body {
 
 #invisible-scrollbar::-webkit-scrollbar {
   display: none; /* for Chrome, Safari, and Opera */
+}
+
+#board-lists::-webkit-scrollbar {
+  height: 12px;
+  width: 12px;
+}
+
+#board-lists::-webkit-scrollbar-thumb {
+  background-color: #00000026;
+  border-top-width: 0;
+}
+
+#list-items::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+  background-color: #091e4214;
+}
+
+#list-items::-webkit-scrollbar-thumb {
+  background-color: #c4c9cc;
+  border-right: 0rem solid #e2e4e6;
 }
 
 ::-webkit-scrollbar {

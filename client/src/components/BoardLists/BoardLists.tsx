@@ -3,10 +3,14 @@ import List from "./List";
 
 const BoardLists = () => {
   return (
-    <div className="board-lists flex box-border overflow-y-hidden overflow-x-auto mt-4 pb-3" style={{
-      zIndex: "5",
-      height: "calc(100vh - 8rem)",
-    }}>
+    <div
+      id="board-lists"
+      className="board-lists w-full mt-4 pb-3 flex overflow-x-auto overflow-y-hidden gap-x-4"
+      style={{
+        zIndex: "5",
+        height: "calc(100vh - 8.5rem)",
+      }}
+    >
       <List />
       <List />
       <List />
