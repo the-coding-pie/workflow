@@ -1,8 +1,16 @@
 import React from "react";
 import { HiOutlinePlus } from "react-icons/hi";
+import { BOARD_ROLES } from "../../types/constants";
 import Card from "./Card";
 
-const List = () => {
+interface Props {
+  myRole:
+    | typeof BOARD_ROLES.ADMIN
+    | typeof BOARD_ROLES.NORMAL
+    | typeof BOARD_ROLES.OBSERVER;
+}
+
+const List = ({ myRole }: Props) => {
   return (
     <div
       className="list first:ml-4 p-2 rounded flex flex-col h-min"
@@ -20,10 +28,13 @@ const List = () => {
         id="list-items"
         className="list-items flex-1 flex flex-col overflow-y-auto pr-1 justify-start"
       >
-        <Card />
-        <Card />
-        <Card />
-        <Card /><Card /><Card /><Card />
+        <Card myRole={myRole} />
+        <Card myRole={myRole} />
+        <Card myRole={myRole} />
+        <Card myRole={myRole} />
+        <Card myRole={myRole} />
+        <Card myRole={myRole} />
+        <Card myRole={myRole} />
       </ul>
 
       <button className="w-full cursor-pointer flex items-center px-2 py-1.5 hover:bg-gray-300 rounded text-gray-700 hover:text-gray-900 mt-1">

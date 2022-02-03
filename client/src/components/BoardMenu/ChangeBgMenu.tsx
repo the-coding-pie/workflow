@@ -58,6 +58,8 @@ const ChangeBgMenu = ({ spaceId, boardId }: Props) => {
         setIsSubmitting(false);
 
         queryClient.invalidateQueries(["getBoard", boardId]);
+        queryClient.invalidateQueries(["getSpaces"]);
+        queryClient.invalidateQueries(["getFavorites"]);
       })
       .catch((error: AxiosError) => {
         setIsSubmitting(false);

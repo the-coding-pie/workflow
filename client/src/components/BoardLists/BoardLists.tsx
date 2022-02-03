@@ -1,8 +1,16 @@
 import React from "react";
 import { HiOutlinePlus } from "react-icons/hi";
+import { BOARD_ROLES } from "../../types/constants";
 import List from "./List";
 
-const BoardLists = () => {
+interface Props {
+  myRole:
+    | typeof BOARD_ROLES.ADMIN
+    | typeof BOARD_ROLES.NORMAL
+    | typeof BOARD_ROLES.OBSERVER;
+}
+
+const BoardLists = ({ myRole }: Props) => {
   return (
     <div
       id="board-lists"
@@ -12,11 +20,11 @@ const BoardLists = () => {
         height: "calc(100vh - 8.7rem)",
       }}
     >
-      <List />
-      <List />
-      <List />
-      <List />
-      <List />
+      <List myRole={myRole} />
+      <List myRole={myRole} />
+      <List myRole={myRole} />
+      <List myRole={myRole} />
+      <List myRole={myRole} />
 
       <button
         className="add-a-list bg-gray-100 flex items-center px-2 py-3 rounded hover:bg-gray-200"

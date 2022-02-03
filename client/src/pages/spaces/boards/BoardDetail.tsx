@@ -312,7 +312,7 @@ const BoardDetail = () => {
               boxShadow: `inset 0 0 0 2000px rgba(150, 150, 150, 0.3)`,
               backgroundRepeat: "no-repeat",
               backgroundSize: "cover",
-              backgroundPosition: "50%",
+              backgroundPosition: "center",
               backgroundBlendMode: "overlay",
             }}
           ></div>
@@ -461,8 +461,7 @@ const BoardDetail = () => {
               )}
             </header>
 
-          
-              <BoardLists />
+            <BoardLists myRole={board.role} />
           </div>
         </>
       )}
