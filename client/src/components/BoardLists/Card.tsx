@@ -17,7 +17,7 @@ const Card = ({ myRole, card }: Props) => {
       {(provided, snapshot) => (
         <li
          style={{
-           zIndex: "200"
+           zIndex: "100 !important"
          }}
           ref={provided.innerRef}
           {...provided.draggableProps}

@@ -71,7 +71,7 @@ const BoardLists = ({ myRole }: Props) => {
     <DragDropContext onDragEnd={handleDragEnd}>
       <div
         id="board-lists"
-        className="board-lists w-full mt-4 flex items-start overflow-x-auto overflow-y-hidden gap-x-4 pr-4"
+        className="board-lists w-full mt-4 flex items-start overflow-x-auto overflow-y-hidden gap-x-4 pr-4 absolute top-0 right-0 bottom-0 left-0"
         style={{
           zIndex: "5",
           height: "calc(100vh - 8.7rem)",
@@ -86,7 +86,7 @@ const BoardLists = ({ myRole }: Props) => {
         })}
 
         <button
-          className="add-a-list bg-gray-100 flex items-center px-2 py-3 rounded hover:bg-gray-200"
+          className={`add-a-list bg-gray-100 flex items-center px-2 py-3 rounded hover:bg-gray-200 ${lists.length === 0 ? 'ml-5' : 'ml-0'}`}
           style={{
             fontSize: "0.9rem",
             minWidth: "18rem",

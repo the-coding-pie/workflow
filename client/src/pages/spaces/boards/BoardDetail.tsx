@@ -317,12 +317,9 @@ const BoardDetail = () => {
             }}
           ></div>
 
-          <div className="board-content flex flex-col text-sm">
+          <div className="board-content flex flex-col text-sm relative">
             <header
-              className={`board-header h-14 w-full px-5 py-2 noselect flex items-center justify-between`}
-              style={{
-                zIndex: "2"
-              }}
+              className={`board-header h-14 w-full px-5 py-2 noselect flex items-center justify-between z-10`}
             >
               <div className="left flex items-center flex-1 gap-x-4">
                 {board.role === BOARD_ROLES.ADMIN ? (
@@ -464,7 +461,9 @@ const BoardDetail = () => {
               )}
             </header>
 
-            <BoardLists myRole={board.role} />
+            <div className="board-canvas relative flex-grow">
+              <BoardLists myRole={board.role} />
+            </div>
           </div>
         </>
       )}
