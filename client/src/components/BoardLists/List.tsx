@@ -30,10 +30,14 @@ const List = ({ myRole, list, cards }: Props) => {
 
       <Droppable droppableId={list._id}>
         {(provided, snapshot) => (
-          <div ref={provided.innerRef} {...provided.droppableProps}>
+          <div
+            className="flex-1 flex flex-col overflow-hidden"
+            ref={provided.innerRef}
+            {...provided.droppableProps}
+          >
             <ul
               id="list-items"
-              className="list-items flex-1 flex flex-col overflow-auto overflow-x-hidden pr-1"
+              className="list-items flex-1 w-full flex flex-col overflow-auto overflow-x-hidden pr-1"
             >
               {cards.map((c) => (
                 <Card key={c._id} card={c} myRole={myRole} />
