@@ -65,10 +65,6 @@ body {
   display: none; /* for Chrome, Safari, and Opera */
 }
 
-#board-lists {
-  -webkit-transform: translateZ(0);
-}
-
 #board-lists::-webkit-scrollbar {
   height: 12px;
   width: 12px;

@@ -16,9 +16,7 @@ const Card = ({ myRole, card }: Props) => {
     <Draggable draggableId={card._id} index={card.pos}>
       {(provided, snapshot) => (
         <li
-         style={{
-           zIndex: "100 !important"
-         }}
+        
           ref={provided.innerRef}
           {...provided.draggableProps}
           {...provided.dragHandleProps}
