@@ -28,7 +28,19 @@ const List = ({ myRole, list, cards }: Props) => {
         <h3 className="list-title font-semibold text-base px-2">{list.name}</h3>
       </header>
 
-      <Droppable droppableId={list._id}>
+      <Droppable
+        // renderClone={(provided, snapshot, rubric) => (
+        //   <li
+        //     ref={provided.innerRef}
+        //     {...provided.draggableProps}
+        //     {...provided.dragHandleProps}
+        //     className="bg-white mb-2 rounded p-2 shadow hover:bg-slate-100 cursor-pointer font-normal text-gray-900 list-none text-sm"
+        //   >
+        //     {cards.find((c) => c._id === rubric.source.droppableId)?.name}
+        //   </li>
+        // )}
+        droppableId={list._id}
+      >
         {(provided, snapshot) => (
           <div
             className={`flex-1 flex flex-col overflow-hidden`}

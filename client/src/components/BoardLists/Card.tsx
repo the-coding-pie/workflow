@@ -16,7 +16,6 @@ const Card = ({ myRole, card }: Props) => {
     <Draggable draggableId={card._id} index={card.pos}>
       {(provided, snapshot) => (
         <li
-        
           ref={provided.innerRef}
           {...provided.draggableProps}
           {...provided.dragHandleProps}
