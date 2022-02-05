@@ -75,7 +75,7 @@ const BoardLists = ({ myRole }: Props) => {
             ref={provided.innerRef}
             {...provided.droppableProps}
             id="board-lists"
-            className="board-lists w-full mt-4 flex items-start overflow-x-auto overflow-y-hidden gap-x-4 pr-4 absolute top-0 right-0 bottom-0 left-0"
+            className="board-lists w-full mt-4 flex items-start overflow-x-auto overflow-y-hidden pr-4 absolute top-0 right-0 bottom-0 left-0"
             style={{
               zIndex: "5",
               height: "calc(100vh - 8.7rem)",

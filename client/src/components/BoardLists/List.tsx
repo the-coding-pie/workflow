@@ -22,7 +22,7 @@ const List = ({ myRole, index, list, cards }: Props) => {
         <div
           ref={provided.innerRef}
           {...provided.draggableProps}
-          className="list first:ml-4 p-2 overflow-hidden rounded flex flex-col"
+          className="list first:ml-4 p-2 overflow-hidden rounded mr-4 flex flex-col"
           style={{
             ...provided.draggableProps.style,
             background: "#EBECF0",
