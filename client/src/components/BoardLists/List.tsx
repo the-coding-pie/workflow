@@ -73,7 +73,7 @@ const List = ({ myRole, index, list, cards }: Props) => {
             )}
           </Droppable>
 
-          <button className="w-full cursor-pointer flex items-center px-2 py-1.5 hover:bg-gray-300 rounded text-gray-700 hover:text-gray-900 mt-1">
+          <button className="w-full cursor-pointer flex items-center px-2 py-1.5 hover:bg-gray-300 rounded text-gray-700 hover:text-gray-900">
             <HiOutlinePlus className="mr-1" size={18} />
             <span>Add a card</span>
           </button>
