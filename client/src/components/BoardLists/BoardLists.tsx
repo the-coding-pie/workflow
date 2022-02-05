@@ -5,6 +5,7 @@ import cards from "../../data/cards";
 import lists from "../../data/lists";
 import { BOARD_ROLES } from "../../types/constants";
 import List from "./List";
+import ListDummy from "./ListDummy";
 
 interface Props {
   myRole:
@@ -69,7 +70,26 @@ const BoardLists = ({ myRole }: Props) => {
 
   return (
     <DragDropContext onDragEnd={handleDragEnd}>
-      <Droppable droppableId="board" direction="horizontal" type="LIST">
+      <Droppable
+        // renderClone={(provided, snapshot, rubric) => {
+        //   const list = data.lists.find((l) => l._id === rubric.draggableId)!;
+        //   const cards = data.cards
+        //     .filter((c) => c.listId === rubric.draggableId)
+        //     .sort((a, b) => a.pos - b.pos);
+
+        //   return (
+        //     <ListDummy
+        //       provided={provided}
+        //       snapshot={snapshot}
+        //       list={list}
+        //       cards={cards}
+        //     />
+        //   );
+        // }}
+        droppableId="board"
+        direction="horizontal"
+        type="LIST"
+      >
         {(provided, snapshot) => (
           <div
             ref={provided.innerRef}
@@ -89,7 +109,13 @@ const BoardLists = ({ myRole }: Props) => {
                   .sort((a, b) => a.pos - b.pos);
 
                 return (
-                  <List key={l._id} index={index} list={l} myRole={myRole} cards={cards} />
+                  <List
+                    key={l._id}
+                    index={index}
+                    list={l}
+                    myRole={myRole}
+                    cards={cards}
+                  />
                 );
               })}
 

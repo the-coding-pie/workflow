@@ -4,6 +4,7 @@ import { HiOutlinePlus } from "react-icons/hi";
 import { CardObj, ListObj } from "../../types";
 import { BOARD_ROLES } from "../../types/constants";
 import Card from "./Card";
+import CardDummy from "./CardDummy";
 
 interface Props {
   myRole:
@@ -37,16 +38,17 @@ const List = ({ myRole, index, list, cards }: Props) => {
           </header>
 
           <Droppable
-            // renderClone={(provided, snapshot, rubric) => (
-            //   <li
-            //     ref={provided.innerRef}
-            //     {...provided.draggableProps}
-            //     {...provided.dragHandleProps}
-            //     className="bg-white mb-2 rounded p-2 shadow hover:bg-slate-100 cursor-pointer font-normal text-gray-900 list-none text-sm"
-            //   >
-            //     {cards.find((c) => c._id === rubric.source.droppableId)?.name}
-            //   </li>
-            // )}
+            // renderClone={(provided, snapshot, rubric) => {
+            //   const card = cards.find((c) => c._id === rubric.draggableId)!;
+
+            //   return (
+            //     <CardDummy
+            //       card={card}
+            //       provided={provided}
+            //       snapshot={snapshot}
+            //     />
+            //   );
+            // }}
             droppableId={list._id}
             type="CARD"
           >
