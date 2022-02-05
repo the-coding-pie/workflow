@@ -23,7 +23,7 @@ const List = ({ myRole, index, list, cards }: Props) => {
         <div
           ref={provided.innerRef}
           {...provided.draggableProps}
-          className="list first:ml-4 p-2 overflow-hidden rounded mr-4 flex flex-col"
+          className="list p-2 overflow-hidden rounded mr-4 flex flex-col"
           style={{
             ...provided.draggableProps.style,
             background: "#EBECF0",
@@ -38,17 +38,17 @@ const List = ({ myRole, index, list, cards }: Props) => {
           </header>
 
           <Droppable
-            // renderClone={(provided, snapshot, rubric) => {
-            //   const card = cards.find((c) => c._id === rubric.draggableId)!;
+            renderClone={(provided, snapshot, rubric) => {
+              const card = cards.find((c) => c._id === rubric.draggableId)!;
 
-            //   return (
-            //     <CardDummy
-            //       card={card}
-            //       provided={provided}
-            //       snapshot={snapshot}
-            //     />
-            //   );
-            // }}
+              return (
+                <CardDummy
+                  card={card}
+                  provided={provided}
+                  snapshot={snapshot}
+                />
+              );
+            }}
             droppableId={list._id}
             type="CARD"
           >
