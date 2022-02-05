@@ -23,9 +23,10 @@ const DefaultLayout = () => {
         <Sidebar />
 
         <main
-          className={`main h-screen flex-1 flex flex-col ${
-            show ? "ml-60" : ""
-          }`}
+          className={`main flex-1 flex flex-col ${show ? "ml-60" : ""}`}
+          style={{
+            minHeight: "100vh",
+          }}
         >
           <Header />
           <div className="page-wrapper flex-1 mt-14">

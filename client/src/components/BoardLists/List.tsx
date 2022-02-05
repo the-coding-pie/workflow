@@ -12,21 +12,22 @@ interface Props {
     | typeof BOARD_ROLES.OBSERVER;
   list: ListObj;
   cards: CardObj[];
+  index: number;
 }
 
-const List = ({ myRole, list, cards }: Props) => {
+const List = ({ myRole, index, list, cards }: Props) => {
   return (
-    <Draggable draggableId={list._id} index={list.pos}>
+    <Draggable draggableId={list._id} index={index}>
       {(provided, snapshot) => (
         <div
           ref={provided.innerRef}
           {...provided.draggableProps}
-          className="list first:ml-4 p-2 rounded flex flex-col"
+          className="list first:ml-4 p-2 overflow-hidden rounded flex flex-col"
           style={{
+            ...provided.draggableProps.style,
             background: "#EBECF0",
             flex: "0 0 18rem",
             maxHeight: "calc(100vh - 10.2rem)",
-            minHeight: "200px"
           }}
         >
           <header {...provided.dragHandleProps} className="list__header mb-1">
@@ -47,7 +48,7 @@ const List = ({ myRole, list, cards }: Props) => {
             //   </li>
             // )}
             droppableId={list._id}
-            type="card"
+            type="CARD"
           >
             {(provided, snapshot) => (
               <div
@@ -62,8 +63,8 @@ const List = ({ myRole, list, cards }: Props) => {
                     minHeight: "1px",
                   }}
                 >
-                  {cards.map((c) => (
-                    <Card key={c._id} card={c} myRole={myRole} />
+                  {cards.map((c, index) => (
+                    <Card key={c._id} index={index} card={c} myRole={myRole} />
                   ))}
 
                   {provided.placeholder}

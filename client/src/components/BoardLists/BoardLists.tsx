@@ -69,7 +69,7 @@ const BoardLists = ({ myRole }: Props) => {
 
   return (
     <DragDropContext onDragEnd={handleDragEnd}>
-      <Droppable droppableId="board" direction="horizontal" type="list">
+      <Droppable droppableId="board" direction="horizontal" type="LIST">
         {(provided, snapshot) => (
           <div
             ref={provided.innerRef}
@@ -83,15 +83,17 @@ const BoardLists = ({ myRole }: Props) => {
           >
             {data.lists
               .sort((a, b) => a.pos - b.pos)
-              .map((l) => {
+              .map((l, index) => {
                 const cards = data.cards
                   .filter((c) => c.listId === l._id)
                   .sort((a, b) => a.pos - b.pos);
 
                 return (
-                  <List key={l._id} list={l} myRole={myRole} cards={cards} />
+                  <List key={l._id} index={index} list={l} myRole={myRole} cards={cards} />
                 );
               })}
+
+            {provided.placeholder}
 
             <button
               className={`add-a-list bg-gray-100 flex items-center px-2 py-3 rounded hover:bg-gray-200 ${
@@ -105,8 +107,6 @@ const BoardLists = ({ myRole }: Props) => {
               <HiOutlinePlus className="mr-1 text-gray-800" size={18} />
               <span> Add a List</span>
             </button>
-
-            {provided.placeholder}
           </div>
         )}
       </Droppable>

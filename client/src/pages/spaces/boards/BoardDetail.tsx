@@ -461,7 +461,7 @@ const BoardDetail = () => {
               )}
             </header>
 
-            <div className="board-canvas relative flex-grow">
+            <div className="board-canvas relative flex-1">
               <BoardLists myRole={board.role} />
             </div>
           </div>
