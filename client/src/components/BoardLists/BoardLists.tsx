@@ -3,6 +3,7 @@ import { DragDropContext, Droppable, DropResult } from "react-beautiful-dnd";
 import { HiOutlinePlus } from "react-icons/hi";
 import cards from "../../data/cards";
 import lists from "../../data/lists";
+import { ListObj } from "../../types";
 import { BOARD_ROLES } from "../../types/constants";
 import List from "./List";
 import ListDummy from "./ListDummy";
@@ -20,12 +21,10 @@ const BoardLists = ({ myRole }: Props) => {
     cards: cards,
   });
 
-  const handleDragEnd = (result: DropResult) => {
-    const { source, destination, draggableId } = result;
+  console.log(data.lists);
 
-    console.log(source);
-    console.log(destination);
-    console.log(draggableId);
+  const handleDragEnd = (result: DropResult) => {
+    const { source, destination, draggableId, type } = result;
 
     if (!destination) {
       return;
@@ -36,6 +35,148 @@ const BoardLists = ({ myRole }: Props) => {
       source.index === destination.index &&
       source.droppableId === destination.droppableId
     ) {
+      return;
+    }
+
+    const lists = data.lists.sort((a, b) => a.pos - b.pos);
+
+    // they are dragging the list itself
+    if (type === "LIST") {
+      let newLists: ListObj[] = [];
+
+      const sourceList = lists[source.index];
+      const destinationList = lists[destination.index];
+      // use only for right side dragging
+      const destinationNextList = lists[destination.index + 1];
+      // use only for left side dragging
+      const sourceNextList = lists[source.index + 1];
+      const destinationPrevList = lists[destination.index - 1];
+
+      // they are dragging to right
+      if (sourceList.pos < destinationList.pos) {
+        // if they are dragging it to the right most end
+        if (!destinationNextList) {
+          const newPos = destinationList.pos + 65536;
+          // add 65536 to the destinationList.pos and make it the sourceList.pos
+          newLists = data.lists.map((l) => {
+            if (l._id === draggableId) {
+              return {
+                ...l,
+                pos: newPos,
+              };
+            }
+
+            return l;
+          });
+        } else {
+          const newPos = (destinationList.pos + destinationNextList.pos) / 2;
+          // there may be some next list after destination list
+          // in that case, take (destinationList.pos + destinationNextList.pos) / 2
+          newLists = lists.map((l) => {
+            if (l._id === draggableId) {
+              return {
+                ...l,
+                pos: newPos,
+              };
+            }
+
+            return l;
+          });
+        }
+      } else {
+        // left
+        // check if it is left most
+        if (!destinationPrevList) {
+          let newPos = destinationList.pos / 2;
+
+          if (newPos < 0.1) {
+            newPos = 16384;
+
+            const positionedList = lists;
+            const el = positionedList.splice(source.index, 1);
+            positionedList.splice(destination.index, 0, ...el);
+
+            console.log(el);
+            console.log(positionedList);
+
+            const positionedList2 = positionedList.map((l, index) => {
+              if (l._id === sourceList._id) {
+                return {
+                  ...l,
+                  pos: newPos,
+                };
+              } else if (l._id === destinationList._id) {
+                if (
+                  sourceNextList &&
+                  sourceNextList.pos > newPos * 2 &&
+                  source.index + 1 === 2
+                ) {
+                  return {
+                    ...l,
+                    pos: (newPos + sourceNextList.pos) / 2,
+                  };
+                } else {
+                  return {
+                    ...l,
+                    pos: newPos * 2,
+                  };
+                }
+              }
+
+              return l;
+            });
+            
+            let i = 0;
+
+            newLists = positionedList2.map((l, index) => {
+              i += 1;
+
+              if (index > 1) {
+                return {
+                  ...l,
+                  pos:
+                    l.pos > positionedList2[index - 1].pos ? l.pos : newPos * i,
+                };
+              }
+
+              return l;
+            });
+          } else {
+            newLists = lists.map((l) => {
+              if (l._id === sourceList._id) {
+                return {
+                  ...l,
+                  pos: newPos,
+                };
+              }
+
+              return l;
+            });
+          }
+        } else {
+          // there is something between
+          const newPos = (destinationList.pos + destinationPrevList.pos) / 2;
+
+          newLists = lists.map((l) => {
+            if (l._id === draggableId) {
+              return {
+                ...l,
+                pos: newPos,
+              };
+            }
+
+            return l;
+          });
+        }
+      }
+
+      setData((prevData) => {
+        return {
+          ...prevData,
+          lists: newLists,
+        };
+      });
+
       return;
     }
 
