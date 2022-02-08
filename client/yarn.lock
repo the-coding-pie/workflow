@@ -377,6 +377,21 @@
   dependencies:
     react-toastify "*"
 
+"@types/react-virtualized@^9.21.16":
+  version "9.21.16"
+  resolved "https://registry.yarnpkg.com/@types/react-virtualized/-/react-virtualized-9.21.16.tgz#5e33c7e8a7c187f2b6d542132fc7a1d132b34f9d"
+  integrity sha512-25QMrouz1VKq5T68+9JfRq3GP4JmN20ARi+hl5z7NMmriy07XmGd1Yh3I4EIZjmifpXhHZoQS/ny2fzZRyiAiw==
+  dependencies:
+    "@types/prop-types" "*"
+    "@types/react" "*"
+
+"@types/react-window@^1.8.5":
+  version "1.8.5"
+  resolved "https://registry.yarnpkg.com/@types/react-window/-/react-window-1.8.5.tgz#285fcc5cea703eef78d90f499e1457e9b5c02fc1"
+  integrity sha512-V9q3CvhC9Jk9bWBOysPGaWy/Z0lxYcTXLtLipkt2cnRj1JOSFNF7wqGpkScSXMgBwC+fnVRg/7shwgddBG5ICw==
+  dependencies:
+    "@types/react" "*"
+
 "@types/react@*", "@types/react@^17.0.33":
   version "17.0.38"
   resolved "https://registry.yarnpkg.com/@types/react/-/react-17.0.38.tgz#f24249fefd89357d5fa71f739a686b8d7c7202bd"

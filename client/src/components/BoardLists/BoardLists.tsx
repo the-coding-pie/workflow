@@ -5,6 +5,7 @@ import cards from "../../data/cards";
 import lists from "../../data/lists";
 import { ListObj } from "../../types";
 import { BOARD_ROLES } from "../../types/constants";
+import { Lexorank } from "../../utils/lexorank";
 import List from "./List";
 import ListDummy from "./ListDummy";
 
@@ -16,6 +17,8 @@ interface Props {
 }
 
 const BoardLists = ({ myRole }: Props) => {
+  const lexoRank = new Lexorank();
+
   const [data, setData] = useState({
     lists: lists,
     cards: cards,
@@ -38,11 +41,23 @@ const BoardLists = ({ myRole }: Props) => {
       return;
     }
 
-    const lists = data.lists.sort((a, b) => a.pos - b.pos);
+    const lists = data.lists.sort((a, b) => {
+      if (a.pos < b.pos) {
+        return -1;
+      }
+
+      if (a.pos > b.pos) {
+        return 1;
+      }
+
+      return 0;
+    });
 
     // they are dragging the list itself
     if (type === "LIST") {
       let newLists: ListObj[] = [];
+
+      const lexorank = new Lexorank();
 
       const sourceList = lists[source.index];
       const destinationList = lists[destination.index];
@@ -56,9 +71,9 @@ const BoardLists = ({ myRole }: Props) => {
       if (sourceList.pos < destinationList.pos) {
         // if they are dragging it to the right most end
         if (!destinationNextList) {
-          const newPos = destinationList.pos + 65536;
-          // add 65536 to the destinationList.pos and make it the sourceList.pos
-          newLists = data.lists.map((l) => {
+          const [newPos, ok] = lexorank.insert(destinationList.pos, "");
+
+          newLists = lists.map((l) => {
             if (l._id === draggableId) {
               return {
                 ...l,
@@ -69,9 +84,12 @@ const BoardLists = ({ myRole }: Props) => {
             return l;
           });
         } else {
-          const newPos = (destinationList.pos + destinationNextList.pos) / 2;
-          // there may be some next list after destination list
-          // in that case, take (destinationList.pos + destinationNextList.pos) / 2
+          // right drag (middle)
+          const [newPos, ok] = lexorank.insert(
+            destinationList.pos,
+            destinationNextList.pos
+          );
+
           newLists = lists.map((l) => {
             if (l._id === draggableId) {
               return {
@@ -85,77 +103,26 @@ const BoardLists = ({ myRole }: Props) => {
         }
       } else {
         // left
-        // check if it is left most
+        // left most
         if (!destinationPrevList) {
-          let newPos = destinationList.pos / 2;
+          const [newPos, ok] = lexorank.insert("", destinationList.pos);
 
-          if (newPos < 0.1) {
-            newPos = 16384;
+          newLists = lists.map((l) => {
+            if (l._id === draggableId) {
+              return {
+                ...l,
+                pos: newPos,
+              };
+            }
 
-            const positionedList = lists;
-            const el = positionedList.splice(source.index, 1);
-            positionedList.splice(destination.index, 0, ...el);
-
-            console.log(el);
-            console.log(positionedList);
-
-            const positionedList2 = positionedList.map((l, index) => {
-              if (l._id === sourceList._id) {
-                return {
-                  ...l,
-                  pos: newPos,
-                };
-              } else if (l._id === destinationList._id) {
-                if (
-                  sourceNextList &&
-                  sourceNextList.pos > newPos * 2 &&
-                  source.index + 1 === 2
-                ) {
-                  return {
-                    ...l,
-                    pos: (newPos + sourceNextList.pos) / 2,
-                  };
-                } else {
-                  return {
-                    ...l,
-                    pos: newPos * 2,
-                  };
-                }
-              }
-
-              return l;
-            });
-            
-            let i = 0;
-
-            newLists = positionedList2.map((l, index) => {
-              i += 1;
-
-              if (index > 1) {
-                return {
-                  ...l,
-                  pos:
-                    l.pos > positionedList2[index - 1].pos ? l.pos : newPos * i,
-                };
-              }
-
-              return l;
-            });
-          } else {
-            newLists = lists.map((l) => {
-              if (l._id === sourceList._id) {
-                return {
-                  ...l,
-                  pos: newPos,
-                };
-              }
-
-              return l;
-            });
-          }
+            return l;
+          });
         } else {
-          // there is something between
-          const newPos = (destinationList.pos + destinationPrevList.pos) / 2;
+          // left drag (middle)
+          const [newPos, ok] = lexorank.insert(
+            destinationPrevList.pos,
+            destinationList.pos
+          );
 
           newLists = lists.map((l) => {
             if (l._id === draggableId) {
@@ -243,7 +210,17 @@ const BoardLists = ({ myRole }: Props) => {
             }}
           >
             {data.lists
-              .sort((a, b) => a.pos - b.pos)
+              .sort((a, b) => {
+                if (a.pos < b.pos) {
+                  return -1;
+                }
+
+                if (a.pos > b.pos) {
+                  return 1;
+                }
+
+                return 0;
+              })
               .map((l, index) => {
                 const cards = data.cards
                   .filter((c) => c.listId === l._id)

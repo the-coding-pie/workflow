@@ -178,7 +178,7 @@ export interface OptionWithSub {
 export interface ListObj {
   _id: string;
   name: string;
-  pos: number;
+  pos: string;
 }
 
 export interface CardObj {

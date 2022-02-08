@@ -4,27 +4,27 @@ const lists: ListObj[] = [
   {
     _id: "134343",
     name: "First list",
-    pos: 65535,
+    pos: "a",
   },
   {
     _id: "2234388855",
     name: "Second list",
-    pos: 65535 + 65536,
+    pos: "b",
   },
   {
     _id: "3234235345",
     name: "Third list",
-    pos: 65535 + 65536 * 2,
+    pos: "c",
   },
   {
     _id: "4323434343",
     name: "Fourth list",
-    pos: 65535 + 65536 * 3,
+    pos: "d",
   },
   {
     _id: "535654",
     name: "Fifth list",
-    pos: 65535 + 65536 * 4,
+    pos: "e",
   },
 ];
 
