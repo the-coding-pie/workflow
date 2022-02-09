@@ -186,5 +186,5 @@ export interface CardObj {
   name: string;
   description: string;
   listId: string;
-  pos: number;
+  pos: string;
 }

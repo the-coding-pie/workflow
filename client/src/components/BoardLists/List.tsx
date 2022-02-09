@@ -60,7 +60,7 @@ const List = ({ myRole, index, list, cards }: Props) => {
               >
                 <ul
                   id="list-items"
-                  className="list-items flex-1 w-full flex flex-col overflow-auto overflow-x-hidden pr-1"
+                  className="list-items flex-1 w-full flex flex-col overflow-auto overflow-x-hidden pt-1 pr-1"
                   style={{
                     minHeight: "1px",
                   }}
