@@ -164,12 +164,101 @@ export const createList = async (req: any, res: Response) => {
       data: {
         _id: list._id,
         name: list.name,
-        boardId: list.boardId,
         pos: list.pos,
         refetch: refetch,
       },
       message: "New List has been created!",
       statusCode: 201,
+    });
+  } catch (err) {
+    res.status(500).send({
+      success: false,
+      data: {},
+      message: "Oops, something went wrong!",
+      statusCode: 500,
+    });
+  }
+};
+
+// GET /lists?boardId="boardId" -> get all lists under board
+export const getLists = async (req: any, res: Response) => {
+  try {
+    const { boardId } = req.query;
+
+    if (!boardId) {
+      return res.status(400).send({
+        success: false,
+        data: {},
+        message: "boardId is required",
+        statusCode: 400,
+      });
+    } else if (!mongoose.isValidObjectId(boardId)) {
+      return res.status(400).send({
+        success: false,
+        data: {},
+        message: "Invalid boardId",
+        statusCode: 400,
+      });
+    }
+
+    // check for the board
+    const board = await Board.findOne({ _id: boardId })
+      .select("_id spaceId members lists visibility")
+      .populate({
+        path: "spaceId",
+        select: "_id name members",
+      })
+      .populate({
+        path: "lists",
+        select: "_id name pos",
+        options: {
+          sort: "pos",
+        },
+      });
+
+    if (!board) {
+      return res.status(404).send({
+        success: false,
+        data: {},
+        message: "Board not found!",
+        statusCode: 404,
+      });
+    }
+
+    // check whether the current user is board member or space member
+    const boardMember = board.members.find(
+      (m: any) => m.memberId.toString() === req.user._id.toString()
+    );
+    const spaceMember = board.spaceId.members.find(
+      (m: any) => m.memberId.toString() === req.user._id.toString()
+    );
+
+    if (
+      (!boardMember && !spaceMember) ||
+      (!boardMember &&
+        spaceMember &&
+        spaceMember.role === SPACE_MEMBER_ROLES.GUEST) ||
+      (!boardMember &&
+        spaceMember &&
+        spaceMember.role === SPACE_MEMBER_ROLES.NORMAL &&
+        board.visibility === BOARD_VISIBILITY.PRIVATE)
+    ) {
+      // you can't see this board at all
+      return res.status(404).send({
+        success: false,
+        data: {},
+        message: "Board not found",
+        statusCode: 404,
+      });
+    }
+
+    // now it is clear that the current user can see this board
+    // that's enough to send the lists
+    res.send({
+      success: true,
+      data: board.lists,
+      message: "",
+      statusCode: 200,
     });
   } catch (err) {
     res.status(500).send({
