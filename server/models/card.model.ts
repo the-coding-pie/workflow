@@ -11,8 +11,9 @@ const cardSchema = new mongoose.Schema(
       trim: true,
     },
     pos: {
-      type: Number,
+      type: String,
       required: true,
+      trim: true,
     },
     listId: {
       type: mongoose.Schema.Types.ObjectId,
