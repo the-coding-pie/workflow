@@ -14,6 +14,11 @@ const listSchema = new mongoose.Schema(
       ref: "Board",
       required: true,
     },
+    pos: {
+      type: String,
+      required: true,
+      trim: true,
+    },
     cards: {
       type: [
         {
