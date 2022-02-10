@@ -1,4 +1,3 @@
-import { LexoRank } from "lexorank";
 import React, { useState } from "react";
 import { DragDropContext, Droppable, DropResult } from "react-beautiful-dnd";
 import { HiOutlinePlus } from "react-icons/hi";
@@ -18,11 +17,6 @@ interface Props {
 }
 
 const BoardLists = ({ myRole }: Props) => {
-  // const lexoRank = new Lexorank();
-  const lexoRank = LexoRank.middle()
-
-  console.log(lexoRank)
-
   const [data, setData] = useState({
     lists: lists,
     cards: cards,
