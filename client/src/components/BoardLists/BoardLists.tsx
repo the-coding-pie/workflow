@@ -1,11 +1,19 @@
 import React, { useState } from "react";
 import { DragDropContext, Droppable, DropResult } from "react-beautiful-dnd";
 import { HiOutlinePlus } from "react-icons/hi";
+import { useQuery, useQueryClient } from "react-query";
+import { useDispatch } from "react-redux";
+import { Navigate } from "react-router-dom";
+import axiosInstance from "../../axiosInstance";
 import cards from "../../data/cards";
 import lists from "../../data/lists";
+import { addToast } from "../../redux/features/toastSlice";
 import { CardObj, ListObj } from "../../types";
-import { BOARD_ROLES } from "../../types/constants";
+import { BOARD_ROLES, ERROR } from "../../types/constants";
 import { Lexorank } from "../../utils/lexorank";
+import Error from "../Error/Error";
+import ErrorBoardLists from "../ErrorBoardLists/ErrorBoardLists";
+import Loader from "../Loader/Loader";
 import List from "./List";
 import ListDummy from "./ListDummy";
 
@@ -14,13 +22,97 @@ interface Props {
     | typeof BOARD_ROLES.ADMIN
     | typeof BOARD_ROLES.NORMAL
     | typeof BOARD_ROLES.OBSERVER;
+  boardId: string;
 }
 
-const BoardLists = ({ myRole }: Props) => {
-  const [data, setData] = useState({
-    lists: lists,
-    cards: cards,
-  });
+interface ListsAndCards {
+  lists: ListObj[];
+  cards: CardObj[];
+}
+
+const BoardLists = ({ myRole, boardId }: Props) => {
+  const dispatch = useDispatch();
+  const queryClient = useQueryClient();
+
+  const getLists = async ({ queryKey }: any) => {
+    const response = await axiosInstance.get(`/lists?boardId=${queryKey[1]}`);
+
+    const { data } = response.data;
+
+    return data;
+  };
+
+  const { data, isLoading, isRefetching, error } = useQuery<
+    ListsAndCards | undefined,
+    any,
+    ListsAndCards,
+    string[]
+  >(["getLists", boardId], getLists);
+
+  if (isLoading) {
+    return (
+      <div
+        className="h-full w-full items-center justify-center flex overflow-x-auto overflow-y-hidden pr-4 absolute top-0 right-0 bottom-0 left-0"
+        style={{
+          zIndex: "5",
+          height: "calc(100vh - 8.7rem)",
+        }}
+      >
+        <Loader />
+      </div>
+    );
+  }
+
+  // handle each error accordingly & specific to that situation
+  if (error) {
+    if (error?.response) {
+      const response = error.response;
+      const { message } = response.data;
+
+      switch (response.status) {
+        case 400:
+        case 404:
+          queryClient.invalidateQueries(["getBoard", boardId]);
+          queryClient.invalidateQueries(["getLists", boardId]);
+
+          dispatch(addToast({ kind: ERROR, msg: message }));
+          // redirect them to home page
+          return <Navigate to="/" replace={true} />;
+        case 500:
+          return (
+            <ErrorBoardLists
+              isRefetching={isRefetching}
+              queryKey={["getLists", boardId]}
+              msg={message}
+            />
+          );
+        default:
+          return (
+            <ErrorBoardLists
+              isRefetching={isRefetching}
+              queryKey={["getLists", boardId]}
+              msg={"Oops, something went wrong!"}
+            />
+          );
+      }
+    } else if (error?.request) {
+      return (
+        <ErrorBoardLists
+          isRefetching={isRefetching}
+          queryKey={["getLists", boardId]}
+          msg={"Oops, something went wrong, Unable to get response back!"}
+        />
+      );
+    } else {
+      return (
+        <ErrorBoardLists
+          isRefetching={isRefetching}
+          msg={`Oops, something went wrong!`}
+          queryKey={["getLists", boardId]}
+        />
+      );
+    }
+  }
 
   const handleDragEnd = (result: DropResult) => {
     const { source, destination, draggableId, type } = result;

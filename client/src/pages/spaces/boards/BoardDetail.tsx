@@ -247,7 +247,7 @@ const BoardDetail = () => {
   );
 
   const getBoard = async ({ queryKey }: any) => {
-    const response = await axiosInstance.get(`/boards/${id}`);
+    const response = await axiosInstance.get(`/boards/${queryKey[1]}`);
 
     const { data } = response.data;
 
@@ -280,6 +280,10 @@ const BoardDetail = () => {
       switch (response.status) {
         case 400:
         case 404:
+          queryClient.invalidateQueries(["getBoard", id!]);
+          queryClient.invalidateQueries(["getSpaces"]);
+          queryClient.invalidateQueries(["getFavorites"]);
+
           dispatch(addToast({ kind: ERROR, msg: message }));
           // redirect them to home page
           return <Navigate to="/" replace={true} />;
@@ -462,7 +466,7 @@ const BoardDetail = () => {
             </header>
 
             <div className="board-canvas relative flex-1">
-              <BoardLists myRole={board.role} />
+              <BoardLists myRole={board.role} boardId={board._id} />
             </div>
           </div>
         </>
