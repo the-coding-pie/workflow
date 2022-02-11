@@ -7,6 +7,7 @@ import spaceRouter from "./space.route";
 import boardRouter from "./board.route";
 import favoriteRouter from "./favorite.route";
 import listRouter from "./list.route";
+import cardRouter from "./card.route";
 
 const rootRouter = express.Router();
 
@@ -18,5 +19,6 @@ rootRouter.use("/spaces", spaceRouter);
 rootRouter.use("/boards", boardRouter);
 rootRouter.use("/favorites", favoriteRouter);
 rootRouter.use("/lists", listRouter);
+rootRouter.use("/cards", cardRouter);
 
 export default rootRouter;

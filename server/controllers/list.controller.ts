@@ -147,7 +147,7 @@ export const createList = async (req: any, res: Response) => {
 
     // creating a list
     const list = new List({
-      name: name,
+      name: validator.escape(name),
       boardId: board._id,
       pos: finalPos,
       creator: req.user._id,
@@ -210,11 +210,19 @@ export const getLists = async (req: any, res: Response) => {
       })
       .populate({
         path: "lists",
-        select: "_id name pos",
+        select: "_id name pos cards",
         options: {
           sort: "pos",
         },
-      });
+        populate: {
+          path: "cards",
+          select: "_id name description pos listId",
+          options: {
+            sort: "pos",
+          },
+        },
+      })
+      .lean();
 
     if (!board) {
       return res.status(404).send({
@@ -252,11 +260,26 @@ export const getLists = async (req: any, res: Response) => {
       });
     }
 
+    // final lists & cards
+    let allCards: any[] = [];
+
+    board.lists.forEach((l: any) => {
+      allCards = [...allCards, ...l.cards];
+    });
+
+    let allLists: any[] = board.lists.map((l: any) => {
+      delete l.cards;
+      return l;
+    });
+
     // now it is clear that the current user can see this board
     // that's enough to send the lists
     res.send({
       success: true,
-      data: board.lists,
+      data: {
+        lists: allLists,
+        cards: allCards,
+      },
       message: "",
       statusCode: 200,
     });
