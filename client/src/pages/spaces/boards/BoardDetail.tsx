@@ -129,6 +129,9 @@ const BoardDetail = () => {
               dispatch(addToast({ kind: ERROR, msg: message }));
               queryClient.invalidateQueries(["getSpaces"]);
               queryClient.invalidateQueries(["getFavorites"]);
+              queryClient.invalidateQueries(["getSpaceBoards", boardId]);
+              queryClient.invalidateQueries(["getBoard", boardId]);
+              queryClient.invalidateQueries(["getLists", boardId]);
               // redirect them to home page
               navigate("/", { replace: true });
               break;
@@ -221,6 +224,9 @@ const BoardDetail = () => {
                 dispatch(addToast({ kind: ERROR, msg: message }));
                 queryClient.invalidateQueries(["getSpaces"]);
                 queryClient.invalidateQueries(["getFavorites"]);
+                queryClient.invalidateQueries(["getSpaceBoards", boardId]);
+                queryClient.invalidateQueries(["getBoard", boardId]);
+                queryClient.invalidateQueries(["getLists", boardId]);
                 // redirect them to home page
                 navigate("/", { replace: true });
                 break;
@@ -283,6 +289,10 @@ const BoardDetail = () => {
           queryClient.invalidateQueries(["getBoard", id!]);
           queryClient.invalidateQueries(["getSpaces"]);
           queryClient.invalidateQueries(["getFavorites"]);
+          queryClient.invalidateQueries(["getLists", id!]);
+          if (board) {
+            queryClient.invalidateQueries(["getSpaceBoards", board.space._id]);
+          }
 
           dispatch(addToast({ kind: ERROR, msg: message }));
           // redirect them to home page

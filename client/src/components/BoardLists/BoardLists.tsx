@@ -1,19 +1,17 @@
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { DragDropContext, Droppable, DropResult } from "react-beautiful-dnd";
 import { HiOutlinePlus } from "react-icons/hi";
 import { useQuery, useQueryClient } from "react-query";
 import { useDispatch } from "react-redux";
 import { Navigate } from "react-router-dom";
 import axiosInstance from "../../axiosInstance";
-import cards from "../../data/cards";
-import lists from "../../data/lists";
 import { addToast } from "../../redux/features/toastSlice";
 import { CardObj, ListObj } from "../../types";
 import { BOARD_ROLES, ERROR } from "../../types/constants";
 import { Lexorank } from "../../utils/lexorank";
-import Error from "../Error/Error";
 import ErrorBoardLists from "../ErrorBoardLists/ErrorBoardLists";
 import Loader from "../Loader/Loader";
+import AddAList from "./AddAList";
 import List from "./List";
 import ListDummy from "./ListDummy";
 
@@ -34,6 +32,8 @@ const BoardLists = ({ myRole, boardId }: Props) => {
   const dispatch = useDispatch();
   const queryClient = useQueryClient();
 
+  const outerRef = useRef<HTMLDivElement>(null);
+
   const getLists = async ({ queryKey }: any) => {
     const response = await axiosInstance.get(`/lists?boardId=${queryKey[1]}`);
 
@@ -48,6 +48,19 @@ const BoardLists = ({ myRole, boardId }: Props) => {
     ListsAndCards,
     string[]
   >(["getLists", boardId], getLists);
+
+  useEffect(() => {
+    const boardLists = document.getElementById("board-lists");
+
+    console.log(outerRef.current);
+
+    if (data && data.lists && outerRef && outerRef.current) {
+      boardLists!.scrollTo({
+        behavior: "smooth",
+        left: outerRef.current.offsetLeft,
+      });
+    }
+  }, [data]);
 
   if (isLoading) {
     return (
@@ -74,6 +87,9 @@ const BoardLists = ({ myRole, boardId }: Props) => {
         case 404:
           queryClient.invalidateQueries(["getBoard", boardId]);
           queryClient.invalidateQueries(["getLists", boardId]);
+          queryClient.invalidateQueries(["getSpaces"]);
+          queryClient.invalidateQueries(["getFavorites"]);
+          queryClient.invalidateQueries(["getSpaceBoards"]);
 
           dispatch(addToast({ kind: ERROR, msg: message }));
           // redirect them to home page
@@ -114,7 +130,7 @@ const BoardLists = ({ myRole, boardId }: Props) => {
     }
   }
 
-  const handleDragEnd = (result: DropResult) => {
+  const handleDragEnd = (result: DropResult, data: ListsAndCards) => {
     const { source, destination, draggableId, type } = result;
 
     if (!destination) {
@@ -226,9 +242,9 @@ const BoardLists = ({ myRole, boardId }: Props) => {
         }
       }
 
-      setData((prevData) => {
+      queryClient.setQueryData(["getLists", boardId], (oldData: any) => {
         return {
-          ...prevData,
+          ...oldData,
           lists: newLists,
         };
       });
@@ -343,9 +359,9 @@ const BoardLists = ({ myRole, boardId }: Props) => {
         }
       }
 
-      setData((prevVale) => {
+      queryClient.setQueryData(["getLists", boardId], (oldData: any) => {
         return {
-          ...prevVale,
+          ...oldData,
           cards: newCards,
         };
       });
@@ -452,17 +468,18 @@ const BoardLists = ({ myRole, boardId }: Props) => {
         });
       }
     }
-
-    setData((prevVale) => {
+    queryClient.setQueryData(["getLists", boardId], (oldData: any) => {
       return {
-        ...prevVale,
+        ...oldData,
         cards: newCards,
       };
     });
   };
 
-  return (
-    <DragDropContext onDragEnd={handleDragEnd}>
+  return data ? (
+    <DragDropContext
+      onDragEnd={(result: DropResult) => handleDragEnd(result, data)}
+    >
       <Droppable
         renderClone={(provided, snapshot, rubric) => {
           const list = data.lists.find((l) => l._id === rubric.draggableId)!;
@@ -544,22 +561,25 @@ const BoardLists = ({ myRole, boardId }: Props) => {
 
             {provided.placeholder}
 
-            <button
-              className={`add-a-list bg-gray-100 flex items-center px-2 py-3 rounded hover:bg-gray-200 ${
-                lists.length === 0 ? "ml-5" : "ml-0"
-              }`}
-              style={{
-                fontSize: "0.9rem",
-                minWidth: "18rem",
-              }}
-            >
-              <HiOutlinePlus className="mr-1 text-gray-800" size={18} />
-              <span> Add a List</span>
-            </button>
+            {[BOARD_ROLES.ADMIN, BOARD_ROLES.NORMAL].includes(myRole) && (
+              <AddAList
+                ref={outerRef}
+                dataLength={data.lists.length}
+                boardId={boardId}
+                queryKey={["getLists", boardId]}
+                prevPos={
+                  data.lists.length > 0
+                    ? data.lists[data.lists.length - 1].pos
+                    : null
+                }
+              />
+            )}
           </div>
         )}
       </Droppable>
     </DragDropContext>
+  ) : (
+    <></>
   );
 };
 

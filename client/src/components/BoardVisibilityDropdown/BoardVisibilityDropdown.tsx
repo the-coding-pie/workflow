@@ -90,6 +90,7 @@ const BoardVisibilityDropdown = ({
 
                 queryClient.invalidateQueries(["getBoard", boardId]);
                 queryClient.invalidateQueries(["getSpaces"]);
+                queryClient.invalidateQueries(["getLists", boardId]);
                 queryClient.invalidateQueries(["getFavorites"]);
                 break;
               case 404:
@@ -99,6 +100,7 @@ const BoardVisibilityDropdown = ({
 
                 queryClient.invalidateQueries(["getBoard", boardId]);
                 queryClient.invalidateQueries(["getSpaces"]);
+                queryClient.invalidateQueries(["getLists", boardId]);
                 queryClient.invalidateQueries(["getFavorites"]);
 
                 queryClient.invalidateQueries(["getSpaceInfo", spaceId]);
