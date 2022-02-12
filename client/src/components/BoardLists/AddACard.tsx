@@ -18,7 +18,14 @@ interface Props {
   setIsOpen: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-const AddACard = ({ prevPos, listId, boardId, queryKey, isOpen, setIsOpen }: Props) => {
+const AddACard = ({
+  prevPos,
+  listId,
+  boardId,
+  queryKey,
+  isOpen,
+  setIsOpen,
+}: Props) => {
   const dispatch = useDispatch();
 
   const queryClient = useQueryClient();
@@ -38,6 +45,13 @@ const AddACard = ({ prevPos, listId, boardId, queryKey, isOpen, setIsOpen }: Pro
     }
   });
   const inputRef = useRef<HTMLTextAreaElement>(null);
+
+  useEffect(() => {
+    if (inputRef && inputRef.current) {
+      // scroll to bottom
+      inputRef.current.scrollIntoView();
+    }
+  }, [prevPos]);
 
   useEffect(() => {
     const cardName = document.getElementById("card-name");
@@ -99,6 +113,7 @@ const AddACard = ({ prevPos, listId, boardId, queryKey, isOpen, setIsOpen }: Pro
       )
       .then((response) => {
         setName("");
+        inputRef && inputRef.current && inputRef.current.focus();
 
         const { data } = response.data;
 
@@ -117,7 +132,6 @@ const AddACard = ({ prevPos, listId, boardId, queryKey, isOpen, setIsOpen }: Pro
           };
         });
 
-        // scroll to right
         if (data.refetch) {
           queryClient.invalidateQueries(["getLists", boardId]);
         }

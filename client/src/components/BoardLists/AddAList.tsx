@@ -16,184 +16,185 @@ interface Props {
   queryKey: string[];
 }
 
-const AddAList = React.forwardRef(
-  ({ dataLength, prevPos, boardId, queryKey }: Props, outerRef: any) => {
-    const dispatch = useDispatch();
+const AddAList = ({ dataLength, prevPos, boardId, queryKey }: Props) => {
+  const dispatch = useDispatch();
 
-    const [isOpen, setIsOpen] = useState(false);
-    const [name, setName] = useState("");
-    const [isFirst, setIsFirst] = useState(true);
+  const [isOpen, setIsOpen] = useState(false);
+  const [name, setName] = useState("");
+  const [isFirst, setIsFirst] = useState(true);
 
-    const queryClient = useQueryClient();
+  const queryClient = useQueryClient();
 
-    const handleClose = () => {
-      setIsOpen(false);
-      setIsFirst(true);
-    };
+  const handleClose = () => {
+    setIsOpen(false);
+    setIsFirst(true);
+  };
 
-    const ref = useClose(() => handleClose());
-    const inputRef = useRef<HTMLInputElement>(null);
+  const ref = useClose(() => handleClose());
+  const inputRef = useRef<HTMLInputElement>(null);
 
-    const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-      e.preventDefault();
+  useEffect(() => {
+    if (inputRef && inputRef.current) {
+      // scroll to bottom
+      inputRef.current.scrollIntoView();
+    }
+  }, [prevPos]);
 
-      if (name !== "") {
-        createList(name, prevPos);
-      } else {
-        inputRef && inputRef.current && inputRef.current.focus();
-      }
-    };
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
 
-    const createList = useCallback((name: string, prevPos: string | null) => {
-      const lexorank = new Lexorank();
+    if (name !== "") {
+      createList(name, prevPos);
+    } else {
+      inputRef && inputRef.current && inputRef.current.focus();
+    }
+  };
 
-      const [newPos, ok] = prevPos ? lexorank.insert(prevPos, "") : ["0", true];
+  const createList = useCallback((name: string, prevPos: string | null) => {
+    const lexorank = new Lexorank();
 
-      // create list
-      axiosInstance
-        .post(
-          `/lists`,
-          {
-            boardId,
-            name: name,
-            pos: newPos,
+    const [newPos, ok] = prevPos ? lexorank.insert(prevPos, "") : ["0", true];
+
+    // create list
+    axiosInstance
+      .post(
+        `/lists`,
+        {
+          boardId,
+          name: name,
+          pos: newPos,
+        },
+        {
+          headers: {
+            ContentType: "application/json",
           },
-          {
-            headers: {
-              ContentType: "application/json",
-            },
-          }
-        )
-        .then((response) => {
-          setName("");
+        }
+      )
+      .then((response) => {
+        setName("");
 
-          const { data } = response.data;
+        const { data } = response.data;
 
-          queryClient.setQueryData(queryKey, (oldData: any) => {
-            return {
-              ...oldData,
-              lists: [
-                ...oldData.lists,
-                {
-                  _id: data._id,
-                  name: data.name,
-                  pos: data.pos,
-                },
-              ],
-            };
-          });
-
-          // scroll to right
-          if (data.refetch) {
-            queryClient.invalidateQueries(["getLists", boardId]);
-          }
-        })
-        .catch((error: AxiosError) => {
-          setIsOpen(false);
-
-          if (error.response) {
-            const response = error.response;
-            const { message } = response.data;
-
-            switch (response.status) {
-              case 403:
-                dispatch(addToast({ kind: ERROR, msg: message }));
-
-                queryClient.invalidateQueries(["getBoard", boardId]);
-                queryClient.invalidateQueries(["getLists", boardId]);
-                queryClient.invalidateQueries(["getSpaces"]);
-                queryClient.invalidateQueries(["getFavorites"]);
-                break;
-              case 404:
-                dispatch(addToast({ kind: ERROR, msg: message }));
-
-                queryClient.invalidateQueries(["getBoard", boardId]);
-                queryClient.invalidateQueries(["getLists", boardId]);
-                queryClient.invalidateQueries(["getSpaces"]);
-                queryClient.invalidateQueries(["getFavorites"]);
-
-                queryClient.invalidateQueries(["getSpaceBoards"]);
-                break;
-              case 400:
-              case 500:
-                dispatch(addToast({ kind: ERROR, msg: message }));
-                break;
-              default:
-                dispatch(
-                  addToast({ kind: ERROR, msg: "Oops, something went wrong" })
-                );
-                break;
-            }
-          } else if (error.request) {
-            dispatch(
-              addToast({ kind: ERROR, msg: "Oops, something went wrong" })
-            );
-          } else {
-            dispatch(addToast({ kind: ERROR, msg: `Error: ${error.message}` }));
-          }
+        queryClient.setQueryData(queryKey, (oldData: any) => {
+          return {
+            ...oldData,
+            lists: [
+              ...oldData.lists,
+              {
+                _id: data._id,
+                name: data.name,
+                pos: data.pos,
+              },
+            ],
+          };
         });
-    }, []);
 
-    return (
-      <div
-        ref={outerRef}
-        className={`add-a-list ${dataLength === 0 ? "ml-5" : "ml-0"}`}
-      >
-        {isOpen ? (
-          <form
-            onSubmit={handleSubmit}
-            ref={ref}
-            className="add-list-form bg-gray-100 flex flex-col px-2 py-3 rounded"
-            style={{
-              fontSize: "0.9rem",
-              width: "18rem",
-            }}
-          >
-            <input
-              type="text"
-              value={name}
-              ref={inputRef}
-              onChange={(e) => {
-                if (e.target.value.length < 512) {
-                  setName(e.target.value);
-                }
-              }}
-              className="bg-white p-2 rounded border-2 outline-none border-primary"
-              autoFocus
-              onFocus={(e) => isFirst && e.target.select()}
-              onBlur={() => setIsFirst(false)}
-              placeholder="Enter list title..."
-            />
-            <div className="bottom mt-3 flex items-center">
-              <button type="submit" className="btn-primary mr-2">
-                Add list
-              </button>
+        if (data.refetch) {
+          queryClient.invalidateQueries(["getLists", boardId]);
+        }
+      })
+      .catch((error: AxiosError) => {
+        setIsOpen(false);
 
-              <button
-                type="button"
-                onClick={(e) => handleClose()}
-                className="close-btn"
-              >
-                <HiOutlineX size={21} />
-              </button>
-            </div>
-          </form>
-        ) : (
-          <button
-            onClick={() => setIsOpen(true)}
-            className={`add-a-list bg-gray-100 flex items-center px-2 py-3 rounded hover:bg-gray-200`}
-            style={{
-              fontSize: "0.9rem",
-              width: "18rem",
+        if (error.response) {
+          const response = error.response;
+          const { message } = response.data;
+
+          switch (response.status) {
+            case 403:
+              dispatch(addToast({ kind: ERROR, msg: message }));
+
+              queryClient.invalidateQueries(["getBoard", boardId]);
+              queryClient.invalidateQueries(["getLists", boardId]);
+              queryClient.invalidateQueries(["getSpaces"]);
+              queryClient.invalidateQueries(["getFavorites"]);
+              break;
+            case 404:
+              dispatch(addToast({ kind: ERROR, msg: message }));
+
+              queryClient.invalidateQueries(["getBoard", boardId]);
+              queryClient.invalidateQueries(["getLists", boardId]);
+              queryClient.invalidateQueries(["getSpaces"]);
+              queryClient.invalidateQueries(["getFavorites"]);
+
+              queryClient.invalidateQueries(["getSpaceBoards"]);
+              break;
+            case 400:
+            case 500:
+              dispatch(addToast({ kind: ERROR, msg: message }));
+              break;
+            default:
+              dispatch(
+                addToast({ kind: ERROR, msg: "Oops, something went wrong" })
+              );
+              break;
+          }
+        } else if (error.request) {
+          dispatch(
+            addToast({ kind: ERROR, msg: "Oops, something went wrong" })
+          );
+        } else {
+          dispatch(addToast({ kind: ERROR, msg: `Error: ${error.message}` }));
+        }
+      });
+  }, []);
+
+  return (
+    <div className={`add-a-list ${dataLength === 0 ? "ml-5" : "ml-0"}`}>
+      {isOpen ? (
+        <form
+          onSubmit={handleSubmit}
+          ref={ref}
+          className="add-list-form bg-gray-100 flex flex-col px-2 py-3 rounded"
+          style={{
+            fontSize: "0.9rem",
+            width: "18rem",
+          }}
+        >
+          <input
+            type="text"
+            value={name}
+            ref={inputRef}
+            onChange={(e) => {
+              if (e.target.value.length < 512) {
+                setName(e.target.value);
+              }
             }}
-          >
-            <HiOutlinePlus className="mr-1 text-gray-800" size={18} />
-            <span> Add a List</span>
-          </button>
-        )}
-      </div>
-    );
-  }
-);
+            className="bg-white p-2 rounded border-2 outline-none border-primary"
+            autoFocus
+            onFocus={(e) => isFirst && e.target.select()}
+            onBlur={() => setIsFirst(false)}
+            placeholder="Enter list title..."
+          />
+          <div className="bottom mt-3 flex items-center">
+            <button type="submit" className="btn-primary mr-2">
+              Add list
+            </button>
+
+            <button
+              type="button"
+              onClick={(e) => handleClose()}
+              className="close-btn"
+            >
+              <HiOutlineX size={21} />
+            </button>
+          </div>
+        </form>
+      ) : (
+        <button
+          onClick={() => setIsOpen(true)}
+          className={`add-a-list bg-gray-100 flex items-center px-2 py-3 rounded hover:bg-gray-200`}
+          style={{
+            fontSize: "0.9rem",
+            width: "18rem",
+          }}
+        >
+          <HiOutlinePlus className="mr-1 text-gray-800" size={18} />
+          <span> Add a List</span>
+        </button>
+      )}
+    </div>
+  );
+};
 
 export default AddAList;

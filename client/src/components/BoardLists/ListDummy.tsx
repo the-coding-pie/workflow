@@ -20,7 +20,7 @@ const ListDummy = ({ provided, snapshot, list, cards }: Props) => {
     <div
       {...provided.draggableProps}
       ref={provided.innerRef}
-      className="list p-2 overflow-hidden rounded flex flex-col text-sm"
+      className="list p-2 overflow-hidden rounded flex flex-col text-sm cursor-grabbing"
       style={{
         ...provided.draggableProps.style,
         background: "#EBECF0",

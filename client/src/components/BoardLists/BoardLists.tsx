@@ -32,8 +32,6 @@ const BoardLists = ({ myRole, boardId }: Props) => {
   const dispatch = useDispatch();
   const queryClient = useQueryClient();
 
-  const outerRef = useRef<HTMLDivElement>(null);
-
   const getLists = async ({ queryKey }: any) => {
     const response = await axiosInstance.get(`/lists?boardId=${queryKey[1]}`);
 
@@ -48,17 +46,6 @@ const BoardLists = ({ myRole, boardId }: Props) => {
     ListsAndCards,
     string[]
   >(["getLists", boardId], getLists);
-
-  useEffect(() => {
-    const boardLists = document.getElementById("board-lists");
-
-    if (data && data.lists && outerRef && outerRef.current) {
-      boardLists!.scrollTo({
-        behavior: "smooth",
-        left: outerRef.current.offsetLeft,
-      });
-    }
-  }, [data]);
 
   if (isLoading) {
     return (
@@ -562,7 +549,6 @@ const BoardLists = ({ myRole, boardId }: Props) => {
 
             {[BOARD_ROLES.ADMIN, BOARD_ROLES.NORMAL].includes(myRole) && (
               <AddAList
-                ref={outerRef}
                 dataLength={data.lists.length}
                 boardId={boardId}
                 queryKey={["getLists", boardId]}

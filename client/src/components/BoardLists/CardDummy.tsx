@@ -18,7 +18,7 @@ const CardDummy = ({ card, provided, snapshot }: Props) => {
       ref={provided.innerRef}
       {...provided.draggableProps}
       {...provided.dragHandleProps}
-      className="bg-white mb-2 rounded p-2 shadow hover:bg-slate-100 cursor-pointer font-normal text-gray-900 text-sm list-none"
+      className="bg-white mb-2 rounded p-2 shadow hover:bg-slate-100 cursor-grabbing font-normal text-gray-900 text-sm list-none"
     >
       {card.name}
     </li>
