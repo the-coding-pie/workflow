@@ -184,7 +184,6 @@ export interface ListObj {
 export interface CardObj {
   _id: string;
   name: string;
-  description: string;
   listId: string;
   pos: string;
 }

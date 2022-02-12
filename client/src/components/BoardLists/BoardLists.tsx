@@ -52,8 +52,6 @@ const BoardLists = ({ myRole, boardId }: Props) => {
   useEffect(() => {
     const boardLists = document.getElementById("board-lists");
 
-    console.log(outerRef.current);
-
     if (data && data.lists && outerRef && outerRef.current) {
       boardLists!.scrollTo({
         behavior: "smooth",
@@ -550,6 +548,7 @@ const BoardLists = ({ myRole, boardId }: Props) => {
 
                 return (
                   <List
+                    boardId={boardId}
                     key={l._id}
                     index={index}
                     list={l}

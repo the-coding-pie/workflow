@@ -178,6 +178,7 @@ export const createCard = async (req: any, res: Response) => {
       data: {
         _id: card._id,
         name: card.name,
+        listId: card.listId,
         pos: card.pos,
         refetch: refetch,
       },

@@ -72,7 +72,14 @@ const AddAList = React.forwardRef(
           queryClient.setQueryData(queryKey, (oldData: any) => {
             return {
               ...oldData,
-              lists: [...oldData.lists, data],
+              lists: [
+                ...oldData.lists,
+                {
+                  _id: data._id,
+                  name: data.name,
+                  pos: data.pos,
+                },
+              ],
             };
           });
 
@@ -146,7 +153,11 @@ const AddAList = React.forwardRef(
               type="text"
               value={name}
               ref={inputRef}
-              onChange={(e) => setName(e.target.value)}
+              onChange={(e) => {
+                if (e.target.value.length < 512) {
+                  setName(e.target.value);
+                }
+              }}
               className="bg-white p-2 rounded border-2 outline-none border-primary"
               autoFocus
               onFocus={(e) => isFirst && e.target.select()}

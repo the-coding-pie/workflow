@@ -23,7 +23,7 @@ const useClose = (fn: Function) => {
       document.removeEventListener("mousedown", handler, false);
       document.removeEventListener("keydown", handler, false);
     };
-  }, []);
+  });
 
   return ref;
 };

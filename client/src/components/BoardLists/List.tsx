@@ -1,8 +1,9 @@
-import React from "react";
+import React, { useState } from "react";
 import { Draggable, Droppable } from "react-beautiful-dnd";
 import { HiOutlinePlus } from "react-icons/hi";
 import { CardObj, ListObj } from "../../types";
 import { BOARD_ROLES } from "../../types/constants";
+import AddACard from "./AddACard";
 import Card from "./Card";
 import CardDummy from "./CardDummy";
 
@@ -14,9 +15,12 @@ interface Props {
   list: ListObj;
   cards: CardObj[];
   index: number;
+  boardId: string;
 }
 
-const List = ({ myRole, index, list, cards }: Props) => {
+const List = ({ myRole, index, list, boardId, cards }: Props) => {
+  const [isOpen, setIsOpen] = useState(false);
+
   return (
     <Draggable draggableId={list._id} index={index}>
       {(provided, snapshot) => (
@@ -70,15 +74,34 @@ const List = ({ myRole, index, list, cards }: Props) => {
                   ))}
 
                   {provided.placeholder}
+
+                  {[BOARD_ROLES.ADMIN, BOARD_ROLES.NORMAL].includes(myRole) &&
+                    isOpen && (
+                      <AddACard
+                        isOpen={isOpen}
+                        setIsOpen={setIsOpen}
+                        queryKey={["getLists", boardId]}
+                        boardId={boardId}
+                        listId={list._id}
+                        prevPos={
+                          cards.length > 0 ? cards[cards.length - 1].pos : null
+                        }
+                      />
+                    )}
                 </ul>
               </div>
             )}
           </Droppable>
 
-          <button className="w-full cursor-pointer flex items-center px-2 py-1.5 hover:bg-gray-300 rounded text-gray-700 hover:text-gray-900">
-            <HiOutlinePlus className="mr-1" size={18} />
-            <span>Add a card</span>
-          </button>
+          {[BOARD_ROLES.ADMIN, BOARD_ROLES.NORMAL].includes(myRole) && !isOpen && (
+            <button
+              className="p-2 hover:bg-gray-300 rounded text-gray-700 hover:text-gray-900 w-full flex items-center"
+              onClick={() => setIsOpen(true)}
+            >
+              <HiOutlinePlus className="mr-1" size={18} />
+              <span>Add a card</span>
+            </button>
+          )}
         </div>
       )}
     </Draggable>
