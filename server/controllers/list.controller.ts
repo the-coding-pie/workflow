@@ -476,7 +476,7 @@ export const dndList = async (req: any, res: Response) => {
 
     // every needed inputs are present
     // check if the listId is valid and the user has right to see the board and update list name
-    const list = await List.findOne({ _id: id }).select("_id name boardId");
+    const list = await List.findOne({ _id: id }).select("_id name boardId pos");
 
     if (!list) {
       return res.status(404).send({
@@ -580,7 +580,7 @@ export const dndList = async (req: any, res: Response) => {
         // left drag
         // left most
         if (!prevList) {
-          const [newPos, ok] = lexorank.insert("", conflictList.pos);
+          const [newPos, ok] = lexorank.insert("0", conflictList.pos);
 
           finalPos = newPos;
         } else {

@@ -94,7 +94,7 @@ const AddACard = ({
   const createCard = useCallback((name: string, prevPos: string | null) => {
     const lexorank = new Lexorank();
 
-    const [newPos, ok] = prevPos ? lexorank.insert(prevPos, "") : ["0", true];
+    const [newPos, ok] = prevPos ? lexorank.insert(prevPos, "") : ["a", true];
 
     // create card
     axiosInstance

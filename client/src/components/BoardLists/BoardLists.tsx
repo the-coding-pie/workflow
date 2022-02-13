@@ -7,7 +7,12 @@ import { Navigate } from "react-router-dom";
 import axiosInstance from "../../axiosInstance";
 import { addToast } from "../../redux/features/toastSlice";
 import { CardObj, ListObj } from "../../types";
-import { BOARD_ROLES, ERROR, LIST_POSSIBLE_DRAGS } from "../../types/constants";
+import {
+  BOARD_ROLES,
+  CARD_POSSIBLE_DRAGS,
+  ERROR,
+  LIST_POSSIBLE_DRAGS,
+} from "../../types/constants";
 import { Lexorank } from "../../utils/lexorank";
 import ErrorBoardLists from "../ErrorBoardLists/ErrorBoardLists";
 import Loader from "../Loader/Loader";
@@ -150,7 +155,6 @@ const BoardLists = ({ myRole, boardId }: Props) => {
 
       let finalPos: string;
       let dir: string;
-      let destIndex: number;
 
       const sourceList = lists[source.index];
       const destinationList = lists[destination.index];
@@ -159,8 +163,6 @@ const BoardLists = ({ myRole, boardId }: Props) => {
       // use only for left side dragging
       const sourceNextList = lists[source.index + 1];
       const destinationPrevList = lists[destination.index - 1];
-
-      destIndex = destination.index;
 
       // list dragging
       // they are dragging to right
@@ -207,7 +209,7 @@ const BoardLists = ({ myRole, boardId }: Props) => {
         // left
         // left most
         if (!destinationPrevList) {
-          const [newPos, ok] = lexorank.insert("", destinationList.pos);
+          const [newPos, ok] = lexorank.insert("0", destinationList.pos);
           finalPos = newPos;
 
           newLists = lists.map((l) => {
@@ -243,7 +245,6 @@ const BoardLists = ({ myRole, boardId }: Props) => {
 
       console.log("finalPos :", finalPos);
       console.log("dir :", dir);
-      console.log("index :", destIndex);
       // hit endpoint here
 
       queryClient.setQueryData(["getLists", boardId], (oldData: any) => {
@@ -295,11 +296,18 @@ const BoardLists = ({ myRole, boardId }: Props) => {
 
     // same list
     if (source.droppableId === destination.droppableId) {
+      let finalPos: string;
+      let dir: string;
+
       if (source.index > destination.index) {
+        dir = CARD_POSSIBLE_DRAGS.UP;
+
         // dragging up
         // if they are dragging to the top most
         if (!destinationTopCard) {
-          const [newPos, ok] = lexorank.insert("", destinationCard.pos);
+          const [newPos, ok] = lexorank.insert("0", destinationCard.pos);
+
+          finalPos = newPos;
 
           newCards = cards.map((c) => {
             if (c._id === draggableId) {
@@ -317,6 +325,8 @@ const BoardLists = ({ myRole, boardId }: Props) => {
             destinationCard.pos
           );
 
+          finalPos = newPos;
+
           newCards = cards.map((c) => {
             if (c._id === draggableId) {
               return {
@@ -329,10 +339,14 @@ const BoardLists = ({ myRole, boardId }: Props) => {
           });
         }
       } else {
+        dir = CARD_POSSIBLE_DRAGS.DOWN;
+
         // dragging down
         // dragging to the bottom end
         if (!destinationBottomCard) {
           const [newPos, ok] = lexorank.insert(destinationCard.pos, "");
+
+          finalPos = newPos;
 
           newCards = cards.map((c) => {
             if (c._id === draggableId) {
@@ -350,6 +364,8 @@ const BoardLists = ({ myRole, boardId }: Props) => {
             destinationBottomCard.pos
           );
 
+          finalPos = newPos;
+
           newCards = cards.map((c) => {
             if (c._id === draggableId) {
               return {
@@ -363,6 +379,14 @@ const BoardLists = ({ myRole, boardId }: Props) => {
         }
       }
 
+      // make request with dir & finalPos (newPos) & cardId & listId
+
+      console.log("Same list");
+      console.log(finalPos, "newPos");
+      console.log(draggableId, "cardId");
+      console.log(destination.droppableId, "listId");
+      console.log(dir, "direction");
+
       queryClient.setQueryData(["getLists", boardId], (oldData: any) => {
         return {
           ...oldData,
@@ -373,8 +397,12 @@ const BoardLists = ({ myRole, boardId }: Props) => {
       return;
     }
 
+    let finalPos: string;
+
     // different list
     if (destinationListCards.length === 0) {
+      finalPos = "a";
+
       // no card exists
       newCards = cards.map((c) => {
         if (c._id === draggableId) {
@@ -391,7 +419,9 @@ const BoardLists = ({ myRole, boardId }: Props) => {
       // only one card exists
       // if destination card exists, then we are trying to put the card in 0th pos, so newPos should be < destinationCard.pos
       if (destinationCard) {
-        const [newPos, ok] = lexorank.insert("", destinationCard.pos);
+        const [newPos, ok] = lexorank.insert("0", destinationCard.pos);
+
+        finalPos = newPos;
 
         newCards = cards.map((c) => {
           if (c._id === draggableId) {
@@ -406,6 +436,8 @@ const BoardLists = ({ myRole, boardId }: Props) => {
         });
       } else {
         const [newPos, ok] = lexorank.insert(destinationTopCard.pos, "");
+
+        finalPos = newPos;
 
         newCards = cards.map((c) => {
           if (c._id === draggableId) {
@@ -424,7 +456,9 @@ const BoardLists = ({ myRole, boardId }: Props) => {
       // possibilities => very top, very bottom, or middle
       // very top
       if (destination.index === 0) {
-        const [newPos, ok] = lexorank.insert("", destinationCard.pos);
+        const [newPos, ok] = lexorank.insert("0", destinationCard.pos);
+
+        finalPos = newPos;
 
         newCards = cards.map((c) => {
           if (c._id === draggableId) {
@@ -440,6 +474,8 @@ const BoardLists = ({ myRole, boardId }: Props) => {
       } else if (destination.index === destinationListCards.length) {
         // very bottom
         const [newPos, ok] = lexorank.insert(destinationTopCard.pos, "");
+
+        finalPos = newPos;
 
         newCards = cards.map((c) => {
           if (c._id === draggableId) {
@@ -459,6 +495,8 @@ const BoardLists = ({ myRole, boardId }: Props) => {
           destinationCard.pos
         );
 
+        finalPos = newPos;
+
         newCards = cards.map((c) => {
           if (c._id === draggableId) {
             return {
@@ -472,6 +510,14 @@ const BoardLists = ({ myRole, boardId }: Props) => {
         });
       }
     }
+
+    // make request with finalPos (newPos) & cardId & listId
+
+    console.log("Different list");
+    console.log(finalPos, "newPos");
+    console.log(draggableId, "cardId");
+    console.log(destination.droppableId, "listId");
+
     queryClient.setQueryData(["getLists", boardId], (oldData: any) => {
       return {
         ...oldData,
@@ -479,6 +525,8 @@ const BoardLists = ({ myRole, boardId }: Props) => {
       };
     });
   };
+
+  console.log(data?.cards);
 
   return data ? (
     <DragDropContext
