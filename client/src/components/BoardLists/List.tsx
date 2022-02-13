@@ -32,7 +32,7 @@ const List = ({ myRole, index, list, boardId, cards }: Props) => {
         <div
           ref={provided.innerRef}
           {...provided.draggableProps}
-          className="list p-2 overflow-hidden rounded mr-4 flex flex-col"
+          className="list p-2 pt-0 overflow-hidden rounded mr-4 flex flex-col"
           style={{
             ...provided.draggableProps.style,
             background: "#EBECF0",
@@ -42,7 +42,7 @@ const List = ({ myRole, index, list, boardId, cards }: Props) => {
         >
           <header
             {...provided.dragHandleProps}
-            className="list__header mb-1 pt-1.5"
+            className="list__header mb-1 pt-3"
           >
             {[BOARD_ROLES.ADMIN, BOARD_ROLES.NORMAL].includes(myRole) ? (
               <ListName

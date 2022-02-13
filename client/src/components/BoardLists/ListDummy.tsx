@@ -27,7 +27,7 @@ const ListDummy = ({ provided, snapshot, list, cards, myRole, boardId }: Props) 
     <div
       {...provided.draggableProps}
       ref={provided.innerRef}
-      className="list p-2 overflow-hidden rounded flex flex-col text-sm cursor-grabbing"
+      className="list p-2 pt-0 overflow-hidden rounded flex flex-col text-sm cursor-grabbing"
       style={{
         ...provided.draggableProps.style,
         background: "#EBECF0",
@@ -35,7 +35,7 @@ const ListDummy = ({ provided, snapshot, list, cards, myRole, boardId }: Props) 
         maxHeight: "calc(100vh - 10.2rem)",
       }}
     >
-      <header {...provided.dragHandleProps} className="list__header mb-1 pt-1.5">
+      <header {...provided.dragHandleProps} className="list__header mb-1 pt-3">
             {[BOARD_ROLES.ADMIN, BOARD_ROLES.NORMAL].includes(myRole) ? (
               <ListName
                 listId={list._id}
