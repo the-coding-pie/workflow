@@ -14,7 +14,11 @@ interface Props {
 
 const Card = ({ myRole, card, index }: Props) => {
   return (
-    <Draggable draggableId={card._id} index={index}>
+    <Draggable
+      isDragDisabled={![BOARD_ROLES.ADMIN, BOARD_ROLES.NORMAL].includes(myRole)}
+      draggableId={card._id}
+      index={index}
+    >
       {(provided, snapshot) => (
         <li
           ref={provided.innerRef}
@@ -22,7 +26,7 @@ const Card = ({ myRole, card, index }: Props) => {
           {...provided.dragHandleProps}
           className="bg-white mb-2 rounded p-2 shadow hover:bg-slate-100 cursor-pointer font-normal text-gray-900"
         >
-          {card.name}
+          {card.name.length > 28 ? card.name.slice(0, 28) + "..." : card.name}
         </li>
       )}
     </Draggable>

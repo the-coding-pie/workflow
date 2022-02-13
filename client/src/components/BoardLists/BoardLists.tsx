@@ -484,9 +484,11 @@ const BoardLists = ({ myRole, boardId }: Props) => {
 
           return (
             <ListDummy
+              myRole={myRole}
               provided={provided}
               snapshot={snapshot}
               list={list}
+              boardId={boardId}
               cards={cards}
             />
           );

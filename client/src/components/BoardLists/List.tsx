@@ -6,6 +6,7 @@ import { BOARD_ROLES } from "../../types/constants";
 import AddACard from "./AddACard";
 import Card from "./Card";
 import CardDummy from "./CardDummy";
+import ListName from "./ListName";
 
 interface Props {
   myRole:
@@ -22,7 +23,11 @@ const List = ({ myRole, index, list, boardId, cards }: Props) => {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <Draggable draggableId={list._id} index={index}>
+    <Draggable
+      isDragDisabled={![BOARD_ROLES.ADMIN, BOARD_ROLES.NORMAL].includes(myRole)}
+      draggableId={list._id}
+      index={index}
+    >
       {(provided, snapshot) => (
         <div
           ref={provided.innerRef}
@@ -35,10 +40,23 @@ const List = ({ myRole, index, list, boardId, cards }: Props) => {
             maxHeight: "calc(100vh - 10.2rem)",
           }}
         >
-          <header {...provided.dragHandleProps} className="list__header mb-1">
-            <h3 className="list-title font-semibold text-base px-2">
-              {list.name}
-            </h3>
+          <header
+            {...provided.dragHandleProps}
+            className="list__header mb-1 pt-1.5"
+          >
+            {[BOARD_ROLES.ADMIN, BOARD_ROLES.NORMAL].includes(myRole) ? (
+              <ListName
+                listId={list._id}
+                boardId={boardId}
+                initialValue={list.name}
+              />
+            ) : (
+              <h3 className="list-title font-semibold text-base h-7 px-2">
+                {list.name.length > 34
+                  ? list.name.slice(0, 34) + "..."
+                  : list.name}
+              </h3>
+            )}
           </header>
 
           <Droppable

@@ -6,16 +6,23 @@ import {
 } from "react-beautiful-dnd";
 import { HiOutlinePlus } from "react-icons/hi";
 import { CardObj, ListObj } from "../../types";
+import { BOARD_ROLES } from "../../types/constants";
 import CardDummy from "./CardDummy";
+import ListName from "./ListName";
 
 interface Props {
   provided: DraggableProvided;
   snapshot: DraggableStateSnapshot;
   list: ListObj;
+  boardId: string;
   cards: CardObj[];
+  myRole:
+    | typeof BOARD_ROLES.ADMIN
+    | typeof BOARD_ROLES.NORMAL
+    | typeof BOARD_ROLES.OBSERVER;
 }
 
-const ListDummy = ({ provided, snapshot, list, cards }: Props) => {
+const ListDummy = ({ provided, snapshot, list, cards, myRole, boardId }: Props) => {
   return (
     <div
       {...provided.draggableProps}
@@ -28,14 +35,24 @@ const ListDummy = ({ provided, snapshot, list, cards }: Props) => {
         maxHeight: "calc(100vh - 10.2rem)",
       }}
     >
-      <header {...provided.dragHandleProps} className="list__header mb-1">
-        <h3 className="list-title font-semibold text-base px-2">{list.name}</h3>
-      </header>
+      <header {...provided.dragHandleProps} className="list__header mb-1 pt-1.5">
+            {[BOARD_ROLES.ADMIN, BOARD_ROLES.NORMAL].includes(myRole) ? (
+              <ListName
+                listId={list._id}
+                boardId={boardId}
+                initialValue={list.name}
+              />
+            ) : (
+              <h3 className="list-title font-semibold text-base h-7 px-2">
+                {list.name.length > 34 ? list.name.slice(0, 34) + "..." : list.name}
+              </h3>
+            )}
+          </header>
 
       <div className={`flex-1 flex flex-col overflow-hidden`}>
         <ul
           id="list-items"
-          className="list-items flex-1 w-full flex flex-col overflow-auto overflow-x-hidden pr-1"
+          className="list-items flex-1 w-full flex flex-col overflow-auto overflow-x-hidden pt-1 pr-1"
           style={{
             minHeight: "1px",
           }}
@@ -46,10 +63,12 @@ const ListDummy = ({ provided, snapshot, list, cards }: Props) => {
         </ul>
       </div>
 
-      <button className="w-full cursor-pointer flex items-center px-2 py-1.5 hover:bg-gray-300 rounded text-gray-700 hover:text-gray-900">
-        <HiOutlinePlus className="mr-1" size={18} />
-        <span>Add a card</span>
-      </button>
+      {[BOARD_ROLES.ADMIN, BOARD_ROLES.NORMAL].includes(myRole) && (
+        <button className="p-2 hover:bg-gray-300 rounded text-gray-700 hover:text-gray-900 w-full flex items-center">
+          <HiOutlinePlus className="mr-1" size={18} />
+          <span>Add a card</span>
+        </button>
+      )}
     </div>
   );
 };
