@@ -13,6 +13,7 @@ interface Props {
 }
 
 const Card = ({ myRole, card, index }: Props) => {
+  
   return (
     <Draggable
       isDragDisabled={![BOARD_ROLES.ADMIN, BOARD_ROLES.NORMAL].includes(myRole)}

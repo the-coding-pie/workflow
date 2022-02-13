@@ -13,6 +13,7 @@ interface Props {
 }
 
 const CardDummy = ({ card, provided, snapshot }: Props) => {
+  
   return provided ? (
     <li
       ref={provided.innerRef}
