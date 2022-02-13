@@ -511,7 +511,12 @@ export const dndCard = async (req: any, res: Response) => {
 
     res.send({
       success: true,
-      data: {},
+      data: {
+        _id: card._id,
+        name: card.name,
+        pos: card.pos,
+        refetch: refetch,
+      },
       message: "Card position updated successfully.",
       statusCode: 200,
     });
