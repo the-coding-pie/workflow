@@ -268,10 +268,18 @@ export const dndCard = async (req: any, res: Response) => {
     }
 
     // source list, if card is present, then list will be also present
-    const list = await List.findOne({ _id: card.listId }).select("_id boardId");
+    const sourceList = await List.findOne({ _id: card.listId })
+      .select("_id boardId cards")
+      .populate({
+        path: "cards",
+        select: "_id pos",
+        options: {
+          sort: "pos",
+        },
+      });
 
     // if list is present, then board will be also present
-    const board = await Board.findOne({ _id: list.boardId })
+    const board = await Board.findOne({ _id: sourceList.boardId })
       .select("_id spaceId members lists visibility")
       .populate({
         path: "spaceId",
@@ -319,9 +327,15 @@ export const dndCard = async (req: any, res: Response) => {
     }
 
     // check if destListId is valid
-    const destList = await List.findOne({ _id: destListId }).select(
-      "_id boardId"
-    );
+    const destList = await List.findOne({ _id: destListId })
+      .select("_id boardId cards")
+      .populate({
+        path: "cards",
+        select: "_id pos",
+        options: {
+          sort: "pos",
+        },
+      });
 
     if (!destList) {
       return res.status(404).send({
@@ -330,7 +344,7 @@ export const dndCard = async (req: any, res: Response) => {
         message: "Destination List not found",
         statusCode: 404,
       });
-    } else if (list.boardId.toString() !== destList.boardId.toString()) {
+    } else if (sourceList.boardId.toString() !== destList.boardId.toString()) {
       return res.status(403).send({
         success: false,
         data: {},
@@ -340,8 +354,8 @@ export const dndCard = async (req: any, res: Response) => {
       });
     }
 
-    // check if card's list _id === destListId
-    if (card.listId.toString() === destListId) {
+    // check if source list _id === destListId
+    if (sourceList._id.toString() === destList._id.toString()) {
       // they are dnd on same list
       // make sure dir is given
       if (!dir) {
@@ -361,9 +375,146 @@ export const dndCard = async (req: any, res: Response) => {
       }
     }
 
+    // if you reached here, you can assure that you have all the required inputs -> newPos, destList, dir (if source list and destList are equal), card, and it is clear that source list and destination list belongs to the same board
+
+    // you also have the permission to do this op
+
+    // now determining valid finalPos for card
+
     finalPos = newPos;
 
-    
+    // checking for conflict of same pos as of newPos, if true, then pick a new finalPos
+    // dnd of cards can occur in one of two ways -> same list or different list
+    // dnd in same list itself
+    if (sourceList._id.toString() === destList._id.toString()) {
+      // check if the newPos is already taken by some other cards
+      const conflictCard = sourceList.cards.find((c: any) => c.pos === newPos);
+
+      if (conflictCard) {
+        // your ui is not up-to-date
+        refetch = true;
+      }
+
+      if (conflictCard && conflictCard._id.toString() !== card._id.toString()) {
+        // already some other card occupied that position
+        // so recalculate the dragged card's pos, you don't have to use the newPos which was given
+        const lexorank = new Lexorank();
+
+        const conflictIndex = sourceList.cards.indexOf(
+          (c: any) => c.pos === newPos
+        );
+        const topCard = sourceList.cards[conflictIndex - 1];
+        const bottomCard = sourceList.cards[conflictIndex + 1];
+
+        // if dir is UP, take topCard or else bottomCard
+        if (dir === CARD_POSSIBLE_DRAGS.UP) {
+          // top most
+          if (!topCard) {
+            const [newPos, ok] = lexorank.insert("0", conflictCard.pos);
+
+            finalPos = newPos;
+          } else {
+            // middle
+            const [newPos, ok] = lexorank.insert(topCard.pos, conflictCard.pos);
+
+            finalPos = newPos;
+          }
+        } else {
+          // dragging DOWN
+          // bottom end
+          if (!bottomCard) {
+            const [newPos, ok] = lexorank.insert(conflictCard.pos, "");
+
+            finalPos = newPos;
+          } else {
+            // middle
+            const [newPos, ok] = lexorank.insert(
+              conflictCard.pos,
+              bottomCard.pos
+            );
+
+            finalPos = newPos;
+          }
+        }
+      }
+    } else {
+      // different list
+      // check if the newPos is already taken by some other cards
+      const conflictCard = destList.cards.find((c: any) => c.pos === newPos);
+
+      if (conflictCard) {
+        // your ui is not up-to-date
+        refetch = true;
+      }
+
+      if (conflictCard && conflictCard._id.toString() !== card._id.toString()) {
+        // already some other card occupied that position
+        // so recalculate finalPos
+        const lexorank = new Lexorank();
+
+        const conflictIndex = destList.cards.indexOf(
+          (c: any) => c.pos === newPos
+        );
+        const topCard = destList.cards[conflictIndex - 1];
+        const bottomCard = destList.cards[conflictIndex + 1];
+
+        // if destList cards length === 1
+        if (destList.cards.length === 1) {
+          // put your card below that card
+          const [newPos, ok] = lexorank.insert("0", conflictCard.pos);
+
+          finalPos = newPos;
+        } else {
+          // more cards present
+          // now there are many cards,
+          // possibilities => very top, very bottom, or middle
+          // very top
+          if (conflictIndex === 0) {
+            const [newPos, ok] = lexorank.insert("0", conflictCard.pos);
+
+            finalPos = newPos;
+          } else if (conflictIndex === destList.cards.length - 1) {
+            // very bottom
+            const [newPos, ok] = lexorank.insert(conflictCard.pos, "");
+
+            finalPos = newPos;
+          } else {
+            // middle
+            const [newPos, ok] = lexorank.insert(topCard.pos, conflictCard.pos);
+
+            finalPos = newPos;
+          }
+        }
+      }
+    }
+
+    // now we mayhave got a newPos if there was any conflict exist
+    card.pos = finalPos;
+
+    // if you are dragging from one list to another, we need to update the list cards array
+    // remove the card id which was dragged from source list cards array and put it inside destList cards array
+    // also update that card's listId
+    if (sourceList._id.toString() !== destList._id.toString()) {
+      // remove dragged card from sourceList
+      sourceList.cards = sourceList.cards.filter(
+        (c: any) => c._id.toString() !== card._id.toString()
+      );
+      destList.cards = destList.cards.push(card._id);
+
+      // update card's listId
+      card.listId = destList._id;
+    }
+
+    await sourceList.save();
+    await destList.save();
+    await card.save();
+
+    res.send({
+      success: true,
+      data: {},
+      message: "Card position updated successfully.",
+      statusCode: 200,
+    });
   } catch (err) {
     res.status(500).send({
       success: false,
