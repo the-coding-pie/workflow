@@ -554,6 +554,7 @@ export const dndList = async (req: any, res: Response) => {
 
     if (conflictList && conflictList._id.toString() !== list._id.toString()) {
       // already some other list occupied that position
+      // so recalculate the dragged list's pos
       const lexorank = new Lexorank();
 
       const conflictIndex = board.lists.indexOf((l: any) => l.pos === newPos);
