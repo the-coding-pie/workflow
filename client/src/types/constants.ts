@@ -50,3 +50,15 @@ export const BOARD_COLORS = [
   "#ffca3a",
   "#90be6d",
 ];
+
+// LIST POSSIBLE DRAGS
+export const LIST_POSSIBLE_DRAGS = {
+  LEFT: "LEFT",
+  RIGHT: "RIGHT",
+}
+
+// CARD POSSIBLE DRAGS
+export const CARD_POSSIBLE_DRAGS = {
+  DOWN: "DOWN",
+  UP: "UP",
+}

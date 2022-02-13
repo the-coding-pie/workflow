@@ -51,7 +51,7 @@ const List = ({ myRole, index, list, boardId, cards }: Props) => {
                 initialValue={list.name}
               />
             ) : (
-              <h3 className="list-title font-semibold text-base h-7 px-2">
+              <h3 className="list-title cursor-default font-semibold text-base h-7 px-2">
                 {list.name.length > 34
                   ? list.name.slice(0, 34) + "..."
                   : list.name}

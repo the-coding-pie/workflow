@@ -20,3 +20,15 @@ export const BOARD_MEMBER_ROLES = {
 // favorite obj types
 export const SPACE = "SPACE";
 export const BOARD = "BOARD";
+
+// LIST POSSIBLE DRAGS
+export const LIST_POSSIBLE_DRAGS = {
+  LEFT: "LEFT",
+  RIGHT: "RIGHT",
+};
+
+// CARD POSSIBLE DRAGS
+export const CARD_POSSIBLE_DRAGS = {
+  DOWN: "DOWN",
+  UP: "UP",
+};

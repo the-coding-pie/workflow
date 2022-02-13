@@ -7,7 +7,7 @@ import { Navigate } from "react-router-dom";
 import axiosInstance from "../../axiosInstance";
 import { addToast } from "../../redux/features/toastSlice";
 import { CardObj, ListObj } from "../../types";
-import { BOARD_ROLES, ERROR } from "../../types/constants";
+import { BOARD_ROLES, ERROR, LIST_POSSIBLE_DRAGS } from "../../types/constants";
 import { Lexorank } from "../../utils/lexorank";
 import ErrorBoardLists from "../ErrorBoardLists/ErrorBoardLists";
 import Loader from "../Loader/Loader";
@@ -148,6 +148,10 @@ const BoardLists = ({ myRole, boardId }: Props) => {
     if (type === "LIST") {
       let newLists: ListObj[] = [];
 
+      let finalPos: string;
+      let dir: string;
+      let destIndex: number;
+
       const sourceList = lists[source.index];
       const destinationList = lists[destination.index];
       // use only for right side dragging
@@ -156,12 +160,17 @@ const BoardLists = ({ myRole, boardId }: Props) => {
       const sourceNextList = lists[source.index + 1];
       const destinationPrevList = lists[destination.index - 1];
 
+      destIndex = destination.index;
+
       // list dragging
       // they are dragging to right
       if (sourceList.pos < destinationList.pos) {
+        dir = LIST_POSSIBLE_DRAGS.RIGHT;
+
         // if they are dragging it to the right most end
         if (!destinationNextList) {
           const [newPos, ok] = lexorank.insert(destinationList.pos, "");
+          finalPos = newPos;
 
           newLists = lists.map((l) => {
             if (l._id === draggableId) {
@@ -179,6 +188,7 @@ const BoardLists = ({ myRole, boardId }: Props) => {
             destinationList.pos,
             destinationNextList.pos
           );
+          finalPos = newPos;
 
           newLists = lists.map((l) => {
             if (l._id === draggableId) {
@@ -192,10 +202,13 @@ const BoardLists = ({ myRole, boardId }: Props) => {
           });
         }
       } else {
+        dir = LIST_POSSIBLE_DRAGS.LEFT;
+
         // left
         // left most
         if (!destinationPrevList) {
           const [newPos, ok] = lexorank.insert("", destinationList.pos);
+          finalPos = newPos;
 
           newLists = lists.map((l) => {
             if (l._id === draggableId) {
@@ -213,6 +226,7 @@ const BoardLists = ({ myRole, boardId }: Props) => {
             destinationPrevList.pos,
             destinationList.pos
           );
+          finalPos = newPos;
 
           newLists = lists.map((l) => {
             if (l._id === draggableId) {
@@ -226,6 +240,11 @@ const BoardLists = ({ myRole, boardId }: Props) => {
           });
         }
       }
+
+      console.log("finalPos :", finalPos);
+      console.log("dir :", dir);
+      console.log("index :", destIndex);
+      // hit endpoint here
 
       queryClient.setQueryData(["getLists", boardId], (oldData: any) => {
         return {
