@@ -476,7 +476,11 @@ const BoardDetail = () => {
             </header>
 
             <div className="board-canvas relative flex-1">
-              <BoardLists myRole={board.role} boardId={board._id} />
+              <BoardLists
+                myRole={board.role}
+                boardId={board._id}
+                spaceId={board.space._id}
+              />
             </div>
           </div>
         </>

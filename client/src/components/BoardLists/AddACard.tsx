@@ -13,6 +13,7 @@ interface Props {
   prevPos: string | null;
   listId: string;
   boardId: string;
+  spaceId: string;
   queryKey: string[];
   isOpen: boolean;
   setIsOpen: React.Dispatch<React.SetStateAction<boolean>>;
@@ -22,6 +23,7 @@ const AddACard = ({
   prevPos,
   listId,
   boardId,
+  spaceId,
   queryKey,
   isOpen,
   setIsOpen,
@@ -160,7 +162,7 @@ const AddACard = ({
               queryClient.invalidateQueries(["getSpaces"]);
               queryClient.invalidateQueries(["getFavorites"]);
 
-              queryClient.invalidateQueries(["getSpaceBoards"]);
+              queryClient.invalidateQueries(["getSpaceBoards", spaceId]);
               break;
             case 400:
             case 500:

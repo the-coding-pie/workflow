@@ -1,4 +1,5 @@
-import React, { useEffect, useRef, useState } from "react";
+import { AxiosError } from "axios";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { DragDropContext, Droppable, DropResult } from "react-beautiful-dnd";
 import { HiOutlinePlus } from "react-icons/hi";
 import { useQuery, useQueryClient } from "react-query";
@@ -26,6 +27,7 @@ interface Props {
     | typeof BOARD_ROLES.NORMAL
     | typeof BOARD_ROLES.OBSERVER;
   boardId: string;
+  spaceId: string;
 }
 
 interface ListsAndCards {
@@ -33,9 +35,157 @@ interface ListsAndCards {
   cards: CardObj[];
 }
 
-const BoardLists = ({ myRole, boardId }: Props) => {
+const BoardLists = ({ myRole, boardId, spaceId }: Props) => {
   const dispatch = useDispatch();
   const queryClient = useQueryClient();
+
+  const dndList = useCallback(
+    (
+      id: string,
+      newPos: string,
+      dir: typeof LIST_POSSIBLE_DRAGS.LEFT | typeof LIST_POSSIBLE_DRAGS.RIGHT
+    ) => {
+      axiosInstance
+        .put(
+          `/lists/${id}/dnd`,
+          {
+            newPos,
+            dir,
+          },
+          {
+            headers: {
+              ContentType: "application/json",
+            },
+          }
+        )
+        .then((response) => {
+          const { data } = response.data;
+
+          // invalidate query, if refetch is true
+          if (data.refetch) {
+            queryClient.invalidateQueries(["getLists", boardId]);
+          }
+        })
+        .catch((error: AxiosError) => {
+          if (error.response) {
+            const response = error.response;
+            const { message } = response.data;
+
+            switch (response.status) {
+              case 403:
+                dispatch(addToast({ kind: ERROR, msg: message }));
+
+                queryClient.invalidateQueries(["getBoard", boardId]);
+                queryClient.invalidateQueries(["getLists", boardId]);
+                queryClient.invalidateQueries(["getSpaces"]);
+                queryClient.invalidateQueries(["getFavorites"]);
+                break;
+              case 404:
+                dispatch(addToast({ kind: ERROR, msg: message }));
+
+                queryClient.invalidateQueries(["getBoard", boardId]);
+                queryClient.invalidateQueries(["getLists", boardId]);
+                queryClient.invalidateQueries(["getSpaces"]);
+                queryClient.invalidateQueries(["getFavorites"]);
+
+                queryClient.invalidateQueries(["getSpaceBoards", spaceId]);
+                break;
+              case 400:
+              case 500:
+                dispatch(addToast({ kind: ERROR, msg: message }));
+                break;
+              default:
+                dispatch(
+                  addToast({ kind: ERROR, msg: "Oops, something went wrong" })
+                );
+                break;
+            }
+          } else if (error.request) {
+            dispatch(
+              addToast({ kind: ERROR, msg: "Oops, something went wrong" })
+            );
+          } else {
+            dispatch(addToast({ kind: ERROR, msg: `Error: ${error.message}` }));
+          }
+        });
+    },
+    []
+  );
+
+  const dndCard = useCallback(
+    (
+      id: string,
+      newPos: string,
+      destListId: string,
+      dir?: typeof CARD_POSSIBLE_DRAGS.UP | typeof CARD_POSSIBLE_DRAGS.DOWN
+    ) => {
+      axiosInstance
+        .put(
+          `/cards/${id}/dnd`,
+          {
+            newPos,
+            destListId,
+            dir,
+          },
+          {
+            headers: {
+              ContentType: "application/json",
+            },
+          }
+        )
+        .then((response) => {
+          const { data } = response.data;
+
+          // invalidate query, if refetch is true
+          if (data.refetch) {
+            queryClient.invalidateQueries(["getLists", boardId]);
+          }
+        })
+        .catch((error: AxiosError) => {
+          if (error.response) {
+            const response = error.response;
+            const { message } = response.data;
+
+            switch (response.status) {
+              case 403:
+                dispatch(addToast({ kind: ERROR, msg: message }));
+
+                queryClient.invalidateQueries(["getBoard", boardId]);
+                queryClient.invalidateQueries(["getLists", boardId]);
+                queryClient.invalidateQueries(["getSpaces"]);
+                queryClient.invalidateQueries(["getFavorites"]);
+                break;
+              case 404:
+                dispatch(addToast({ kind: ERROR, msg: message }));
+
+                queryClient.invalidateQueries(["getBoard", boardId]);
+                queryClient.invalidateQueries(["getLists", boardId]);
+                queryClient.invalidateQueries(["getSpaces"]);
+                queryClient.invalidateQueries(["getFavorites"]);
+
+                queryClient.invalidateQueries(["getSpaceBoards", spaceId]);
+                break;
+              case 400:
+              case 500:
+                dispatch(addToast({ kind: ERROR, msg: message }));
+                break;
+              default:
+                dispatch(
+                  addToast({ kind: ERROR, msg: "Oops, something went wrong" })
+                );
+                break;
+            }
+          } else if (error.request) {
+            dispatch(
+              addToast({ kind: ERROR, msg: "Oops, something went wrong" })
+            );
+          } else {
+            dispatch(addToast({ kind: ERROR, msg: `Error: ${error.message}` }));
+          }
+        });
+    },
+    []
+  );
 
   const getLists = async ({ queryKey }: any) => {
     const response = await axiosInstance.get(`/lists?boardId=${queryKey[1]}`);
@@ -79,7 +229,7 @@ const BoardLists = ({ myRole, boardId }: Props) => {
           queryClient.invalidateQueries(["getLists", boardId]);
           queryClient.invalidateQueries(["getSpaces"]);
           queryClient.invalidateQueries(["getFavorites"]);
-          queryClient.invalidateQueries(["getSpaceBoards"]);
+          queryClient.invalidateQueries(["getSpaceBoards", spaceId]);
 
           dispatch(addToast({ kind: ERROR, msg: message }));
           // redirect them to home page
@@ -173,17 +323,6 @@ const BoardLists = ({ myRole, boardId }: Props) => {
         if (!destinationNextList) {
           const [newPos, ok] = lexorank.insert(destinationList.pos, "");
           finalPos = newPos;
-
-          newLists = lists.map((l) => {
-            if (l._id === draggableId) {
-              return {
-                ...l,
-                pos: newPos,
-              };
-            }
-
-            return l;
-          });
         } else {
           // right drag (middle)
           const [newPos, ok] = lexorank.insert(
@@ -191,17 +330,6 @@ const BoardLists = ({ myRole, boardId }: Props) => {
             destinationNextList.pos
           );
           finalPos = newPos;
-
-          newLists = lists.map((l) => {
-            if (l._id === draggableId) {
-              return {
-                ...l,
-                pos: newPos,
-              };
-            }
-
-            return l;
-          });
         }
       } else {
         dir = LIST_POSSIBLE_DRAGS.LEFT;
@@ -211,17 +339,6 @@ const BoardLists = ({ myRole, boardId }: Props) => {
         if (!destinationPrevList) {
           const [newPos, ok] = lexorank.insert("0", destinationList.pos);
           finalPos = newPos;
-
-          newLists = lists.map((l) => {
-            if (l._id === draggableId) {
-              return {
-                ...l,
-                pos: newPos,
-              };
-            }
-
-            return l;
-          });
         } else {
           // left drag (middle)
           const [newPos, ok] = lexorank.insert(
@@ -229,23 +346,23 @@ const BoardLists = ({ myRole, boardId }: Props) => {
             destinationList.pos
           );
           finalPos = newPos;
-
-          newLists = lists.map((l) => {
-            if (l._id === draggableId) {
-              return {
-                ...l,
-                pos: newPos,
-              };
-            }
-
-            return l;
-          });
         }
       }
 
-      console.log("finalPos :", finalPos);
-      console.log("dir :", dir);
       // hit endpoint here
+      dndList(draggableId, finalPos, dir);
+
+      // update it for now, but if there are any conflicts, then invalidate query and refetch
+      newLists = lists.map((l) => {
+        if (l._id === draggableId) {
+          return {
+            ...l,
+            pos: finalPos,
+          };
+        }
+
+        return l;
+      });
 
       queryClient.setQueryData(["getLists", boardId], (oldData: any) => {
         return {
@@ -308,17 +425,6 @@ const BoardLists = ({ myRole, boardId }: Props) => {
           const [newPos, ok] = lexorank.insert("0", destinationCard.pos);
 
           finalPos = newPos;
-
-          newCards = cards.map((c) => {
-            if (c._id === draggableId) {
-              return {
-                ...c,
-                pos: newPos,
-              };
-            }
-
-            return c;
-          });
         } else {
           const [newPos, ok] = lexorank.insert(
             destinationTopCard.pos,
@@ -326,17 +432,6 @@ const BoardLists = ({ myRole, boardId }: Props) => {
           );
 
           finalPos = newPos;
-
-          newCards = cards.map((c) => {
-            if (c._id === draggableId) {
-              return {
-                ...c,
-                pos: newPos,
-              };
-            }
-
-            return c;
-          });
         }
       } else {
         dir = CARD_POSSIBLE_DRAGS.DOWN;
@@ -347,17 +442,6 @@ const BoardLists = ({ myRole, boardId }: Props) => {
           const [newPos, ok] = lexorank.insert(destinationCard.pos, "");
 
           finalPos = newPos;
-
-          newCards = cards.map((c) => {
-            if (c._id === draggableId) {
-              return {
-                ...c,
-                pos: newPos,
-              };
-            }
-
-            return c;
-          });
         } else {
           const [newPos, ok] = lexorank.insert(
             destinationCard.pos,
@@ -365,27 +449,22 @@ const BoardLists = ({ myRole, boardId }: Props) => {
           );
 
           finalPos = newPos;
-
-          newCards = cards.map((c) => {
-            if (c._id === draggableId) {
-              return {
-                ...c,
-                pos: newPos,
-              };
-            }
-
-            return c;
-          });
         }
       }
 
       // make request with dir & finalPos (newPos) & cardId & listId
+      dndCard(draggableId, finalPos, destination.droppableId, dir);
 
-      console.log("Same list");
-      console.log(finalPos, "newPos");
-      console.log(draggableId, "cardId");
-      console.log(destination.droppableId, "listId");
-      console.log(dir, "direction");
+      newCards = cards.map((c) => {
+        if (c._id === draggableId) {
+          return {
+            ...c,
+            pos: finalPos,
+          };
+        }
+
+        return c;
+      });
 
       queryClient.setQueryData(["getLists", boardId], (oldData: any) => {
         return {
@@ -402,19 +481,6 @@ const BoardLists = ({ myRole, boardId }: Props) => {
     // different list
     if (destinationListCards.length === 0) {
       finalPos = "a";
-
-      // no card exists
-      newCards = cards.map((c) => {
-        if (c._id === draggableId) {
-          return {
-            ...c,
-            pos: "a",
-            listId: destination.droppableId,
-          };
-        }
-
-        return c;
-      });
     } else if (destinationListCards.length === 1) {
       // only one card exists
       // if destination card exists, then we are trying to put the card in 0th pos, so newPos should be < destinationCard.pos
@@ -422,34 +488,10 @@ const BoardLists = ({ myRole, boardId }: Props) => {
         const [newPos, ok] = lexorank.insert("0", destinationCard.pos);
 
         finalPos = newPos;
-
-        newCards = cards.map((c) => {
-          if (c._id === draggableId) {
-            return {
-              ...c,
-              pos: newPos,
-              listId: destination.droppableId,
-            };
-          }
-
-          return c;
-        });
       } else {
         const [newPos, ok] = lexorank.insert(destinationTopCard.pos, "");
 
         finalPos = newPos;
-
-        newCards = cards.map((c) => {
-          if (c._id === draggableId) {
-            return {
-              ...c,
-              pos: newPos,
-              listId: destination.droppableId,
-            };
-          }
-
-          return c;
-        });
       }
     } else {
       // now there are many cards,
@@ -459,35 +501,11 @@ const BoardLists = ({ myRole, boardId }: Props) => {
         const [newPos, ok] = lexorank.insert("0", destinationCard.pos);
 
         finalPos = newPos;
-
-        newCards = cards.map((c) => {
-          if (c._id === draggableId) {
-            return {
-              ...c,
-              pos: newPos,
-              listId: destination.droppableId,
-            };
-          }
-
-          return c;
-        });
       } else if (destination.index === destinationListCards.length) {
         // very bottom
         const [newPos, ok] = lexorank.insert(destinationTopCard.pos, "");
 
         finalPos = newPos;
-
-        newCards = cards.map((c) => {
-          if (c._id === draggableId) {
-            return {
-              ...c,
-              pos: newPos,
-              listId: destination.droppableId,
-            };
-          }
-
-          return c;
-        });
       } else {
         // middle
         const [newPos, ok] = lexorank.insert(
@@ -496,27 +514,23 @@ const BoardLists = ({ myRole, boardId }: Props) => {
         );
 
         finalPos = newPos;
-
-        newCards = cards.map((c) => {
-          if (c._id === draggableId) {
-            return {
-              ...c,
-              pos: newPos,
-              listId: destination.droppableId,
-            };
-          }
-
-          return c;
-        });
       }
     }
 
     // make request with finalPos (newPos) & cardId & listId
+    dndCard(draggableId, finalPos, destination.droppableId);
 
-    console.log("Different list");
-    console.log(finalPos, "newPos");
-    console.log(draggableId, "cardId");
-    console.log(destination.droppableId, "listId");
+    newCards = cards.map((c) => {
+      if (c._id === draggableId) {
+        return {
+          ...c,
+          pos: finalPos,
+          listId: destination.droppableId,
+        };
+      }
+
+      return c;
+    });
 
     queryClient.setQueryData(["getLists", boardId], (oldData: any) => {
       return {
@@ -525,8 +539,6 @@ const BoardLists = ({ myRole, boardId }: Props) => {
       };
     });
   };
-
-  console.log(data?.cards);
 
   return data ? (
     <DragDropContext
@@ -604,6 +616,7 @@ const BoardLists = ({ myRole, boardId }: Props) => {
 
                 return (
                   <List
+                    spaceId={spaceId}
                     boardId={boardId}
                     key={l._id}
                     index={index}
@@ -618,6 +631,7 @@ const BoardLists = ({ myRole, boardId }: Props) => {
 
             {[BOARD_ROLES.ADMIN, BOARD_ROLES.NORMAL].includes(myRole) && (
               <AddAList
+                spaceId={spaceId}
                 dataLength={data.lists.length}
                 boardId={boardId}
                 queryKey={["getLists", boardId]}

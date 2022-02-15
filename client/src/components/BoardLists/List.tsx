@@ -17,9 +17,10 @@ interface Props {
   cards: CardObj[];
   index: number;
   boardId: string;
+  spaceId: string;
 }
 
-const List = ({ myRole, index, list, boardId, cards }: Props) => {
+const List = ({ myRole, index, list, boardId, spaceId, cards }: Props) => {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
@@ -46,6 +47,7 @@ const List = ({ myRole, index, list, boardId, cards }: Props) => {
           >
             {[BOARD_ROLES.ADMIN, BOARD_ROLES.NORMAL].includes(myRole) ? (
               <ListName
+                spaceId={spaceId}
                 listId={list._id}
                 boardId={boardId}
                 initialValue={list.name}
@@ -96,6 +98,7 @@ const List = ({ myRole, index, list, boardId, cards }: Props) => {
                   {[BOARD_ROLES.ADMIN, BOARD_ROLES.NORMAL].includes(myRole) &&
                     isOpen && (
                       <AddACard
+                        spaceId={spaceId}
                         isOpen={isOpen}
                         setIsOpen={setIsOpen}
                         queryKey={["getLists", boardId]}

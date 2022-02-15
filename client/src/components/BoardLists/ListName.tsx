@@ -12,10 +12,11 @@ import { ERROR } from "../../types/constants";
 interface Props {
   listId: string;
   boardId: string;
+  spaceId: string;
   initialValue: string;
 }
 
-const ListName = ({ boardId, listId, initialValue }: Props) => {
+const ListName = ({ boardId, spaceId, listId, initialValue }: Props) => {
   const dispatch = useDispatch();
 
   const queryClient = useQueryClient();
@@ -77,7 +78,7 @@ const ListName = ({ boardId, listId, initialValue }: Props) => {
                 queryClient.invalidateQueries(["getSpaces"]);
                 queryClient.invalidateQueries(["getFavorites"]);
 
-                queryClient.invalidateQueries(["getSpaceBoards"]);
+                queryClient.invalidateQueries(["getSpaceBoards", spaceId]);
                 break;
               case 400:
               case 500:
