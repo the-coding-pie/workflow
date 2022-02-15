@@ -499,7 +499,7 @@ export const dndCard = async (req: any, res: Response) => {
       sourceList.cards = sourceList.cards.filter(
         (c: any) => c._id.toString() !== card._id.toString()
       );
-      destList.cards = destList.cards.push(card._id);
+      destList.cards.push(card._id);
 
       // update card's listId
       card.listId = destList._id;
@@ -521,6 +521,8 @@ export const dndCard = async (req: any, res: Response) => {
       statusCode: 200,
     });
   } catch (err) {
+    console.log(err);
+
     res.status(500).send({
       success: false,
       data: {},
