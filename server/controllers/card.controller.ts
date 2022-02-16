@@ -521,8 +521,151 @@ export const dndCard = async (req: any, res: Response) => {
       statusCode: 200,
     });
   } catch (err) {
-    console.log(err);
+    res.status(500).send({
+      success: false,
+      data: {},
+      message: "Oops, something went wrong!",
+      statusCode: 500,
+    });
+  }
+};
 
+// GET /cards/:id -> get a card
+export const getCard = async (req: any, res: Response) => {
+  try {
+    const { id } = req.params;
+    let role: string;
+
+    if (!id) {
+      return res.status(400).send({
+        success: false,
+        data: {},
+        message: "card _id is required",
+        statusCode: 400,
+      });
+    } else if (!mongoose.isValidObjectId(id)) {
+      return res.status(400).send({
+        success: false,
+        data: {},
+        message: "Invalid card _id",
+        statusCode: 400,
+      });
+    }
+
+    // check if card _id is valid
+    const card = await Card.findOne({ _id: id })
+      .select(
+        "_id name listId pos description cover dueDate members labels comments"
+      )
+      .populate({
+        path: "members",
+        select: "_id username profile",
+      })
+      .populate({
+        path: "comments",
+        select: "_id comment user",
+        populate: {
+          path: "user",
+          select: "_id username profile",
+        },
+      })
+      .populate({
+        path: "labels",
+        select: "_id name color",
+      })
+      .lean();
+
+    if (!card) {
+      return res.status(404).send({
+        success: false,
+        data: {},
+        message: "Card not found",
+        statusCode: 404,
+      });
+    }
+
+    // corresponding list
+    const list = await List.findOne({ _id: card.listId })
+      .select("_id boardId")
+      .lean();
+
+    // board
+    const board = await Board.findOne({ _id: list.boardId })
+      .select("_id spaceId members lists visibility")
+      .populate({
+        path: "spaceId",
+        select: "_id name members",
+      });
+
+    // check whether the user has the rights to dnd list -> ADMIN / NORMAL
+    // check whether the current user is board member or space member
+    const boardMember = board.members.find(
+      (m: any) => m.memberId.toString() === req.user._id.toString()
+    );
+    const spaceMember = board.spaceId.members.find(
+      (m: any) => m.memberId.toString() === req.user._id.toString()
+    );
+
+    if (
+      (!boardMember && !spaceMember) ||
+      (!boardMember &&
+        spaceMember &&
+        spaceMember.role === SPACE_MEMBER_ROLES.GUEST) ||
+      (!boardMember &&
+        spaceMember &&
+        spaceMember.role === SPACE_MEMBER_ROLES.NORMAL &&
+        board.visibility === BOARD_VISIBILITY.PRIVATE)
+    ) {
+      // you can't see this board at all
+      return res.status(404).send({
+        success: false,
+        data: {},
+        message: "Card not found",
+        statusCode: 404,
+      });
+    }
+
+    // he is either a board member or space member or both
+    if (boardMember) {
+      role = boardMember.role;
+    } else {
+      role = spaceMember.role;
+    }
+
+    // send the card info
+    res.send({
+      success: true,
+      data: {
+        _id: card._id,
+        listId: card.listId,
+        pos: card.pos,
+        cover: card.cover,
+        name: card.name,
+        dueDate: card.dueDate,
+        description: card.description,
+        members: card.members,
+        labels: card.labels,
+        comments: card.comments,
+        role: role,
+      },
+      message: "",
+      statusCode: 200,
+    });
+  } catch (err) {
+    console.log(err);
+    res.status(500).send({
+      success: false,
+      data: {},
+      message: "Oops, something went wrong!",
+      statusCode: 500,
+    });
+  }
+};
+
+// POST /cards/:id/comments -> create new comment
+export const createComment = async (req: any, res: Response) => {
+  try {
+  } catch (err) {
     res.status(500).send({
       success: false,
       data: {},
