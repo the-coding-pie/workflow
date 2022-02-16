@@ -1,9 +1,15 @@
 import { Response } from "express";
 import mongoose from "mongoose";
 import validator from "validator";
+import {
+  BASE_PATH_COMPLETE,
+  PROFILE_PICS_DIR_NAME,
+  STATIC_PATH,
+} from "../config";
 import { BOARD_VISIBILITY } from "../dist/types/constants";
 import Board from "../models/board.model";
 import Card from "../models/card.model";
+import Comment from "../models/comment.model";
 import List from "../models/list.model";
 import {
   BOARD_MEMBER_ROLES,
@@ -11,6 +17,8 @@ import {
   SPACE_MEMBER_ROLES,
 } from "../types/constants";
 import { Lexorank } from "../utils/lexorank";
+import path from "path";
+import { getProfile } from "../utils/helpers";
 
 // POST /cards -> create card
 export const createCard = async (req: any, res: Response) => {
@@ -569,10 +577,10 @@ export const getCard = async (req: any, res: Response) => {
           select: "_id username profile",
         },
       })
-      .populate({
-        path: "labels",
-        select: "_id name color",
-      })
+      // .populate({
+      //   path: "labels",
+      //   select: "_id name color",
+      // })
       .lean();
 
     if (!card) {
@@ -631,7 +639,7 @@ export const getCard = async (req: any, res: Response) => {
     } else {
       role = spaceMember.role;
     }
-
+    
     // send the card info
     res.send({
       success: true,
@@ -643,9 +651,22 @@ export const getCard = async (req: any, res: Response) => {
         name: card.name,
         dueDate: card.dueDate,
         description: card.description,
-        members: card.members,
+        members: card.members?.map((m: any) => {
+          return {
+            ...m,
+            profile: getProfile(m.profile),
+          };
+        }),
         labels: card.labels,
-        comments: card.comments,
+        comments: card.comments?.map((c: any) => {
+          return {
+            ...c,
+            user: {
+              ...c.user,
+              profile: getProfile(c.user.profile),
+            },
+          };
+        }),
         role: role,
       },
       message: "",
@@ -665,6 +686,123 @@ export const getCard = async (req: any, res: Response) => {
 // POST /cards/:id/comments -> create new comment
 export const createComment = async (req: any, res: Response) => {
   try {
+    const { id } = req.params;
+    const { comment } = req.body;
+
+    if (!id) {
+      return res.status(400).send({
+        success: false,
+        data: {},
+        message: "card _id is required",
+        statusCode: 400,
+      });
+    } else if (!mongoose.isValidObjectId(id)) {
+      return res.status(400).send({
+        success: false,
+        data: {},
+        message: "Invalid card _id",
+        statusCode: 400,
+      });
+    }
+
+    if (!comment) {
+      return res.status(400).send({
+        success: false,
+        data: {},
+        message: "comment cannot be empty",
+        statusCode: 400,
+      });
+    }
+
+    const card = await Card.findOne({ _id: id }).select("_id listId comments");
+
+    if (!card) {
+      return res.status(404).send({
+        success: false,
+        data: {},
+        message: "Card not found",
+        statusCode: 404,
+      });
+    }
+
+    // corresponding list
+    const list = await List.findOne({ _id: card.listId })
+      .select("_id boardId")
+      .lean();
+
+    // board
+    const board = await Board.findOne({ _id: list.boardId })
+      .select("_id spaceId members lists visibility")
+      .populate({
+        path: "spaceId",
+        select: "_id name members",
+      });
+
+    // check whether the user has the rights to dnd list -> ADMIN / NORMAL
+    // check whether the current user is board member or space member
+    const boardMember = board.members.find(
+      (m: any) => m.memberId.toString() === req.user._id.toString()
+    );
+    const spaceMember = board.spaceId.members.find(
+      (m: any) => m.memberId.toString() === req.user._id.toString()
+    );
+
+    if (
+      (!boardMember && !spaceMember) ||
+      (!boardMember &&
+        spaceMember &&
+        spaceMember.role === SPACE_MEMBER_ROLES.GUEST) ||
+      (!boardMember &&
+        spaceMember &&
+        spaceMember.role === SPACE_MEMBER_ROLES.NORMAL &&
+        board.visibility === BOARD_VISIBILITY.PRIVATE)
+    ) {
+      // you can't see this board at all
+      return res.status(404).send({
+        success: false,
+        data: {},
+        message: "Card not found",
+        statusCode: 404,
+      });
+    }
+
+    // you are either a board member or space member
+    if (boardMember && boardMember.role === BOARD_MEMBER_ROLES.OBSERVER) {
+      return res.status(403).send({
+        success: false,
+        data: {},
+        message: "You don't have permission to perform this action",
+        statusCode: 403,
+      });
+    }
+
+    // now you can create a comment in this card
+    const newComment = new Comment({
+      comment: validator.escape(comment),
+      user: req.user._id,
+      cardId: card._id,
+    });
+
+    // push it to the card comments
+    card.comments.push(newComment._id);
+
+    await newComment.save();
+    await card.save();
+
+    res.status(201).send({
+      success: true,
+      data: {
+        _id: newComment._id,
+        comment: newComment.comment,
+        user: {
+          _id: newComment.user._id,
+          username: req.user.username,
+          profile: getProfile(req.user.profile),
+        },
+      },
+      message: "Comment has been added successfully!",
+      statusCode: 201,
+    });
   } catch (err) {
     res.status(500).send({
       success: false,

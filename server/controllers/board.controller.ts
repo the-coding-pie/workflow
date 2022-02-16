@@ -142,7 +142,7 @@ export const createBoard = async (req: any, res: Response) => {
 
     // now it's clear that the current user is a board member and he is either an ADMIN/NORMAL user
     // create a new board
-    const newBoard = await new Board({
+    const newBoard = new Board({
       name: validator.escape(name),
       color: color,
       spaceId: spaceId,

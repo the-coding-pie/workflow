@@ -11,4 +11,7 @@ cardRouter.get("/:id", authMiddleware, cardController.getCard);
 // Protected(Auth) PUT /cards/:id/dnd -> dnd card
 cardRouter.put("/:id/dnd", authMiddleware, cardController.dndCard);
 
+// Protected(Auth) POST /cards/:id/comments -> add comment
+cardRouter.post("/:id/comments", authMiddleware, cardController.createComment);
+
 export default cardRouter;
