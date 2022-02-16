@@ -673,7 +673,6 @@ export const getCard = async (req: any, res: Response) => {
       statusCode: 200,
     });
   } catch (err) {
-    console.log(err);
     res.status(500).send({
       success: false,
       data: {},
