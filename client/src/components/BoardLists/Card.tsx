@@ -1,7 +1,9 @@
 import React from "react";
 import { Draggable } from "react-beautiful-dnd";
+import { useDispatch } from "react-redux";
+import { showModal } from "../../redux/features/modalSlice";
 import { CardObj } from "../../types";
-import { BOARD_ROLES } from "../../types/constants";
+import { BOARD_ROLES, CARD_DETAIL_MODAL } from "../../types/constants";
 
 interface Props {
   myRole:
@@ -13,7 +15,8 @@ interface Props {
 }
 
 const Card = ({ myRole, card, index }: Props) => {
-  
+  const dispatch = useDispatch();
+
   return (
     <Draggable
       isDragDisabled={![BOARD_ROLES.ADMIN, BOARD_ROLES.NORMAL].includes(myRole)}
@@ -22,12 +25,22 @@ const Card = ({ myRole, card, index }: Props) => {
     >
       {(provided, snapshot) => (
         <li
+          onClick={() =>
+            dispatch(
+              showModal({
+                modalType: CARD_DETAIL_MODAL,
+                modalProps: {
+                  _id: card._id,
+                },
+              })
+            )
+          }
           ref={provided.innerRef}
           {...provided.draggableProps}
           {...provided.dragHandleProps}
           className="bg-white mb-2 rounded p-2 shadow hover:bg-slate-100 cursor-pointer font-normal text-gray-900"
         >
-          {card.name.length > 28 ? card.name.slice(0, 28) + "..." : card.name}
+          {card.name.length > 100 ? card.name.slice(0, 100) + "..." : card.name}
         </li>
       )}
     </Draggable>

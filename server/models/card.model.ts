@@ -41,6 +41,19 @@ const cardSchema = new mongoose.Schema(
       },
       trim: true,
     },
+    dueDate: {
+      type: Date,
+    },
+    members: {
+      type: [
+        {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "User",
+          required: true,
+        },
+      ],
+      default: [],
+    },
     creator: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",

@@ -2,6 +2,7 @@ import {
   BOARD,
   BOARD_ROLES,
   BOARD_VISIBILITY_TYPES,
+  CARD_DETAIL_MODAL,
   CONFIRM_DELETE_SPACE_MODAL,
   CONFIRM_LEAVE_BOARD_MODAL,
   CONFIRM_LEAVE_SPACE_MODAL,
@@ -153,6 +154,7 @@ export interface ModalObj {
     | typeof CONFIRM_DELETE_SPACE_MODAL
     | typeof CONFIRM_LEAVE_BOARD_MODAL
     | typeof CONFIRM_REMOVE_BOARD_MEMBER_MODAL
+    | typeof CARD_DETAIL_MODAL
     | null;
   modalProps?: object;
   modalTitle?: string;
