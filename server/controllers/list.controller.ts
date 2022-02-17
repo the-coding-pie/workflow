@@ -221,7 +221,8 @@ export const getLists = async (req: any, res: Response) => {
         },
         populate: {
           path: "cards",
-          select: "_id name description pos listId",
+          select:
+            "_id name description pos listId cover dueDate members labels comments isComplete",
           options: {
             sort: "pos",
           },

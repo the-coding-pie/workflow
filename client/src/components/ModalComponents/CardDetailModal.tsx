@@ -108,7 +108,9 @@ const CardDetailModal = ({ _id, boardId, spaceId }: Props) => {
     }
   }
 
-  return <div>{_id} Card</div>;
+  return <div className="card-detail-modal">
+    
+  </div>;
 };
 
 export default CardDetailModal;

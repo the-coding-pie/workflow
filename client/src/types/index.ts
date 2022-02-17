@@ -215,6 +215,7 @@ export interface CardDetailObj {
   pos: string;
   cover: string | null;
   name: string;
+  isComplete: boolean;
   dueDate: string | null;
   description: string | null;
   members: MemberObjM[] | null;

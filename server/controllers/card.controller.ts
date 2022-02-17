@@ -563,7 +563,7 @@ export const getCard = async (req: any, res: Response) => {
     // check if card _id is valid
     const card = await Card.findOne({ _id: id })
       .select(
-        "_id name listId pos description cover dueDate members labels comments"
+        "_id name listId pos description cover dueDate members labels comments isComplete"
       )
       .populate({
         path: "members",
@@ -639,7 +639,7 @@ export const getCard = async (req: any, res: Response) => {
     } else {
       role = spaceMember.role;
     }
-    
+
     // send the card info
     res.send({
       success: true,
@@ -649,6 +649,7 @@ export const getCard = async (req: any, res: Response) => {
         pos: card.pos,
         cover: card.cover,
         name: card.name,
+        isComplete: card.isComplete,
         dueDate: card.dueDate,
         description: card.description,
         members: card.members?.map((m: any) => {

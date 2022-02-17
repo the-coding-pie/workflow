@@ -45,6 +45,10 @@ const cardSchema = new mongoose.Schema(
       type: Date,
       required: false,
     },
+    isComplete: {
+      type: Boolean,
+      default: false,
+    },
     members: {
       type: [
         {
