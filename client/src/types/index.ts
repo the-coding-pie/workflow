@@ -192,9 +192,15 @@ export interface ListObj {
 
 export interface CardObj {
   _id: string;
-  name: string;
   listId: string;
   pos: string;
+  cover: string | null;
+  name: string;
+  isComplete: boolean;
+  dueDate: string | null;
+  members: MemberObjM[] | null;
+  labels: LabelObj[] | null;
+  comments: number | null;
 }
 
 export interface LabelObj {

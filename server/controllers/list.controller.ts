@@ -3,12 +3,14 @@ import mongoose from "mongoose";
 import validator from "validator";
 import { BOARD_VISIBILITY } from "../dist/types/constants";
 import Board from "../models/board.model";
+import Card from "../models/card.model";
 import List from "../models/list.model";
 import {
   BOARD_MEMBER_ROLES,
   LIST_POSSIBLE_DRAGS,
   SPACE_MEMBER_ROLES,
 } from "../types/constants";
+import { getProfile } from "../utils/helpers";
 import { Lexorank } from "../utils/lexorank";
 
 // POST /lists -> create a new list
@@ -215,17 +217,9 @@ export const getLists = async (req: any, res: Response) => {
       })
       .populate({
         path: "lists",
-        select: "_id name pos cards",
+        select: "_id name pos",
         options: {
           sort: "pos",
-        },
-        populate: {
-          path: "cards",
-          select:
-            "_id name description pos listId cover dueDate members labels comments isComplete",
-          options: {
-            sort: "pos",
-          },
         },
       })
       .lean();
@@ -266,25 +260,55 @@ export const getLists = async (req: any, res: Response) => {
       });
     }
 
-    // final lists & cards
-    let allCards: any[] = [];
-
-    board.lists.forEach((l: any) => {
-      allCards = [...allCards, ...l.cards];
-    });
-
-    let allLists: any[] = board.lists.map((l: any) => {
-      delete l.cards;
-      return l;
-    });
+    const cards = await Card.find({
+      listId: { $in: board.lists.map((l: any) => l._id) },
+    })
+      .select(
+        "_id name listId pos cover dueDate members labels comments isComplete"
+      )
+      .populate({
+        path: "members",
+        select: "_id username profile",
+      })
+      .populate({
+        path: "comments",
+        select: "_id comment user",
+        populate: {
+          path: "user",
+          select: "_id username profile",
+        },
+      })
+      // .populate({
+      //   path: "labels",
+      //   select: "_id name color",
+      // })
+      .lean();
 
     // now it is clear that the current user can see this board
     // that's enough to send the lists
     res.send({
       success: true,
       data: {
-        lists: allLists,
-        cards: allCards,
+        lists: board.lists,
+        cards: cards.map((card: any) => {
+          return {
+            _id: card._id,
+            listId: card.listId,
+            pos: card.pos,
+            cover: card.cover,
+            name: card.name,
+            isComplete: card.isComplete,
+            dueDate: card.dueDate,
+            members: card.members?.map((m: any) => {
+              return {
+                ...m,
+                profile: getProfile(m.profile),
+              };
+            }),
+            labels: card.labels,
+            comments: card.comments?.length,
+          };
+        }),
       },
       message: "",
       statusCode: 200,
