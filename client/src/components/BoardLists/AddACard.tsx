@@ -163,6 +163,8 @@ const AddACard = ({
               queryClient.invalidateQueries(["getFavorites"]);
 
               queryClient.invalidateQueries(["getSpaceBoards", spaceId]);
+              queryClient.invalidateQueries(["getSpaceSettings", spaceId]);
+              queryClient.invalidateQueries(["getSpaceMembers", spaceId]);
               break;
             case 400:
             case 500:

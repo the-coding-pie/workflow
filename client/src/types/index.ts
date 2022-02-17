@@ -1,3 +1,4 @@
+import { string } from "yup/lib/locale";
 import {
   BOARD,
   BOARD_ROLES,
@@ -128,6 +129,12 @@ export interface MemberObj {
     | typeof SPACE_ROLES.GUEST;
 }
 
+export interface MemberObjM {
+  _id: string;
+  profile: string;
+  username: string;
+}
+
 export interface SettingsObj {
   icon: string;
   name: string;
@@ -188,4 +195,33 @@ export interface CardObj {
   name: string;
   listId: string;
   pos: string;
+}
+
+export interface LabelObj {
+  _id: string;
+  name: string | null;
+  color: string;
+}
+
+export interface CommentObj {
+  _id: string;
+  comment: string;
+  user: MemberObj;
+}
+
+export interface CardDetailObj {
+  _id: string;
+  listId: string;
+  pos: string;
+  cover: string | null;
+  name: string;
+  dueDate: string | null;
+  description: string | null;
+  members: MemberObjM[] | null;
+  labels: LabelObj[] | null;
+  comments: CommentObj[] | null;
+  role:
+    | typeof BOARD_ROLES.ADMIN
+    | typeof BOARD_ROLES.NORMAL
+    | typeof BOARD_ROLES.OBSERVER;
 }

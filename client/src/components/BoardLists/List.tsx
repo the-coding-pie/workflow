@@ -90,7 +90,14 @@ const List = ({ myRole, index, list, boardId, spaceId, cards }: Props) => {
                   }}
                 >
                   {cards.map((c, index) => (
-                    <Card key={c._id} index={index} card={c} myRole={myRole} />
+                    <Card
+                      key={c._id}
+                      index={index}
+                      card={c}
+                      myRole={myRole}
+                      spaceId={spaceId}
+                      boardId={boardId}
+                    />
                   ))}
 
                   {provided.placeholder}

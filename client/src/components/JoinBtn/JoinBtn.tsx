@@ -34,6 +34,8 @@ const JoinBtn = ({ boardId, spaceId }: Props) => {
         queryClient.invalidateQueries(["getFavorites"]);
 
         queryClient.invalidateQueries(["getSpaceBoards", spaceId]);
+        queryClient.invalidateQueries(["getSpaceSettings", spaceId]);
+        queryClient.invalidateQueries(["getSpaceMembers", spaceId]);
       })
       .catch((error: AxiosError) => {
         if (error.response) {

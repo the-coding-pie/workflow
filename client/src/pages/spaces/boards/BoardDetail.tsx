@@ -129,7 +129,9 @@ const BoardDetail = () => {
               dispatch(addToast({ kind: ERROR, msg: message }));
               queryClient.invalidateQueries(["getSpaces"]);
               queryClient.invalidateQueries(["getFavorites"]);
-              queryClient.invalidateQueries(["getSpaceBoards", boardId]);
+              queryClient.invalidateQueries(["getSpaceBoards", spaceId]);
+              queryClient.invalidateQueries(["getSpaceSettings", spaceId]);
+              queryClient.invalidateQueries(["getSpaceMembers", spaceId]);
               queryClient.invalidateQueries(["getBoard", boardId]);
               queryClient.invalidateQueries(["getLists", boardId]);
               // redirect them to home page

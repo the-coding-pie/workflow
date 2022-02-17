@@ -12,9 +12,11 @@ interface Props {
     | typeof BOARD_ROLES.OBSERVER;
   card: CardObj;
   index: number;
+  boardId: string;
+  spaceId: string;
 }
 
-const Card = ({ myRole, card, index }: Props) => {
+const Card = ({ myRole, card, index, boardId, spaceId }: Props) => {
   const dispatch = useDispatch();
 
   return (
@@ -31,6 +33,8 @@ const Card = ({ myRole, card, index }: Props) => {
                 modalType: CARD_DETAIL_MODAL,
                 modalProps: {
                   _id: card._id,
+                  boardId: boardId,
+                  spaceId,
                 },
               })
             )

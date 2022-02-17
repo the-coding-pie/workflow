@@ -89,6 +89,8 @@ const BoardLists = ({ myRole, boardId, spaceId }: Props) => {
                 queryClient.invalidateQueries(["getFavorites"]);
 
                 queryClient.invalidateQueries(["getSpaceBoards", spaceId]);
+                queryClient.invalidateQueries(["getSpaceSettings", spaceId]);
+                queryClient.invalidateQueries(["getSpaceMembers", spaceId]);
                 break;
               case 400:
               case 500:
@@ -164,6 +166,8 @@ const BoardLists = ({ myRole, boardId, spaceId }: Props) => {
                 queryClient.invalidateQueries(["getFavorites"]);
 
                 queryClient.invalidateQueries(["getSpaceBoards", spaceId]);
+                queryClient.invalidateQueries(["getSpaceSettings", spaceId]);
+                queryClient.invalidateQueries(["getSpaceMembers", spaceId]);
                 break;
               case 400:
               case 500:
@@ -229,7 +233,10 @@ const BoardLists = ({ myRole, boardId, spaceId }: Props) => {
           queryClient.invalidateQueries(["getLists", boardId]);
           queryClient.invalidateQueries(["getSpaces"]);
           queryClient.invalidateQueries(["getFavorites"]);
+
           queryClient.invalidateQueries(["getSpaceBoards", spaceId]);
+          queryClient.invalidateQueries(["getSpaceSettings", spaceId]);
+          queryClient.invalidateQueries(["getSpaceMembers", spaceId]);
 
           dispatch(addToast({ kind: ERROR, msg: message }));
           // redirect them to home page

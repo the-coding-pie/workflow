@@ -17,7 +17,13 @@ interface Props {
   queryKey: string[];
 }
 
-const AddAList = ({ dataLength, prevPos, boardId, spaceId, queryKey }: Props) => {
+const AddAList = ({
+  dataLength,
+  prevPos,
+  boardId,
+  spaceId,
+  queryKey,
+}: Props) => {
   const dispatch = useDispatch();
 
   const [isOpen, setIsOpen] = useState(false);
@@ -119,6 +125,8 @@ const AddAList = ({ dataLength, prevPos, boardId, spaceId, queryKey }: Props) =>
               queryClient.invalidateQueries(["getFavorites"]);
 
               queryClient.invalidateQueries(["getSpaceBoards", spaceId]);
+              queryClient.invalidateQueries(["getSpaceSettings", spaceId]);
+              queryClient.invalidateQueries(["getSpaceMembers", spaceId]);
               break;
             case 400:
             case 500:
