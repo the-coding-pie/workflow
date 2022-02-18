@@ -846,7 +846,7 @@ export const updateCardName = async (req: any, res: Response) => {
       return res.status(400).send({
         success: false,
         data: {},
-        message: "List name should be less than or equal to 512 chars",
+        message: "card name should be less than or equal to 512 chars",
         statusCode: 400,
       });
     }
