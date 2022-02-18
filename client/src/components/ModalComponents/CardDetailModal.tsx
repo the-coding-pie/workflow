@@ -15,8 +15,18 @@ import { hideModal } from "../../redux/features/modalSlice";
 import CardDetailName from "../CardDetail/CardDetailName";
 import { RiWindowFill } from "react-icons/ri";
 import Profile from "../Profile/Profile";
-import { HiChat, HiChatAlt, HiMenuAlt2, HiOutlineChatAlt } from "react-icons/hi";
+import {
+  HiChat,
+  HiChatAlt,
+  HiMenuAlt2,
+  HiOutlineChatAlt,
+  HiOutlineClock,
+  HiOutlineTag,
+  HiOutlineUser,
+  HiTag,
+} from "react-icons/hi";
 import CardDescription from "../CardDetail/CardDescription";
+import AddComment from "../CardDetail/AddComment";
 
 interface Props {
   _id: string;
@@ -116,7 +126,7 @@ const CardDetailModal = ({ _id, boardId, spaceId }: Props) => {
   return (
     <div className="card-detail-modal">
       {card && (
-        <div className="card-detail-modal-content">
+        <div className="card-detail-modal-content pb-8">
           {/* cover */}
 
           {/* name */}
@@ -228,12 +238,42 @@ const CardDetailModal = ({ _id, boardId, spaceId }: Props) => {
                     Comments
                   </h3>
                 </div>
-                <div className="content"></div>
+                <div className="content flex flex-col">
+                  {[BOARD_ROLES.ADMIN, BOARD_ROLES.NORMAL].includes(
+                    card.role
+                  ) && <AddComment />}
+
+                  <div className="actual-comments">
+                    {card.comments &&
+                      card.comments.map((c) => (
+                        <div className="comment">{c.comment}</div>
+                      ))}
+                  </div>
+                </div>
               </div>
             </div>
 
             {[BOARD_ROLES.ADMIN, BOARD_ROLES.NORMAL].includes(card.role) && (
-              <div className="right">Right</div>
+              <div className="right flex flex-col gap-y-4" style={{
+                width: "150px"
+              }}>
+                <button className="card-detail-btn">
+                  <HiOutlineUser size={16} className="mr-1" />
+                  Members
+                </button>
+                <button className="card-detail-btn">
+                  <HiOutlineTag size={16} className="mr-1" />
+                  Labels
+                </button>
+                <button className="card-detail-btn">
+                  <HiOutlineClock size={16} className="mr-1" />
+                  Due date
+                </button>
+                <button className="card-detail-btn">
+                  <RiWindowFill size={16} className="mr-1" />
+                 Cover
+                </button>
+              </div>
             )}
           </div>
         </div>

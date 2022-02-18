@@ -178,6 +178,10 @@ body {
     @apply bg-primary_light py-2 px-5 text-slate-700 rounded font-medium;
   }
 
+  .card-detail-btn {
+    @apply text-sm bg-slate-200 rounded hover:bg-slate-300 disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:bg-slate-200 px-2 py-2 w-full flex items-center justify-start;
+  }
+
   .btn-primary-rounded {
     @apply bg-primary rounded-full p-1 text-white;
   }
