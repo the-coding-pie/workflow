@@ -16,5 +16,7 @@ userRouter.delete("/", authMiddleware, userController.deleteCurrentUser);
 userRouter.get("/search", authMiddleware, userController.searchUser);
 // Protected(Auth) GET /users/search/board?q=query&boardId=id -> search other user (board related)
 userRouter.get("/search/board", authMiddleware, userController.searchUserBoard);
+// Protected(Auth) GET /users/board/id -> get all space & board members
+userRouter.get("/board/:id", authMiddleware, userController.getAllMembers);
 
 export default userRouter;

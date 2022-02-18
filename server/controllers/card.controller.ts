@@ -1049,4 +1049,3 @@ export const updateCardDescription = async (req: any, res: Response) => {
     });
   }
 };
-

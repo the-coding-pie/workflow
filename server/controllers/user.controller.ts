@@ -11,8 +11,10 @@ import RefreshToken from "../models/refreshTokens.model";
 import User from "../models/user.model";
 import Space from "../models/space.model";
 import mongoose from "mongoose";
-import { SPACE_MEMBER_ROLES } from "../types/constants";
+import { BOARD_MEMBER_ROLES, SPACE_MEMBER_ROLES } from "../types/constants";
 import Board from "../models/board.model";
+import { BOARD_VISIBILITY } from "../dist/types/constants";
+import { getProfile } from "../utils/helpers";
 
 // DELETE /users
 export const deleteCurrentUser = async (req: any, res: Response) => {
@@ -282,6 +284,127 @@ export const searchUserBoard = async (req: any, res: Response) => {
       statusCode: 200,
     });
   } catch {
+    res.status(500).send({
+      success: false,
+      data: {},
+      message: "Oops, something went wrong!",
+      statusCode: 500,
+    });
+  }
+};
+
+// GET /users/board/:id -> get all members in board & space
+export const getAllMembers = async (req: any, res: Response) => {
+  try {
+    const { id } = req.params;
+
+    if (!id) {
+      return res.status(400).send({
+        success: false,
+        data: {},
+        message: "board _id is required",
+        statusCode: 400,
+      });
+    } else if (!mongoose.isValidObjectId(id)) {
+      return res.status(400).send({
+        success: false,
+        data: {},
+        message: "Invalid board _id",
+        statusCode: 400,
+      });
+    }
+
+    const board = await Board.findOne({ _id: id })
+      .select("spaceId members")
+      .populate({
+        path: "members",
+        populate: {
+          path: "memberId",
+          select: "_id username profile",
+        },
+      })
+      .populate({
+        path: "spaceId",
+        select: "_id name members",
+        populate: {
+          path: "members",
+          populate: {
+            path: "memberId",
+            select: "_id username profile",
+          },
+        },
+      })
+      .lean();
+
+    if (!board) {
+      return res.status(404).send({
+        success: false,
+        data: {},
+        message: "Board not found!",
+        statusCode: 404,
+      });
+    }
+
+    // check whether the current user is board member or space member
+    const boardMember = board.members.find(
+      (m: any) => m.memberId.toString() === req.user._id.toString()
+    );
+    const spaceMember = board.spaceId.members.find(
+      (m: any) => m.memberId._id.toString() === req.user._id.toString()
+    );
+
+    if (
+      (!boardMember && !spaceMember) ||
+      (!boardMember &&
+        spaceMember &&
+        spaceMember.role === SPACE_MEMBER_ROLES.GUEST) ||
+      (!boardMember &&
+        spaceMember &&
+        spaceMember.role === SPACE_MEMBER_ROLES.NORMAL &&
+        board.visibility === BOARD_VISIBILITY.PRIVATE)
+    ) {
+      // you can't see this board at all
+      return res.status(404).send({
+        success: false,
+        data: {},
+        message: "Board not found",
+        statusCode: 404,
+      });
+    }
+
+    // not safe
+    // send the members info
+    // both board members and space members
+    const boardMembers = board.members;
+
+    const boardMembersIds = boardMembers.map((m: any) => m.memberId.toString());
+
+    const spaceMembers = board.spaceId.members
+      .filter((m: any) => !boardMembersIds.includes(m.memberId.toString()))
+      .filter((m: any) => m.role !== SPACE_MEMBER_ROLES.GUEST);
+
+    res.send({
+      success: true,
+      data: {
+        boardMembers: boardMembers.map((m: any) => {
+          return {
+            _id: m.memberId._id,
+            username: m.memberId.username,
+            profile: getProfile(m.memberId.profile),
+          };
+        }),
+        spaceMembers: spaceMembers.map((m: any) => {
+          return {
+            _id: m.memberId._id,
+            username: m.memberId.username,
+            profile: getProfile(m.memberId.profile),
+          };
+        }),
+      },
+      message: "",
+      statusCode: 200,
+    });
+  } catch (err) {
     res.status(500).send({
       success: false,
       data: {},
