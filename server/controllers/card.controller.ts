@@ -577,10 +577,10 @@ export const getCard = async (req: any, res: Response) => {
           select: "_id username profile",
         },
       })
-      // .populate({
-      //   path: "labels",
-      //   select: "_id name color pos",
-      // })
+      .populate({
+        path: "labels",
+        select: "_id name color pos",
+      })
       .lean();
 
     if (!card) {
@@ -1314,6 +1314,113 @@ export const removeCardMember = async (req: any, res: Response) => {
       success: true,
       data: {},
       message: "Member removed from card",
+      statusCode: 200,
+    });
+  } catch (err) {
+    res.status(500).send({
+      success: false,
+      data: {},
+      message: "Oops, something went wrong!",
+      statusCode: 500,
+    });
+  }
+};
+
+// GET /cards/:id/labels -> get all labels in board with ticks if it belongs to this card
+export const getCardLabels = async (req: any, res: Response) => {
+  try {
+    const { id } = req.params;
+
+    if (!id) {
+      return res.status(400).send({
+        success: false,
+        data: {},
+        message: "card _id is required",
+        statusCode: 400,
+      });
+    } else if (!mongoose.isValidObjectId(id)) {
+      return res.status(400).send({
+        success: false,
+        data: {},
+        message: "Invalid card _id",
+        statusCode: 400,
+      });
+    }
+
+    const card = await Card.findOne({ _id: id })
+      .select("_id listId labels")
+      .lean();
+
+    if (!card) {
+      return res.status(404).send({
+        success: false,
+        data: {},
+        message: "Card not found",
+        statusCode: 404,
+      });
+    }
+
+    // corresponding list
+    const list = await List.findOne({ _id: card.listId })
+      .select("_id boardId")
+      .lean();
+
+    // board
+    const board = await Board.findOne({ _id: list.boardId })
+      .select("_id spaceId members labels")
+      .populate({
+        path: "spaceId",
+        select: "_id name members",
+      })
+      .populate({
+        path: "labels",
+        select: "_id name color pos",
+        options: {
+          sort: { pos: 1 },
+        },
+      })
+      .lean();
+
+    // check whether the user has the rights to dnd list -> ADMIN / NORMAL
+    // check whether the current user is board member or space member
+    const boardMember = board.members.find(
+      (m: any) => m.memberId.toString() === req.user._id.toString()
+    );
+    const spaceMember = board.spaceId.members.find(
+      (m: any) => m.memberId.toString() === req.user._id.toString()
+    );
+
+    if (
+      (!boardMember && !spaceMember) ||
+      (!boardMember &&
+        spaceMember &&
+        spaceMember.role === SPACE_MEMBER_ROLES.GUEST) ||
+      (!boardMember &&
+        spaceMember &&
+        spaceMember.role === SPACE_MEMBER_ROLES.NORMAL &&
+        board.visibility === BOARD_VISIBILITY.PRIVATE)
+    ) {
+      // you can't see this board at all
+      return res.status(404).send({
+        success: false,
+        data: {},
+        message: "Card not found",
+        statusCode: 404,
+      });
+    }
+
+    const cardLabelsIds = card.labels.map((l: any) => l.toString());
+
+    // send the info
+    res.send({
+      success: true,
+      data: board.labels.map((l: any) => {
+        return {
+          ...l,
+          isPresent: cardLabelsIds.includes(l._id.toString()),
+        };
+      }),
+      message: "",
       statusCode: 200,
     });
   } catch (err) {

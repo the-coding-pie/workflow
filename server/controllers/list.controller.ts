@@ -278,10 +278,10 @@ export const getLists = async (req: any, res: Response) => {
           select: "_id username profile",
         },
       })
-      // .populate({
-      //   path: "labels",
-      //   select: "_id name color pos",
-      // })
+      .populate({
+        path: "labels",
+        select: "_id name color pos",
+      })
       .lean();
 
     // now it is clear that the current user can see this board
