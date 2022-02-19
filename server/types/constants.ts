@@ -32,3 +32,14 @@ export const CARD_POSSIBLE_DRAGS = {
   DOWN: "DOWN",
   UP: "UP",
 };
+
+// LABEL COLORS
+export const LABEL_COLORS = {
+  GREEN: "#61BD4F",
+  YELLOW: "#F1D737",
+  ORANGE: "#FA9F2E",
+  RED: "#EB5A46",
+  PURPLE: "#C377E0",
+  BLUE: "#0079BF",
+  LIGHTBLUE: "##3BC3E0",
+};

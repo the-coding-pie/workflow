@@ -4,10 +4,12 @@ import validator from "validator";
 import Board from "../models/board.model";
 import Space from "../models/space.model";
 import Favorite from "../models/favorite.model";
+import Label from "../models/label.model";
 import {
   BOARD,
   BOARD_MEMBER_ROLES,
   BOARD_VISIBILITY,
+  LABEL_COLORS,
   SPACE_MEMBER_ROLES,
 } from "../types/constants";
 import {
@@ -16,8 +18,9 @@ import {
   STATIC_PATH,
 } from "../config";
 import path from "path";
-import { checkAllString, getUniqueValues } from "../utils/helpers";
+import { checkAllString, getPos, getUniqueValues } from "../utils/helpers";
 import User from "../models/user.model";
+import Card from "../models/card.model";
 
 // POST /boards -> create new board
 export const createBoard = async (req: any, res: Response) => {
@@ -1830,6 +1833,333 @@ export const updateBoardBackground = async (req: any, res: Response) => {
       success: false,
       data: {},
       message: "Board background updated successfully",
+      statusCode: 200,
+    });
+  } catch (err) {
+    res.status(500).send({
+      success: false,
+      data: {},
+      message: "Oops, something went wrong!",
+      statusCode: 500,
+    });
+  }
+};
+
+// POST /boards/:id/labels -> create a new label
+export const createNewLabel = async (req: any, res: Response) => {
+  try {
+    const { id } = req.params;
+    const { name, color } = req.body;
+
+    if (!id) {
+      return res.status(400).send({
+        success: false,
+        data: {},
+        message: "board _id is required",
+        statusCode: 400,
+      });
+    } else if (!mongoose.isValidObjectId(id)) {
+      return res.status(400).send({
+        success: false,
+        data: {},
+        message: "Invalid board _id",
+        statusCode: 400,
+      });
+    }
+
+    // name is optional
+    if (name && name.legth > 512) {
+      return res.status(400).send({
+        success: false,
+        data: {},
+        message: "Label name should be less than or equal to 512 chars",
+        statusCode: 400,
+      });
+    }
+
+    // color validation
+    if (!color) {
+      return res.status(400).send({
+        success: false,
+        data: {},
+        message: "Label color is required",
+        statusCode: 400,
+      });
+    } else if (!Object.values(LABEL_COLORS).includes(color)) {
+      return res.status(400).send({
+        success: false,
+        data: {},
+        message: "Invalid value for label color",
+        statusCode: 400,
+      });
+    }
+
+    // every needed inputs are present
+    // check if the board is valid & check current user has the rights to do this
+    const board = await Board.findOne({ _id: id })
+      .select("_id spaceId members labels")
+      .populate({
+        path: "spaceId",
+        select: "_id name members",
+      })
+      .populate({
+        path: "labels",
+        select: "_id name color boardId",
+      });
+
+    if (!board) {
+      return res.status(404).send({
+        success: false,
+        data: {},
+        message: "Board not found!",
+        statusCode: 404,
+      });
+    }
+
+    // check whether the current user is board member or space member
+    const boardMember = board.members.find(
+      (m: any) => m.memberId.toString() === req.user._id.toString()
+    );
+    const spaceMember = board.spaceId.members.find(
+      (m: any) => m.memberId.toString() === req.user._id.toString()
+    );
+
+    if (
+      (!boardMember && !spaceMember) ||
+      (!boardMember &&
+        spaceMember &&
+        spaceMember.role === SPACE_MEMBER_ROLES.GUEST) ||
+      (!boardMember &&
+        spaceMember &&
+        spaceMember.role === SPACE_MEMBER_ROLES.NORMAL &&
+        board.visibility === BOARD_VISIBILITY.PRIVATE)
+    ) {
+      // you can't see this board at all
+      return res.status(404).send({
+        success: false,
+        data: {},
+        message: "Board not found",
+        statusCode: 404,
+      });
+    }
+
+    if (boardMember && boardMember.role === BOARD_MEMBER_ROLES.OBSERVER) {
+      return res.status(403).send({
+        success: false,
+        data: {},
+        message: "You don't have permission to perform this action",
+        statusCode: 403,
+      });
+    }
+
+    // now you have the rights to create a label in this board
+    // check for duplicate
+    let alreadyExists = false;
+
+    if (name) {
+      // check for name & color
+      alreadyExists = board.labels.find(
+        (l: any) =>
+          l.name === name &&
+          l.color === color &&
+          l.boardId.toString() === board._id.toString()
+      )
+        ? true
+        : false;
+    } else {
+      // check for color
+      alreadyExists = board.labels.find(
+        (l: any) =>
+          l.name === "" &&
+          l.color === color &&
+          l.boardId.toString() === board._id.toString()
+      )
+        ? true
+        : false;
+    }
+
+    if (alreadyExists) {
+      return res.status(409).send({
+        success: false,
+        data: {},
+        message: "Label already exists",
+        statusCode: 409,
+      });
+    }
+
+    const pos = getPos(color);
+
+    // create a new label & add it to the board
+    const newLabel = new Label({
+      color: color,
+      pos: pos,
+      boardId: board._id,
+    });
+
+    if (name) {
+      newLabel.name = validator.escape(name);
+    } else {
+      newLabel.name = "";
+    }
+
+    board.labels.push(newLabel);
+
+    await newLabel.save();
+    await board.save();
+
+    res.status(201).send({
+      success: true,
+      data: {
+        _id: newLabel._id,
+        name: newLabel.name,
+        color: newLabel.color,
+        pos: newLabel.pos,
+      },
+      message: "Label has been created successfully",
+      statusCode: 201,
+    });
+  } catch (err) {
+    res.status(500).send({
+      success: false,
+      data: {},
+      message: "Oops, something went wrong!",
+      statusCode: 500,
+    });
+  }
+};
+
+// DELETE /boards/:id/labels -> remove label from board
+export const removeLabel = async (req: any, res: Response) => {
+  try {
+    const { id } = req.params;
+    const { labelId } = req.body;
+
+    if (!id) {
+      return res.status(400).send({
+        success: false,
+        data: {},
+        message: "board _id is required",
+        statusCode: 400,
+      });
+    } else if (!mongoose.isValidObjectId(id)) {
+      return res.status(400).send({
+        success: false,
+        data: {},
+        message: "Invalid board _id",
+        statusCode: 400,
+      });
+    }
+
+    if (!labelId) {
+      return res.status(400).send({
+        success: false,
+        data: {},
+        message: "labelId is required",
+        statusCode: 400,
+      });
+    } else if (!mongoose.isValidObjectId(labelId)) {
+      return res.status(400).send({
+        success: false,
+        data: {},
+        message: "Invalid labelId",
+        statusCode: 400,
+      });
+    }
+
+    // every needed inputs are present
+    // check if the board is valid & check current user has the rights to do this
+    const board = await Board.findOne({ _id: id })
+      .select("_id spaceId members labels lists")
+      .populate({
+        path: "spaceId",
+        select: "_id name members",
+      });
+
+    if (!board) {
+      return res.status(404).send({
+        success: false,
+        data: {},
+        message: "Board not found!",
+        statusCode: 404,
+      });
+    }
+
+    // check whether the current user is board member or space member
+    const boardMember = board.members.find(
+      (m: any) => m.memberId.toString() === req.user._id.toString()
+    );
+    const spaceMember = board.spaceId.members.find(
+      (m: any) => m.memberId.toString() === req.user._id.toString()
+    );
+
+    if (
+      (!boardMember && !spaceMember) ||
+      (!boardMember &&
+        spaceMember &&
+        spaceMember.role === SPACE_MEMBER_ROLES.GUEST) ||
+      (!boardMember &&
+        spaceMember &&
+        spaceMember.role === SPACE_MEMBER_ROLES.NORMAL &&
+        board.visibility === BOARD_VISIBILITY.PRIVATE)
+    ) {
+      // you can't see this board at all
+      return res.status(404).send({
+        success: false,
+        data: {},
+        message: "Board not found",
+        statusCode: 404,
+      });
+    }
+
+    if (boardMember && boardMember.role === BOARD_MEMBER_ROLES.OBSERVER) {
+      return res.status(403).send({
+        success: false,
+        data: {},
+        message: "You don't have permission to perform this action",
+        statusCode: 403,
+      });
+    }
+
+    // now you have the rights to delete a label in this board
+    // check if label exists or not
+    const label = await Label.findOne({
+      _id: labelId,
+      boardId: board._id,
+    }).select("_id");
+
+    if (!label) {
+      return res.status(404).send({
+        success: false,
+        data: {},
+        message: "Label not found",
+        statusCode: 404,
+      });
+    }
+
+    // such a label exists, so remove it from label & from board labels array & from all cards
+    board.labels = board.labels.filter(
+      (l: any) => l.toString() !== label._id.toString()
+    );
+
+    await Card.updateMany(
+      {
+        listId: { $in: board.lists },
+        labels: label._id,
+      },
+      {
+        $pull: { labels: { $in: [label._id] } },
+      }
+    );
+
+    await board.save();
+    await Label.deleteOne({
+      _id: label._id,
+    });
+
+    res.send({
+      success: true,
+      data: {},
+      message: "Label removed successfully",
       statusCode: 200,
     });
   } catch (err) {

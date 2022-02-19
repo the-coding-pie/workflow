@@ -42,6 +42,16 @@ const boardSchema = new mongoose.Schema(
       required: false,
       trim: true,
     },
+    labels: {
+      type: [
+        {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "Label",
+          required: true,
+        },
+      ],
+      default: [],
+    },
     bgImg: {
       type: String,
       required: false,

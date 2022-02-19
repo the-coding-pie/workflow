@@ -1,10 +1,12 @@
 import mongoose from "mongoose";
+import { LABEL_COLORS } from "../types/constants";
 
 const labelSchema = new mongoose.Schema(
   {
     name: {
       type: String,
-      required: false,
+      default: "",
+      maxlength: 512,
       trim: true,
     },
     color: {
@@ -12,11 +14,17 @@ const labelSchema = new mongoose.Schema(
       required: true,
       validate: {
         validator: function (value: string) {
-          return value.startsWith("#", 0) && value.length === 7;
+          return Object.values(LABEL_COLORS).includes(value);
         },
         message: `Invalid value for color`,
       },
       trim: true,
+    },
+    pos: {
+      type: Number,
+      required: true,
+      min: 1,
+      max: 7,
     },
     boardId: {
       type: mongoose.Schema.Types.ObjectId,
