@@ -280,7 +280,7 @@ export const getLists = async (req: any, res: Response) => {
       })
       // .populate({
       //   path: "labels",
-      //   select: "_id name color",
+      //   select: "_id name color pos",
       // })
       .lean();
 

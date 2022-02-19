@@ -2171,3 +2171,92 @@ export const removeLabel = async (req: any, res: Response) => {
     });
   }
 };
+
+// GET /boards/:id/labels -> get all board labels
+export const getAllLabels = async (req: any, res: Response) => {
+  try {
+    const { id } = req.params;
+
+    if (!id) {
+      return res.status(400).send({
+        success: false,
+        data: {},
+        message: "board _id is required",
+        statusCode: 400,
+      });
+    } else if (!mongoose.isValidObjectId(id)) {
+      return res.status(400).send({
+        success: false,
+        data: {},
+        message: "Invalid board _id",
+        statusCode: 400,
+      });
+    }
+
+    // every needed inputs are present
+    // check if the board is valid & check current user has the rights to do this
+    const board = await Board.findOne({ _id: id })
+      .select("_id spaceId members labels")
+      .populate({
+        path: "spaceId",
+        select: "_id name members",
+      })
+      .populate({
+        path: "labels",
+        select: "_id name color pos",
+        options: {
+          sort: { pos: 1 },
+        },
+      });
+
+    if (!board) {
+      return res.status(404).send({
+        success: false,
+        data: {},
+        message: "Board not found!",
+        statusCode: 404,
+      });
+    }
+
+    // check whether the current user is board member or space member
+    const boardMember = board.members.find(
+      (m: any) => m.memberId.toString() === req.user._id.toString()
+    );
+    const spaceMember = board.spaceId.members.find(
+      (m: any) => m.memberId.toString() === req.user._id.toString()
+    );
+
+    if (
+      (!boardMember && !spaceMember) ||
+      (!boardMember &&
+        spaceMember &&
+        spaceMember.role === SPACE_MEMBER_ROLES.GUEST) ||
+      (!boardMember &&
+        spaceMember &&
+        spaceMember.role === SPACE_MEMBER_ROLES.NORMAL &&
+        board.visibility === BOARD_VISIBILITY.PRIVATE)
+    ) {
+      // you can't see this board at all
+      return res.status(404).send({
+        success: false,
+        data: {},
+        message: "Board not found",
+        statusCode: 404,
+      });
+    }
+
+    res.send({
+      success: true,
+      data: board.labels,
+      message: "",
+      statusCode: 200,
+    });
+  } catch (err) {
+    res.status(500).send({
+      success: false,
+      data: {},
+      message: "Oops, something went wrong!",
+      statusCode: 500,
+    });
+  }
+};

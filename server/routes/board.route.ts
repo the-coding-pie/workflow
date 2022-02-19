@@ -55,6 +55,8 @@ boardRouter.delete(
   boardController.leaveFromBoard
 );
 
+// Protected(Auth) GET /boards/:id/labels -> get all board labels
+boardRouter.get("/:id/labels", authMiddleware, boardController.getAllLabels);
 // Protected(Auth) PUT /boards/:id/labels -> create new label
 boardRouter.post("/:id/labels", authMiddleware, boardController.createNewLabel);
 // Protected(Auth) DELETE /boards/:id/labels -> remove label
