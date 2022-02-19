@@ -1897,7 +1897,7 @@ export const createNewLabel = async (req: any, res: Response) => {
     // every needed inputs are present
     // check if the board is valid & check current user has the rights to do this
     const board = await Board.findOne({ _id: id })
-      .select("_id spaceId members labels")
+      .select("_id spaceId members labels visibility")
       .populate({
         path: "spaceId",
         select: "_id name members",
@@ -2069,7 +2069,7 @@ export const removeLabel = async (req: any, res: Response) => {
     // every needed inputs are present
     // check if the board is valid & check current user has the rights to do this
     const board = await Board.findOne({ _id: id })
-      .select("_id spaceId members labels lists")
+      .select("_id spaceId members labels lists visibility")
       .populate({
         path: "spaceId",
         select: "_id name members",
@@ -2196,7 +2196,7 @@ export const getAllLabels = async (req: any, res: Response) => {
     // every needed inputs are present
     // check if the board is valid & check current user has the rights to do this
     const board = await Board.findOne({ _id: id })
-      .select("_id spaceId members labels")
+      .select("_id spaceId members labels visibility")
       .populate({
         path: "spaceId",
         select: "_id name members",

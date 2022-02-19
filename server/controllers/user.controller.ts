@@ -315,7 +315,7 @@ export const getAllMembers = async (req: any, res: Response) => {
     }
 
     const board = await Board.findOne({ _id: id })
-      .select("spaceId members")
+      .select("spaceId members visibility")
       .populate({
         path: "members",
         populate: {
