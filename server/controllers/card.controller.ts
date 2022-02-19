@@ -1432,3 +1432,153 @@ export const getCardLabels = async (req: any, res: Response) => {
     });
   }
 };
+
+// PUT /cards/:id/labels -> add new label to card
+export const addCardLabel = async (req: any, res: Response) => {
+  try {
+    const { id } = req.params;
+    const { labelId } = req.body;
+
+    if (!id) {
+      return res.status(400).send({
+        success: false,
+        data: {},
+        message: "card _id is required",
+        statusCode: 400,
+      });
+    } else if (!mongoose.isValidObjectId(id)) {
+      return res.status(400).send({
+        success: false,
+        data: {},
+        message: "Invalid card _id",
+        statusCode: 400,
+      });
+    }
+
+    if (!labelId) {
+      return res.status(400).send({
+        success: false,
+        data: {},
+        message: "labelId is required",
+        statusCode: 400,
+      });
+    } else if (!mongoose.isValidObjectId(labelId)) {
+      return res.status(400).send({
+        success: false,
+        data: {},
+        message: "Invalid labelId",
+        statusCode: 400,
+      });
+    }
+
+    const card = await Card.findOne({ _id: id }).select("_id listId labels");
+
+    if (!card) {
+      return res.status(404).send({
+        success: false,
+        data: {},
+        message: "Card not found",
+        statusCode: 404,
+      });
+    }
+
+    // corresponding list
+    const list = await List.findOne({ _id: card.listId })
+      .select("_id boardId")
+      .lean();
+
+    // board
+    const board = await Board.findOne({ _id: list.boardId })
+      .select("_id spaceId members labels")
+      .populate({
+        path: "spaceId",
+        select: "_id name members",
+      })
+      .populate({
+        path: "labels",
+        select: "_id name color pos",
+        options: {
+          sort: { pos: 1 },
+        },
+      })
+      .lean();
+
+    // check whether the user has the rights to dnd list -> ADMIN / NORMAL
+    // check whether the current user is board member or space member
+    const boardMember = board.members.find(
+      (m: any) => m.memberId.toString() === req.user._id.toString()
+    );
+    const spaceMember = board.spaceId.members.find(
+      (m: any) => m.memberId.toString() === req.user._id.toString()
+    );
+
+    if (
+      (!boardMember && !spaceMember) ||
+      (!boardMember &&
+        spaceMember &&
+        spaceMember.role === SPACE_MEMBER_ROLES.GUEST) ||
+      (!boardMember &&
+        spaceMember &&
+        spaceMember.role === SPACE_MEMBER_ROLES.NORMAL &&
+        board.visibility === BOARD_VISIBILITY.PRIVATE)
+    ) {
+      // you can't see this board at all
+      return res.status(404).send({
+        success: false,
+        data: {},
+        message: "Card not found",
+        statusCode: 404,
+      });
+    }
+
+    if (boardMember && boardMember.role === BOARD_MEMBER_ROLES.OBSERVER) {
+      return res.status(403).send({
+        success: false,
+        data: {},
+        message: "You don't have permission to perform this action",
+        statusCode: 403,
+      });
+    }
+
+    // now you have the permission to do this
+    // now check if the label is valid and it doesn't exists on card already
+    if (!board.labels.map((l: any) => l._id.toString()).includes(labelId)) {
+      // invalid label
+      return res.status(400).send({
+        success: false,
+        data: {},
+        message: "Invalid label",
+        statusCode: 400,
+      });
+    }
+
+    // now check if the label already exists on the card
+    if (card.labels.map((l: any) => l.toString()).includes(labelId)) {
+      return res.status(409).send({
+        success: false,
+        data: {},
+        message: "Label already added to card",
+        statusCode: 409,
+      });
+    }
+
+    // the label is valid, and not already present in card
+    card.labels.push(labelId);
+
+    await card.save();
+
+    res.send({
+      success: true,
+      data: {},
+      message: "Label added to card",
+      statusCode: 200,
+    });
+  } catch (err) {
+    res.status(500).send({
+      success: false,
+      data: {},
+      message: "Oops, something went wrong!",
+      statusCode: 500,
+    });
+  }
+};

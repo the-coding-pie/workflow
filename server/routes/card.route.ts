@@ -32,5 +32,7 @@ cardRouter.post("/:id/comments", authMiddleware, cardController.createComment);
 
 // Protected(Auth) GET /cards/:id/labels -> get labels
 cardRouter.get("/:id/labels", authMiddleware, cardController.getCardLabels);
+// Protected(Auth) PUT /cards/:id/labels -> add a label to card
+cardRouter.put("/:id/labels", authMiddleware, cardController.addCardLabel);
 
 export default cardRouter;
