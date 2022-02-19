@@ -347,7 +347,7 @@ export const getAllMembers = async (req: any, res: Response) => {
 
     // check whether the current user is board member or space member
     const boardMember = board.members.find(
-      (m: any) => m.memberId.toString() === req.user._id.toString()
+      (m: any) => m.memberId._id.toString() === req.user._id.toString()
     );
     const spaceMember = board.spaceId.members.find(
       (m: any) => m.memberId._id.toString() === req.user._id.toString()
@@ -377,10 +377,12 @@ export const getAllMembers = async (req: any, res: Response) => {
     // both board members and space members
     const boardMembers = board.members;
 
-    const boardMembersIds = boardMembers.map((m: any) => m.memberId.toString());
+    const boardMembersIds = boardMembers.map((m: any) =>
+      m.memberId._id.toString()
+    );
 
     const spaceMembers = board.spaceId.members
-      .filter((m: any) => !boardMembersIds.includes(m.memberId.toString()))
+      .filter((m: any) => !boardMembersIds.includes(m.memberId._id.toString()))
       .filter((m: any) => m.role !== SPACE_MEMBER_ROLES.GUEST);
 
     res.send({
