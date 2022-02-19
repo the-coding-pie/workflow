@@ -2054,3 +2054,17 @@ export const updateComment = async (req: any, res: Response) => {
     });
   }
 };
+
+// DELETE /cards/:id/comments -> delete comment
+export const deleteComment = async (req: any, res: Response) => {
+  try {
+    
+  } catch (err) {
+    res.status(500).send({
+      success: false,
+      data: {},
+      message: "Oops, something went wrong!",
+      statusCode: 500,
+    });
+  }
+}
