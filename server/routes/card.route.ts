@@ -40,5 +40,7 @@ cardRouter.delete(
   authMiddleware,
   cardController.removeCardLabel
 );
+// Protected(Auth) POST /cards/:id/labels -> create new label card
+cardRouter.post("/:id/labels", authMiddleware, cardController.createLabel);
 
 export default cardRouter;
