@@ -1049,3 +1049,279 @@ export const updateCardDescription = async (req: any, res: Response) => {
     });
   }
 };
+
+// PUT /cards/:id/members -> add a member to card
+export const addAMember = async (req: any, res: Response) => {
+  try {
+    const { id } = req.params;
+    const { memberId } = req.body;
+
+    if (!id) {
+      return res.status(400).send({
+        success: false,
+        data: {},
+        message: "card _id is required",
+        statusCode: 400,
+      });
+    } else if (!mongoose.isValidObjectId(id)) {
+      return res.status(400).send({
+        success: false,
+        data: {},
+        message: "Invalid card _id",
+        statusCode: 400,
+      });
+    }
+
+    if (!memberId) {
+      return res.status(400).send({
+        success: false,
+        data: {},
+        message: "memberId is required",
+        statusCode: 400,
+      });
+    } else if (!mongoose.isValidObjectId(memberId)) {
+      return res.status(400).send({
+        success: false,
+        data: {},
+        message: "Invalid memberId",
+        statusCode: 400,
+      });
+    }
+
+    const card = await Card.findOne({ _id: id }).select("_id listId members");
+
+    if (!card) {
+      return res.status(404).send({
+        success: false,
+        data: {},
+        message: "Card not found",
+        statusCode: 404,
+      });
+    }
+
+    const list = await List.findOne({ _id: card.listId })
+      .select("_id boardId")
+      .lean();
+
+    // board
+    const board = await Board.findOne({ _id: list.boardId })
+      .select("_id spaceId members")
+      .populate({
+        path: "spaceId",
+        select: "_id members",
+      });
+
+    // check whether the user has the rights to add card member -> ADMIN / NORMAL
+    // check whether the current user is board member or space member
+    const boardMember = board.members.find(
+      (m: any) => m.memberId.toString() === req.user._id.toString()
+    );
+    const spaceMember = board.spaceId.members.find(
+      (m: any) => m.memberId.toString() === req.user._id.toString()
+    );
+
+    if (
+      (!boardMember && !spaceMember) ||
+      (!boardMember &&
+        spaceMember &&
+        spaceMember.role === SPACE_MEMBER_ROLES.GUEST) ||
+      (!boardMember &&
+        spaceMember &&
+        spaceMember.role === SPACE_MEMBER_ROLES.NORMAL &&
+        board.visibility === BOARD_VISIBILITY.PRIVATE)
+    ) {
+      // you can't see this board at all
+      return res.status(404).send({
+        success: false,
+        data: {},
+        message: "Card not found",
+        statusCode: 404,
+      });
+    }
+
+    // you are either a board member or space member
+    if (boardMember && boardMember.role === BOARD_MEMBER_ROLES.OBSERVER) {
+      return res.status(403).send({
+        success: false,
+        data: {},
+        message: "You don't have permission to perform this action",
+        statusCode: 403,
+      });
+    }
+
+    // now it is clear that, you can add a card member
+    // check memberId is valid
+    let allMembers = [];
+
+    const boardMembers = board.members.map((m: any) => m.memberId.toString());
+    const spaceMembers = board.spaceId.members
+      .filter((m: any) => !boardMembers.includes(m.memberId.toString()))
+      .filter((m: any) => m.role !== SPACE_MEMBER_ROLES.GUEST);
+
+    allMembers = [...boardMembers, ...spaceMembers];
+
+    // take if only if they are not a card member already & make sure they already present in all member
+    if (!allMembers.includes(memberId)) {
+      return res.status(400).send({
+        success: false,
+        data: {},
+        message: "Please add the member as board member or space member first",
+        statusCode: 400,
+      });
+    }
+
+    // now it is clear that, the memberId is a valid one
+    // if they are not a card member already, then only add them to the card
+    if (!card.members.map((m: any) => m.toString()).includes(memberId)) {
+      // add them to card
+      card.members.push(memberId);
+
+      await card.save();
+    }
+
+    res.send({
+      success: true,
+      data: {},
+      message: "Member added to card",
+      statusCode: 200,
+    });
+  } catch (err) {
+    res.status(500).send({
+      success: false,
+      data: {},
+      message: "Oops, something went wrong!",
+      statusCode: 500,
+    });
+  }
+};
+
+// DELETE /cards/:id/members -> remove member from card
+export const removeCardMember = async (req: any, res: Response) => {
+  try {
+    const { id } = req.params;
+    const { memberId } = req.body;
+
+    if (!id) {
+      return res.status(400).send({
+        success: false,
+        data: {},
+        message: "card _id is required",
+        statusCode: 400,
+      });
+    } else if (!mongoose.isValidObjectId(id)) {
+      return res.status(400).send({
+        success: false,
+        data: {},
+        message: "Invalid card _id",
+        statusCode: 400,
+      });
+    }
+
+    if (!memberId) {
+      return res.status(400).send({
+        success: false,
+        data: {},
+        message: "memberId is required",
+        statusCode: 400,
+      });
+    } else if (!mongoose.isValidObjectId(memberId)) {
+      return res.status(400).send({
+        success: false,
+        data: {},
+        message: "Invalid memberId",
+        statusCode: 400,
+      });
+    }
+
+    const card = await Card.findOne({ _id: id }).select("_id listId members");
+
+    if (!card) {
+      return res.status(404).send({
+        success: false,
+        data: {},
+        message: "Card not found",
+        statusCode: 404,
+      });
+    }
+
+    const list = await List.findOne({ _id: card.listId })
+      .select("_id boardId")
+      .lean();
+
+    // board
+    const board = await Board.findOne({ _id: list.boardId })
+      .select("_id spaceId members")
+      .populate({
+        path: "spaceId",
+        select: "_id members",
+      });
+
+    // check whether the user has the rights to add card member -> ADMIN / NORMAL
+    // check whether the current user is board member or space member
+    const boardMember = board.members.find(
+      (m: any) => m.memberId.toString() === req.user._id.toString()
+    );
+    const spaceMember = board.spaceId.members.find(
+      (m: any) => m.memberId.toString() === req.user._id.toString()
+    );
+
+    if (
+      (!boardMember && !spaceMember) ||
+      (!boardMember &&
+        spaceMember &&
+        spaceMember.role === SPACE_MEMBER_ROLES.GUEST) ||
+      (!boardMember &&
+        spaceMember &&
+        spaceMember.role === SPACE_MEMBER_ROLES.NORMAL &&
+        board.visibility === BOARD_VISIBILITY.PRIVATE)
+    ) {
+      // you can't see this board at all
+      return res.status(404).send({
+        success: false,
+        data: {},
+        message: "Card not found",
+        statusCode: 404,
+      });
+    }
+
+    // you are either a board member or space member
+    if (boardMember && boardMember.role === BOARD_MEMBER_ROLES.OBSERVER) {
+      return res.status(403).send({
+        success: false,
+        data: {},
+        message: "You don't have permission to perform this action",
+        statusCode: 403,
+      });
+    }
+
+    // you have the rights to remove the member from the card
+    // remove the member if he is already a card member
+    if (!card.members.map((m: any) => m.toString()).includes(memberId)) {
+      return res.status(400).send({
+        success: false,
+        data: {},
+        message: "Please add the member to card first",
+        statusCode: 400,
+      });
+    }
+
+    // it is clear that, he is a card member
+    card.members = card.members.filter((m: any) => m.toString() !== memberId);
+
+    await card.save();
+
+    res.send({
+      success: true,
+      data: {},
+      message: "Member removed from card",
+      statusCode: 200,
+    });
+  } catch (err) {
+    res.status(500).send({
+      success: false,
+      data: {},
+      message: "Oops, something went wrong!",
+      statusCode: 500,
+    });
+  }
+};

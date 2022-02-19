@@ -18,6 +18,10 @@ cardRouter.put(
   authMiddleware,
   cardController.updateCardDescription
 );
+// Protected(Auth) PUT /cards/:id/members -> add card member
+cardRouter.put("/:id/members", authMiddleware, cardController.addAMember);
+// Protected(Auth) DELETE /cards/:id/members -> remove from card
+cardRouter.delete("/:id/members", authMiddleware, cardController.removeCardMember);
 
 // Protected(Auth) POST /cards/:id/comments -> add comment
 cardRouter.post("/:id/comments", authMiddleware, cardController.createComment);
