@@ -34,5 +34,11 @@ cardRouter.post("/:id/comments", authMiddleware, cardController.createComment);
 cardRouter.get("/:id/labels", authMiddleware, cardController.getCardLabels);
 // Protected(Auth) PUT /cards/:id/labels -> add a label to card
 cardRouter.put("/:id/labels", authMiddleware, cardController.addCardLabel);
+// Protected(Auth) DELETE /cards/:id/labels -> remove label from card
+cardRouter.delete(
+  "/:id/labels",
+  authMiddleware,
+  cardController.removeCardLabel
+);
 
 export default cardRouter;
