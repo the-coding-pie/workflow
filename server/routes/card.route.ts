@@ -20,6 +20,16 @@ cardRouter.put(
   authMiddleware,
   cardController.updateCardDescription
 );
+// Protected(Auth) PUT /cards/:id/dueDate -> add/update card dueDate
+cardRouter.put("/:id/dueDate", authMiddleware, cardController.updateDueDate);
+// Protected(Auth) DELETE /cards/:id/dueDate -> remove card dueDate
+cardRouter.delete("/:id/dueDate", authMiddleware, cardController.removeDueDate);
+// Protected(Auth) PUT /cards/:id/isComplete -> toggle card isComplete
+cardRouter.put(
+  "/:id/isComplete",
+  authMiddleware,
+  cardController.toggleIsComplete
+);
 // Protected(Auth) PUT /cards/:id/members -> add card member
 cardRouter.put("/:id/members", authMiddleware, cardController.addAMember);
 // Protected(Auth) DELETE /cards/:id/members -> remove from card
