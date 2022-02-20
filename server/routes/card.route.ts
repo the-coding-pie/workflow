@@ -8,6 +8,8 @@ const cardRouter = express.Router();
 cardRouter.post("/", authMiddleware, cardController.createCard);
 // Protected(Auth) GET /cards/:id -> get card
 cardRouter.get("/:id", authMiddleware, cardController.getCard);
+// Protected(Auth) DELETE /cards/:id -> delete card
+cardRouter.delete("/:id", authMiddleware, cardController.deleteCard);
 // Protected(Auth) PUT /cards/:id/dnd -> dnd card
 cardRouter.put("/:id/dnd", authMiddleware, cardController.dndCard);
 // Protected(Auth) PUT /cards/:id/name -> update card name

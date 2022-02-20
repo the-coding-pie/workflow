@@ -2251,3 +2251,116 @@ export const deleteComment = async (req: any, res: Response) => {
     });
   }
 };
+
+// DELETE /cards/:id -> delete card
+export const deleteCard = async (req: any, res: Response) => {
+  try {
+    const { id } = req.params;
+
+    if (!id) {
+      return res.status(400).send({
+        success: false,
+        data: {},
+        message: "card _id is required",
+        statusCode: 400,
+      });
+    } else if (!mongoose.isValidObjectId(id)) {
+      return res.status(400).send({
+        success: false,
+        data: {},
+        message: "Invalid card _id",
+        statusCode: 400,
+      });
+    }
+
+    const card = await Card.findOne({ _id: id }).select("_id listId comments");
+
+    if (!card) {
+      return res.status(404).send({
+        success: false,
+        data: {},
+        message: "Card not found",
+        statusCode: 404,
+      });
+    }
+
+    // corresponding list
+    const list = await List.findOne({ _id: card.listId }).select(
+      "_id boardId cards"
+    );
+
+    // board
+    const board = await Board.findOne({ _id: list.boardId })
+      .select("_id spaceId members visibility")
+      .populate({
+        path: "spaceId",
+        select: "_id name members",
+      })
+      .lean();
+
+    // check whether the user has the rights to delete the card -> ADMIN / NORMAL
+    // check whether the current user is board member or space member
+    const boardMember = board.members.find(
+      (m: any) => m.memberId.toString() === req.user._id.toString()
+    );
+    const spaceMember = board.spaceId.members.find(
+      (m: any) => m.memberId.toString() === req.user._id.toString()
+    );
+
+    if (
+      (!boardMember && !spaceMember) ||
+      (!boardMember &&
+        spaceMember &&
+        spaceMember.role === SPACE_MEMBER_ROLES.GUEST) ||
+      (!boardMember &&
+        spaceMember &&
+        spaceMember.role === SPACE_MEMBER_ROLES.NORMAL &&
+        board.visibility === BOARD_VISIBILITY.PRIVATE)
+    ) {
+      // you can't see this board at all
+      return res.status(404).send({
+        success: false,
+        data: {},
+        message: "Card not found",
+        statusCode: 404,
+      });
+    }
+
+    // you are either a board member or space member
+    if (boardMember && boardMember.role === BOARD_MEMBER_ROLES.OBSERVER) {
+      return res.status(403).send({
+        success: false,
+        data: {},
+        message: "You don't have permission to perform this action",
+        statusCode: 403,
+      });
+    }
+
+    // delete the card
+    // remove comment from list
+    list.cards = list.cards.filter(
+      (c: any) => c.toString() !== card._id.toString()
+    );
+    await list.save();
+
+    // remove all comments
+    await Comment.deleteMany({ _id: { $in: card.comments } });
+
+    // delete the card
+    await Card.deleteOne({ _id: card._id });
+
+    res.send({
+      success: true,
+      data: {},
+      message: "Card has been deleted successfully.",
+      statusCode: 200,
+    });
+  } catch (err) {
+    res.status(500).send({
+      success: false,
+      data: {},
+      message: "Oops, something went wrong!",
+      statusCode: 500,
+    });
+  }
+};
