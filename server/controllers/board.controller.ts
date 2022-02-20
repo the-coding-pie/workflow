@@ -906,7 +906,7 @@ export const removeMember = async (req: any, res: Response) => {
     // now we have the board _id & memberId
     // check if the board is valid & check current user has the rights to do this
     const board = await Board.findOne({ _id: id })
-      .select("_id spaceId members visibility")
+      .select("_id spaceId members visibility lists")
       .populate({
         path: "spaceId",
         select: "_id name members",
@@ -949,7 +949,7 @@ export const removeMember = async (req: any, res: Response) => {
     }
 
     // now it is clear that the current user can see this board
-    // but that's not enough for the current user to update the member's role
+    // but that's not enough for the current user to remove member
     // only board ADMIN or space ADMIN can do this
     if (
       !(boardMember && boardMember.role === BOARD_MEMBER_ROLES.ADMIN) &&
@@ -1009,8 +1009,19 @@ export const removeMember = async (req: any, res: Response) => {
       (m: any) => m.memberId.toString() !== targetMember.memberId.toString()
     );
 
+    // remove targetMember from all cards
+    await Card.updateMany(
+      {
+        listId: { $in: board.lists },
+        members: targetMember.memberId,
+      },
+      {
+        $pull: { members: { $in: [targetMember.memberId] } },
+      }
+    );
+
     // check if the target member is a GUEST user of the space
-    // if so, if he is only in this board in this board, then remove him from the space as well
+    // if so, if he is only in this board, then remove him from the space as well
     const IsUserSpaceGuest = board.spaceId.members.find(
       (m: any) =>
         m.memberId.toString() === targetMember.memberId.toString() &&
@@ -1087,7 +1098,7 @@ export const leaveFromBoard = async (req: any, res: Response) => {
     // now we have the board _id
     // check if the board is valid & check current user has the rights to do this
     const board = await Board.findOne({ _id: id })
-      .select("_id spaceId members visibility")
+      .select("_id spaceId members visibility lists")
       .populate({
         path: "spaceId",
         select: "_id name members",
@@ -1167,6 +1178,17 @@ export const leaveFromBoard = async (req: any, res: Response) => {
     // now you are good to go
     board.members = board.members.filter(
       (m: any) => m.memberId.toString() !== targetMember.memberId.toString()
+    );
+
+    // remove targetMember from all cards
+    await Card.updateMany(
+      {
+        listId: { $in: board.lists },
+        members: targetMember.memberId,
+      },
+      {
+        $pull: { members: { $in: [targetMember.memberId] } },
+      }
     );
 
     // remove you from space, if you are a GUEST and you are only a member of this board in this space

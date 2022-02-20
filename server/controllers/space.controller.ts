@@ -24,6 +24,7 @@ import {
   STATIC_PATH,
 } from "../config";
 import path from "path";
+import Card from "../models/card.model";
 
 // GET /spaces -> get space and its corresponding boards (for sidebar)
 export const getSpaces = async (req: any, res: Response) => {
@@ -1409,7 +1410,7 @@ export const updateMemberRole = async (req: any, res: Response) => {
           }
           return m;
         });
-        
+
         await b.save();
       }
     } else if (
@@ -1565,7 +1566,7 @@ export const removeMember = async (req: any, res: Response) => {
           memberId: targetMember.memberId,
         },
       },
-    }).select("_id members");
+    }).select("_id members lists");
 
     for (const b of boards) {
       // which means, the targetMember is the only member in this board and he must be an ADMIN definetely
@@ -1598,6 +1599,17 @@ export const removeMember = async (req: any, res: Response) => {
 
         await b.save();
       }
+
+      // remove targetMember from all cards
+      await Card.updateMany(
+        {
+          listId: { $in: b.lists },
+          members: targetMember.memberId,
+        },
+        {
+          $pull: { members: { $in: [targetMember.memberId] } },
+        }
+      );
     }
 
     // remove member from space

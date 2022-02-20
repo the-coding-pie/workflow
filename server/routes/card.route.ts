@@ -31,6 +31,12 @@ cardRouter.delete(
 cardRouter.post("/:id/comments", authMiddleware, cardController.createComment);
 // Protected(Auth) PUT /cards/:id/comments -> update comment
 cardRouter.put("/:id/comments", authMiddleware, cardController.updateComment);
+// Protected(Auth) DELETE /cards/:id/comments -> delete comment
+cardRouter.delete(
+  "/:id/comments",
+  authMiddleware,
+  cardController.deleteComment
+);
 
 // Protected(Auth) GET /cards/:id/labels -> get labels
 cardRouter.get("/:id/labels", authMiddleware, cardController.getCardLabels);
