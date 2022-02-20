@@ -2721,3 +2721,130 @@ export const toggleIsComplete = async (req: any, res: Response) => {
     });
   }
 };
+
+// PUT /cards/:id/cover -> add/update card cover
+export const updateCardCover = async (req: any, res: Response) => {
+  try {
+    const { id } = req.params;
+    const { cover } = req.body;
+
+    if (!id) {
+      return res.status(400).send({
+        success: false,
+        data: {},
+        message: "card _id is required",
+        statusCode: 400,
+      });
+    } else if (!mongoose.isValidObjectId(id)) {
+      return res.status(400).send({
+        success: false,
+        data: {},
+        message: "Invalid card _id",
+        statusCode: 400,
+      });
+    }
+
+    if (!cover) {
+      return res.status(400).send({
+        success: false,
+        data: {},
+        message: "card cover is required",
+        statusCode: 400,
+      });
+    } else if (
+      !(cover.startsWith("#", 0) && cover.length === 7) &&
+      !validator.isURL(cover, {
+        require_protocol: true,
+      })
+    ) {
+      return res.status(400).send({
+        success: false,
+        data: {},
+        message: "Invalid value for card cover",
+        statusCode: 400,
+      });
+    }
+
+    const card = await Card.findOne({ _id: id }).select("_id cover listId");
+
+    if (!card) {
+      return res.status(404).send({
+        success: false,
+        data: {},
+        message: "Card not found",
+        statusCode: 404,
+      });
+    }
+
+    // corresponding list
+    const list = await List.findOne({ _id: card.listId })
+      .select("_id boardId")
+      .lean();
+
+    // board
+    const board = await Board.findOne({ _id: list.boardId })
+      .select("_id spaceId members visibility")
+      .populate({
+        path: "spaceId",
+        select: "_id name members",
+      })
+      .lean();
+
+    // check whether the user has the rights to update card dueDate -> ADMIN / NORMAL
+    // check whether the current user is board member or space member
+    const boardMember = board.members.find(
+      (m: any) => m.memberId.toString() === req.user._id.toString()
+    );
+    const spaceMember = board.spaceId.members.find(
+      (m: any) => m.memberId.toString() === req.user._id.toString()
+    );
+
+    if (
+      (!boardMember && !spaceMember) ||
+      (!boardMember &&
+        spaceMember &&
+        spaceMember.role === SPACE_MEMBER_ROLES.GUEST) ||
+      (!boardMember &&
+        spaceMember &&
+        spaceMember.role === SPACE_MEMBER_ROLES.NORMAL &&
+        board.visibility === BOARD_VISIBILITY.PRIVATE)
+    ) {
+      // you can't see this board at all
+      return res.status(404).send({
+        success: false,
+        data: {},
+        message: "Card not found",
+        statusCode: 404,
+      });
+    }
+
+    // you are either a board member or space member
+    if (boardMember && boardMember.role === BOARD_MEMBER_ROLES.OBSERVER) {
+      return res.status(403).send({
+        success: false,
+        data: {},
+        message: "You don't have permission to perform this action",
+        statusCode: 403,
+      });
+    }
+
+    // update the card cover
+    card.cover = cover;
+
+    await card.save();
+
+    res.send({
+      success: true,
+      data: {},
+      message: "Card cover updated successfully.",
+      statusCode: 200,
+    });
+  } catch (err) {
+    res.status(500).send({
+      success: false,
+      data: {},
+      message: "Oops, something went wrong!",
+      statusCode: 500,
+    });
+  }
+};
