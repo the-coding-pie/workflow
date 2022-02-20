@@ -1957,7 +1957,9 @@ export const updateComment = async (req: any, res: Response) => {
       });
     }
 
-    const card = await Card.findOne({ _id: id }).select("_id listId comments").lean();
+    const card = await Card.findOne({ _id: id })
+      .select("_id listId comments")
+      .lean();
 
     if (!card) {
       return res.status(404).send({
@@ -2058,7 +2060,188 @@ export const updateComment = async (req: any, res: Response) => {
 // DELETE /cards/:id/comments -> delete comment
 export const deleteComment = async (req: any, res: Response) => {
   try {
-    
+    const { id } = req.params;
+    const { commentId } = req.body;
+    let myRole: string;
+
+    if (!id) {
+      return res.status(400).send({
+        success: false,
+        data: {},
+        message: "card _id is required",
+        statusCode: 400,
+      });
+    } else if (!mongoose.isValidObjectId(id)) {
+      return res.status(400).send({
+        success: false,
+        data: {},
+        message: "Invalid card _id",
+        statusCode: 400,
+      });
+    }
+
+    if (!commentId) {
+      return res.status(400).send({
+        success: false,
+        data: {},
+        message: "commentId is required",
+        statusCode: 400,
+      });
+    } else if (!mongoose.isValidObjectId(commentId)) {
+      return res.status(400).send({
+        success: false,
+        data: {},
+        message: "Invalid commentId",
+        statusCode: 400,
+      });
+    }
+
+    const card = await Card.findOne({ _id: id }).select("_id listId comments");
+
+    if (!card) {
+      return res.status(404).send({
+        success: false,
+        data: {},
+        message: "Card not found",
+        statusCode: 404,
+      });
+    }
+
+    const list = await List.findOne({ _id: card.listId })
+      .select("_id boardId")
+      .lean();
+
+    // board
+    const board = await Board.findOne({ _id: list.boardId })
+      .select("_id spaceId members visibility")
+      .populate({
+        path: "spaceId",
+        select: "_id name members",
+      })
+      .lean();
+
+    // check whether the current user is board member or space member
+    const boardMember = board.members.find(
+      (m: any) => m.memberId.toString() === req.user._id.toString()
+    );
+    const spaceMember = board.spaceId.members.find(
+      (m: any) => m.memberId.toString() === req.user._id.toString()
+    );
+
+    if (
+      (!boardMember && !spaceMember) ||
+      (!boardMember &&
+        spaceMember &&
+        spaceMember.role === SPACE_MEMBER_ROLES.GUEST) ||
+      (!boardMember &&
+        spaceMember &&
+        spaceMember.role === SPACE_MEMBER_ROLES.NORMAL &&
+        board.visibility === BOARD_VISIBILITY.PRIVATE)
+    ) {
+      // you can't see this board at all
+      return res.status(404).send({
+        success: false,
+        data: {},
+        message: "Card not found",
+        statusCode: 404,
+      });
+    }
+
+    if (boardMember) {
+      myRole = boardMember.role;
+    } else {
+      myRole = spaceMember.role;
+    }
+
+    // now you may be an ADMIN/NORMAL/OBSERVER
+    // NORMAL/OBSERVER can't delete someone else's comment
+
+    // now check if comment exists and you are the creator or you are an ADMIN and the commentator is not an ADMIN
+    if (!card.comments.map((c: any) => c.toString()).includes(commentId)) {
+      return res.status(400).send({
+        success: false,
+        data: {},
+        message: "Comment doesn't exists",
+        statusCode: 400,
+      });
+    }
+
+    // if you are not the commentator, then you should be an ADMIN and the commentator shouldn't be an ADMIN
+
+    // find the original comment obj
+    const commentObj = await Comment.findOne({ _id: commentId }).select(
+      "_id user comment"
+    );
+
+    // if you are the comment creator, then you can delete it
+    if (commentObj.user.toString() === req.user._id.toString()) {
+      card.comments = card.comments.filter(
+        (c: any) => c.toString() !== commentObj._id.toString()
+      );
+
+      await card.save();
+      await Comment.deleteOne({ _id: commentObj._id });
+
+      return res.send({
+        success: true,
+        data: {},
+        message: "Comment has been deleted successfully",
+        statusCode: 200,
+      });
+    }
+
+    // you are trying to delete someone else's comment
+    // if so, you should be an ADMIN and the commentator should be either NORMAL / OBSERVER
+    if (myRole !== BOARD_MEMBER_ROLES.ADMIN) {
+      return res.status(403).send({
+        success: false,
+        data: {},
+        message: "You don't have the permission to perform this action",
+        statusCode: 403,
+      });
+    }
+
+    // if you are an ADMIN, check the commentator's role
+    let commentatorRole = null;
+
+    const cBoardMember = board.members.find(
+      (m: any) => m.memberId.toString() === commentObj.user.toString()
+    );
+    const cSpaceMember = board.spaceId.members.find(
+      (m: any) => m.memberId.toString() === commentObj.user.toString()
+    );
+
+    if (cBoardMember || cSpaceMember) {
+      if (cBoardMember) {
+        commentatorRole = cBoardMember.role;
+      } else {
+        commentatorRole = cSpaceMember.role;
+      }
+    }
+
+    if (commentatorRole && commentatorRole === BOARD_MEMBER_ROLES.ADMIN) {
+      return res.status(403).send({
+        success: false,
+        data: {},
+        message: "You can't delete other ADMIN's comment",
+        statusCode: 403,
+      });
+    }
+
+    // now you can delete the comment
+    card.comments = card.comments.filter(
+      (c: any) => c.toString() !== commentObj._id.toString()
+    );
+
+    await card.save();
+    await Comment.deleteOne({ _id: commentObj._id });
+
+    return res.send({
+      success: true,
+      data: {},
+      message: "Comment has been deleted successfully",
+      statusCode: 200,
+    });
   } catch (err) {
     res.status(500).send({
       success: false,
@@ -2067,4 +2250,4 @@ export const deleteComment = async (req: any, res: Response) => {
       statusCode: 500,
     });
   }
-}
+};
