@@ -566,7 +566,7 @@ export const getCard = async (req: any, res: Response) => {
     // check if card _id is valid
     const card = await Card.findOne({ _id: id })
       .select(
-        "_id name listId pos description cover dueDate members labels comments isComplete"
+        "_id name listId pos description coverImg color dueDate members labels comments isComplete"
       )
       .populate({
         path: "members",
@@ -650,7 +650,8 @@ export const getCard = async (req: any, res: Response) => {
         _id: card._id,
         listId: card.listId,
         pos: card.pos,
-        cover: card.cover,
+        coverImg: card.coverImg,
+        color: card.color,
         name: card.name,
         isComplete: card.isComplete,
         dueDate: card.dueDate,
@@ -2726,7 +2727,7 @@ export const toggleIsComplete = async (req: any, res: Response) => {
 export const updateCardCover = async (req: any, res: Response) => {
   try {
     const { id } = req.params;
-    const { cover } = req.body;
+    const { coverImg, color } = req.body;
 
     if (!id) {
       return res.status(400).send({
@@ -2744,28 +2745,47 @@ export const updateCardCover = async (req: any, res: Response) => {
       });
     }
 
-    if (!cover) {
+    if (!Object.keys(req.body).includes("coverImg")) {
       return res.status(400).send({
         success: false,
         data: {},
-        message: "card cover is required",
+        message:
+          "coverImg is required, if no image then please provide an empty string as value",
         statusCode: 400,
       });
     } else if (
-      !(cover.startsWith("#", 0) && cover.length === 7) &&
-      !validator.isURL(cover, {
+      coverImg &&
+      !validator.isURL(coverImg, {
         require_protocol: true,
       })
     ) {
       return res.status(400).send({
         success: false,
         data: {},
-        message: "Invalid value for card cover",
+        message: "Invalid Image URL",
         statusCode: 400,
       });
     }
 
-    const card = await Card.findOne({ _id: id }).select("_id cover listId");
+    if (!color) {
+      return res.status(400).send({
+        success: false,
+        data: {},
+        message: "Color cannot be empty",
+        statusCode: 400,
+      });
+    } else if (!color.startsWith("#", 0) || color.length !== 7) {
+      return res.status(400).send({
+        success: false,
+        data: {},
+        message: "Invalid color hex",
+        statusCode: 400,
+      });
+    }
+
+    const card = await Card.findOne({ _id: id }).select(
+      "_id coverImg color listId"
+    );
 
     if (!card) {
       return res.status(404).send({
@@ -2829,7 +2849,8 @@ export const updateCardCover = async (req: any, res: Response) => {
     }
 
     // update the card cover
-    card.cover = cover;
+    card.coverImg = coverImg;
+    card.color = color;
 
     await card.save();
 
@@ -2837,6 +2858,117 @@ export const updateCardCover = async (req: any, res: Response) => {
       success: true,
       data: {},
       message: "Card cover updated successfully.",
+      statusCode: 200,
+    });
+  } catch (err) {
+    res.status(500).send({
+      success: false,
+      data: {},
+      message: "Oops, something went wrong!",
+      statusCode: 500,
+    });
+  }
+};
+
+// DELETE /cards/:id/cover -> remove card cover
+export const removeCardCover = async (req: any, res: Response) => {
+  try {
+    const { id } = req.params;
+
+    if (!id) {
+      return res.status(400).send({
+        success: false,
+        data: {},
+        message: "card _id is required",
+        statusCode: 400,
+      });
+    } else if (!mongoose.isValidObjectId(id)) {
+      return res.status(400).send({
+        success: false,
+        data: {},
+        message: "Invalid card _id",
+        statusCode: 400,
+      });
+    }
+
+    const card = await Card.findOne({ _id: id }).select(
+      "_id coverImg color listId"
+    );
+
+    if (!card) {
+      return res.status(404).send({
+        success: false,
+        data: {},
+        message: "Card not found",
+        statusCode: 404,
+      });
+    }
+
+    // corresponding list
+    const list = await List.findOne({ _id: card.listId })
+      .select("_id boardId")
+      .lean();
+
+    // board
+    const board = await Board.findOne({ _id: list.boardId })
+      .select("_id spaceId members visibility")
+      .populate({
+        path: "spaceId",
+        select: "_id name members",
+      })
+      .lean();
+
+    // check whether the user has the rights to update card dueDate -> ADMIN / NORMAL
+    // check whether the current user is board member or space member
+    const boardMember = board.members.find(
+      (m: any) => m.memberId.toString() === req.user._id.toString()
+    );
+    const spaceMember = board.spaceId.members.find(
+      (m: any) => m.memberId.toString() === req.user._id.toString()
+    );
+
+    if (
+      (!boardMember && !spaceMember) ||
+      (!boardMember &&
+        spaceMember &&
+        spaceMember.role === SPACE_MEMBER_ROLES.GUEST) ||
+      (!boardMember &&
+        spaceMember &&
+        spaceMember.role === SPACE_MEMBER_ROLES.NORMAL &&
+        board.visibility === BOARD_VISIBILITY.PRIVATE)
+    ) {
+      // you can't see this board at all
+      return res.status(404).send({
+        success: false,
+        data: {},
+        message: "Card not found",
+        statusCode: 404,
+      });
+    }
+
+    // you are either a board member or space member
+    if (boardMember && boardMember.role === BOARD_MEMBER_ROLES.OBSERVER) {
+      return res.status(403).send({
+        success: false,
+        data: {},
+        message: "You don't have permission to perform this action",
+        statusCode: 403,
+      });
+    }
+
+    if (card.coverImg || card.color) {
+      await Card.updateOne(
+        {
+          _id: card._id,
+        },
+        { $unset: { coverImg: "", color: "" } }
+      );
+    }
+
+    res.send({
+      success: true,
+      data: {},
+      message: "Card cover removed successfully.",
       statusCode: 200,
     });
   } catch (err) {

@@ -219,7 +219,8 @@ export interface CardDetailObj {
   _id: string;
   listId: string;
   pos: string;
-  cover: string | null;
+  coverImg: string;
+  color: string;
   name: string;
   isComplete: boolean;
   dueDate: string | null;

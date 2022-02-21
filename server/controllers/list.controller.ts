@@ -264,7 +264,7 @@ export const getLists = async (req: any, res: Response) => {
       listId: { $in: board.lists.map((l: any) => l._id) },
     })
       .select(
-        "_id name listId pos cover dueDate members labels comments isComplete"
+        "_id name listId pos coverImg color dueDate members labels comments isComplete"
       )
       .populate({
         path: "members",
@@ -295,7 +295,8 @@ export const getLists = async (req: any, res: Response) => {
             _id: card._id,
             listId: card.listId,
             pos: card.pos,
-            cover: card.cover,
+            coverImg: card.coverImg,
+            color: card.color,
             name: card.name,
             isComplete: card.isComplete,
             dueDate: card.dueDate,

@@ -33,6 +33,8 @@ cardRouter.put(
 
 // Protected(Auth) PUT /cards/:id/cover -> add/update card cover
 cardRouter.put("/:id/cover", authMiddleware, cardController.updateCardCover);
+// Protected(Auth) DELETE /cards/:id/cover -> remove card cover
+cardRouter.delete("/:id/cover", authMiddleware, cardController.removeCardCover);
 
 // Protected(Auth) PUT /cards/:id/members -> add card member
 cardRouter.put("/:id/members", authMiddleware, cardController.addAMember);

@@ -25,20 +25,24 @@ const cardSchema = new mongoose.Schema(
       required: false,
       trim: true,
     },
-    cover: {
+    coverImg: {
       type: String,
       required: false,
       validate: {
         validator: function (value: string) {
-          return (
-            (value.startsWith("#", 0) && value.length === 7) ||
-            validator.isURL(value, {
-              require_protocol: true,
-            })
-          );
+          return value
+            ? validator.isURL(value, {
+                require_protocol: true,
+              })
+            : true;
         },
-        message: `Invalid value for cover`,
+        message: `Invalid Image URL`,
       },
+      trim: true,
+    },
+    color: {
+      type: String,
+      required: false,
       trim: true,
     },
     dueDate: {

@@ -128,6 +128,24 @@ const CardDetailModal = ({ _id, boardId, spaceId }: Props) => {
       {card && (
         <div className="card-detail-modal-content pb-8">
           {/* cover */}
+          {card.color && (
+            <div
+              className="card-cover"
+              style={{
+                width: "100%",
+                height: "200px",
+                background: `${card.color}`,
+              }}
+            >
+              {card.coverImg && (
+                <img
+                  src={card.coverImg}
+                  className="object-contain w-full h-full object-top"
+                  alt="card-cover"
+                />
+              )}
+            </div>
+          )}
 
           {/* name */}
           <div className="card-name px-4 mt-6 mr-8 flex items-center mb-6">
@@ -254,9 +272,12 @@ const CardDetailModal = ({ _id, boardId, spaceId }: Props) => {
             </div>
 
             {[BOARD_ROLES.ADMIN, BOARD_ROLES.NORMAL].includes(card.role) && (
-              <div className="right flex flex-col gap-y-4" style={{
-                width: "150px"
-              }}>
+              <div
+                className="right flex flex-col gap-y-4"
+                style={{
+                  width: "150px",
+                }}
+              >
                 <button className="card-detail-btn">
                   <HiOutlineUser size={16} className="mr-1" />
                   Members
@@ -271,7 +292,7 @@ const CardDetailModal = ({ _id, boardId, spaceId }: Props) => {
                 </button>
                 <button className="card-detail-btn">
                   <RiWindowFill size={16} className="mr-1" />
-                 Cover
+                  Cover
                 </button>
               </div>
             )}
