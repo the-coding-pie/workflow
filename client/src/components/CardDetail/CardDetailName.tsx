@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import { useQueryClient } from "react-query";
 import { useDispatch } from "react-redux";
 import axiosInstance from "../../axiosInstance";
+import { hideModal } from "../../redux/features/modalSlice";
 import { addToast } from "../../redux/features/toastSlice";
 import { ERROR } from "../../types/constants";
 
@@ -61,14 +62,17 @@ const CardDetailName = ({ cardId, boardId, spaceId, initialValue }: Props) => {
               case 403:
                 dispatch(addToast({ kind: ERROR, msg: message }));
 
+                queryClient.invalidateQueries(["getCard", cardId]);
                 queryClient.invalidateQueries(["getBoard", boardId]);
-                queryClient.invalidateQueries(["getLists", boardId]);
+
                 queryClient.invalidateQueries(["getSpaces"]);
                 queryClient.invalidateQueries(["getFavorites"]);
                 break;
               case 404:
+                dispatch(hideModal());
                 dispatch(addToast({ kind: ERROR, msg: message }));
 
+                queryClient.invalidateQueries(["getCard", cardId]);
                 queryClient.invalidateQueries(["getBoard", boardId]);
                 queryClient.invalidateQueries(["getLists", boardId]);
                 queryClient.invalidateQueries(["getSpaces"]);
@@ -106,8 +110,7 @@ const CardDetailName = ({ cardId, boardId, spaceId, initialValue }: Props) => {
     if (value !== "") {
       setLastVal(e.target.value);
 
-      console.log(e.target.value.trim())
-    //   updateName(e.target.value.trim(), boardId);
+      updateName(e.target.value.trim(), cardId);
     }
   };
 
@@ -119,7 +122,7 @@ const CardDetailName = ({ cardId, boardId, spaceId, initialValue }: Props) => {
 
   return (
     <input
-      className="outline-none w-full bg-transparent focus:border-2 rounded focus:border-primary px-1.5 py-1 h-8 font-semibold text-lg"
+      className="outline-none w-full bg-transparent border-2 border-transparent focus:border-2 rounded focus:border-primary px-1.5 py-1 h-8 font-semibold text-lg"
       onChange={(e) => handleChange(e)}
       value={name}
       onBlur={handleBlur}

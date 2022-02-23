@@ -830,15 +830,6 @@ export const updateCardDescription = async (req: any, res: Response) => {
       });
     }
 
-    if (!description) {
-      return res.status(400).send({
-        success: false,
-        data: {},
-        message: "card description is required",
-        statusCode: 400,
-      });
-    }
-
     const card = await Card.findOne({ _id: id }).select(
       "_id description listId"
     );

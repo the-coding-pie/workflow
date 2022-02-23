@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { useQuery, useQueryClient } from "react-query";
 import axiosInstance from "../../axiosInstance";
 import { CardDetailObj, MemberObj } from "../../types";
@@ -38,6 +38,8 @@ const CardDetailModal = ({ _id, boardId, spaceId }: Props) => {
   const dispatch = useDispatch();
 
   const queryClient = useQueryClient();
+
+  const [showDescEdit, setShowDescEdit] = useState(false);
 
   const getCard = async ({ queryKey }: any) => {
     const response = await axiosInstance.get(`/cards/${queryKey[1]}`);
@@ -168,7 +170,7 @@ const CardDetailModal = ({ _id, boardId, spaceId }: Props) => {
 
           <div className="card-body px-4 flex">
             <div
-              className="left flex flex-col"
+              className="left flex flex-col mr-6"
               style={{
                 width: "600px",
               }}
@@ -225,21 +227,35 @@ const CardDetailModal = ({ _id, boardId, spaceId }: Props) => {
 
               {/* description */}
               <div className="description mb-4">
-                <div className="top flex items-center">
+                <div className="top flex items-center mb-2">
                   <HiMenuAlt2 size={22} className="mr-2" />
-                  <h3 className="text-lg font-semibold text-slate-700">
+                  <h3 className="text-lg font-semibold text-slate-700 mr-4">
                     Description
                   </h3>
+
+                  {!showDescEdit &&
+                    [BOARD_ROLES.ADMIN, BOARD_ROLES.NORMAL].includes(
+                      card.role
+                    ) && (
+                      <button
+                        className="btn-gray"
+                        onClick={() => setShowDescEdit(true)}
+                      >
+                        Edit
+                      </button>
+                    )}
                 </div>
 
                 <div className="content pl-4">
                   {[BOARD_ROLES.ADMIN, BOARD_ROLES.NORMAL].includes(
                     card.role
-                  ) ? (
+                  ) && showDescEdit ? (
                     <CardDescription
+                      showDescEdit={showDescEdit}
+                      setShowDescEdit={setShowDescEdit}
                       boardId={boardId}
                       cardId={card._id}
-                      description={card.description || ""}
+                      initialValue={card.description || ""}
                       spaceId={spaceId}
                     />
                   ) : (
