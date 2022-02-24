@@ -8,6 +8,11 @@ const commentSchema = new mongoose.Schema(
       minlength: 1,
       trim: true,
     },
+    isUpdated: {
+      type: Boolean,
+      required: true,
+      default: false,
+    },
     user: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",

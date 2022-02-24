@@ -129,6 +129,13 @@ export interface MemberObj {
     | typeof SPACE_ROLES.GUEST;
 }
 
+export interface MemberObjBoard {
+  _id: string;
+  profile: string;
+  username: string;
+  isAdmin: boolean;
+}
+
 export interface MemberObjM {
   _id: string;
   profile: string;
@@ -212,7 +219,9 @@ export interface LabelObj {
 export interface CommentObj {
   _id: string;
   comment: string;
-  user: MemberObj;
+  createdAt: string;
+  isUpdated: boolean;
+  user: MemberObjBoard;
 }
 
 export interface CardDetailObj {

@@ -27,6 +27,7 @@ import {
 } from "react-icons/hi";
 import CardDescription from "../CardDetail/CardDescription";
 import AddComment from "../CardDetail/AddComment";
+import Comment from "../CardDetail/Comment";
 
 interface Props {
   _id: string;
@@ -177,12 +178,12 @@ const CardDetailModal = ({ _id, boardId, spaceId }: Props) => {
             >
               {/* dueDate */}
               {card.dueDate && (
-                <div className="due-date mb-4">{card.dueDate}</div>
+                <div className="due-date mb-6">{card.dueDate}</div>
               )}
 
               {/* members */}
               {card.members && card.members.length > 0 && (
-                <div className="members mb-4">
+                <div className="members mb-6">
                   <span className="text-sm font-bold text-slate-600">
                     Members
                   </span>
@@ -216,7 +217,7 @@ const CardDetailModal = ({ _id, boardId, spaceId }: Props) => {
 
               {/* labels */}
               {card.labels && card.labels.length > 0 && (
-                <div className="labels mb-4">
+                <div className="labels mb-6">
                   {card.labels.map((l) => (
                     <div key={l._id} className="label">
                       {l.name}
@@ -226,7 +227,7 @@ const CardDetailModal = ({ _id, boardId, spaceId }: Props) => {
               )}
 
               {/* description */}
-              <div className="description mb-4">
+              <div className="description mb-6">
                 <div className="top flex items-center mb-2">
                   <HiMenuAlt2 size={22} className="mr-2" />
                   <h3 className="text-lg font-semibold text-slate-700 mr-4">
@@ -265,8 +266,8 @@ const CardDetailModal = ({ _id, boardId, spaceId }: Props) => {
               </div>
 
               {/* comments */}
-              <div className="comments mb-4">
-                <div className="top flex items-center">
+              <div className="comments mb-6">
+                <div className="top flex items-center mb-4">
                   <HiOutlineChatAlt size={22} className="mr-2" />
                   <h3 className="text-lg font-semibold text-slate-700">
                     Comments
@@ -279,8 +280,8 @@ const CardDetailModal = ({ _id, boardId, spaceId }: Props) => {
 
                   <div className="actual-comments">
                     {card.comments &&
-                      card.comments.map((c) => (
-                        <div className="comment">{c.comment}</div>
+                      card.comments.map((c: any) => (
+                        <Comment key={c._id} comment={c} myRole={c.role} />
                       ))}
                   </div>
                 </div>

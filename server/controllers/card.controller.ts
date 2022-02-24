@@ -574,7 +574,7 @@ export const getCard = async (req: any, res: Response) => {
       })
       .populate({
         path: "comments",
-        select: "_id comment user",
+        select: "_id comment createdAt user isUpdated",
         populate: {
           path: "user",
           select: "_id username profile",
@@ -669,6 +669,17 @@ export const getCard = async (req: any, res: Response) => {
             user: {
               ...c.user,
               profile: getProfile(c.user.profile),
+              isAdmin:
+                (board.members.find(
+                  (m: any) =>
+                    m.memberId.toString() === c.user._id.toString() &&
+                    m.role === BOARD_MEMBER_ROLES.ADMIN
+                ) ||
+                board.spaceId.members.find(
+                  (m: any) =>
+                    m.memberId.toString() === c.user._id.toString() &&
+                    m.role === SPACE_MEMBER_ROLES.ADMIN
+                )) ? true : false,
             },
           };
         }),
@@ -2018,7 +2029,7 @@ export const updateComment = async (req: any, res: Response) => {
 
     // find the original comment obj
     const commentObj = await Comment.findOne({ _id: commentId }).select(
-      "_id user comment"
+      "_id user comment isUpdated"
     );
 
     // check if you are the creator of the comment
@@ -2033,6 +2044,9 @@ export const updateComment = async (req: any, res: Response) => {
 
     // update the comment
     commentObj.comment = validator.escape(comment);
+    commentObj.isUpdated = true;
+
+    await commentObj.save();
 
     res.send({
       success: true,
