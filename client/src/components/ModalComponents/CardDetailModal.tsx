@@ -281,7 +281,7 @@ const CardDetailModal = ({ _id, boardId, spaceId }: Props) => {
                   <div className="actual-comments">
                     {card.comments &&
                       card.comments.map((c: any) => (
-                        <Comment key={c._id} comment={c} myRole={c.role} />
+                        <Comment key={c._id} comment={c} myRole={card.role} />
                       ))}
                   </div>
                 </div>

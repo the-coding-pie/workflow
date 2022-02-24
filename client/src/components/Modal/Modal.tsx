@@ -107,7 +107,7 @@ const Modal = ({
             <button
               onClick={handleClose}
               type="button"
-              className="modal__close-btn absolute right-2 z-10 top-2"
+              className="modal__close-btn absolute right-2 bg-white bg-opacity-50 rounded-full p-1 z-10 top-2"
             >
               <MdClose color={textColor ? textColor : "inherit"} size={21} />
             </button>

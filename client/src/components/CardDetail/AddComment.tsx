@@ -25,7 +25,7 @@ const AddComment = () => {
 
       <div className="flex flex-col w-full">
         <textarea
-          className="w-full shadow outline-none border-none p-2 rounded resize-none h-24 mb-4"
+          className="w-full shadow focus:shadow-lg focus:border outline-none p-2 rounded resize-none h-24 mb-4"
           onChange={(e) => setComment(e.target.value)}
           value={comment}
           placeholder="Write a comment"
