@@ -28,6 +28,10 @@ import {
 import CardDescription from "../CardDetail/CardDescription";
 import AddComment from "../CardDetail/AddComment";
 import Comment from "../CardDetail/Comment";
+import AddMemberBtn from "../CardDetail/AddMemberBtn";
+import AddLabelBtn from "../CardDetail/AddLabelBtn";
+import DueDateBtn from "../CardDetail/DueDateBtn";
+import AddCoverBtn from "../CardDetail/AddCoverBtn";
 
 interface Props {
   _id: string;
@@ -309,22 +313,18 @@ const CardDetailModal = ({ _id, boardId, spaceId }: Props) => {
                   width: "150px",
                 }}
               >
-                <button className="card-detail-btn">
-                  <HiOutlineUser size={16} className="mr-1" />
-                  Members
-                </button>
-                <button className="card-detail-btn">
-                  <HiOutlineTag size={16} className="mr-1" />
-                  Labels
-                </button>
-                <button className="card-detail-btn">
-                  <HiOutlineClock size={16} className="mr-1" />
-                  Due date
-                </button>
-                <button className="card-detail-btn">
-                  <RiWindowFill size={16} className="mr-1" />
-                  Cover
-                </button>
+                <AddMemberBtn />
+                <AddLabelBtn />
+
+                <DueDateBtn />
+                <AddCoverBtn
+                  coverImg={card.coverImg}
+                  color={card.color}
+                  listId={card.listId}
+                  cardId={card._id}
+                  boardId={boardId}
+                  spaceId={spaceId}
+                />
               </div>
             )}
           </div>
