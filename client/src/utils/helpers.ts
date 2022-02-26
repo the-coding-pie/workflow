@@ -1,4 +1,6 @@
+import TimeAgo from "javascript-time-ago";
 import jwtDecode, { JwtPayload } from "jwt-decode";
+import en from "javascript-time-ago/locale/en.json";
 
 export const checkTokens = (): boolean => {
   try {
@@ -119,4 +121,12 @@ export const removeTokens = (): void => {
 // slice chars
 export const chopChars = (maxLength: number, text: string) => {
   return text.length > maxLength ? text.slice(0, maxLength) + "..." : text;
+};
+
+TimeAgo.addDefaultLocale(en);
+
+export const getDate = (date: string) => {
+  const timeAgo = new TimeAgo("en-US");
+
+  return timeAgo.format(new Date(date));
 };

@@ -579,6 +579,9 @@ export const getCard = async (req: any, res: Response) => {
           path: "user",
           select: "_id username profile",
         },
+        options: {
+          sort: { createdAt: -1 },
+        },
       })
       .populate({
         path: "labels",
@@ -670,7 +673,7 @@ export const getCard = async (req: any, res: Response) => {
               ...c.user,
               profile: getProfile(c.user.profile),
               isAdmin:
-                (board.members.find(
+                board.members.find(
                   (m: any) =>
                     m.memberId.toString() === c.user._id.toString() &&
                     m.role === BOARD_MEMBER_ROLES.ADMIN
@@ -679,7 +682,9 @@ export const getCard = async (req: any, res: Response) => {
                   (m: any) =>
                     m.memberId.toString() === c.user._id.toString() &&
                     m.role === SPACE_MEMBER_ROLES.ADMIN
-                )) ? true : false,
+                )
+                  ? true
+                  : false,
             },
           };
         }),
@@ -1895,16 +1900,31 @@ export const createComment = async (req: any, res: Response) => {
       data: {
         _id: newComment._id,
         comment: newComment.comment,
+        isUpdated: newComment.isUpdated,
         user: {
           _id: newComment.user._id,
           username: req.user.username,
           profile: getProfile(req.user.profile),
+          isAdmin:
+            board.members.find(
+              (m: any) =>
+                m.memberId.toString() === req.user._id.toString() &&
+                m.role === BOARD_MEMBER_ROLES.ADMIN
+            ) ||
+            board.spaceId.members.find(
+              (m: any) =>
+                m.memberId.toString() === req.user._id.toString() &&
+                m.role === SPACE_MEMBER_ROLES.ADMIN
+            )
+              ? true
+              : false,
         },
       },
       message: "Comment has been added successfully!",
       statusCode: 201,
     });
   } catch (err) {
+    console.log(err);
     res.status(500).send({
       success: false,
       data: {},

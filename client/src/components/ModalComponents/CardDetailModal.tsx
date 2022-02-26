@@ -133,7 +133,7 @@ const CardDetailModal = ({ _id, boardId, spaceId }: Props) => {
           {/* cover */}
           {card.color && (
             <div
-              className="card-cover"
+              className="card-cover rounded-t"
               style={{
                 width: "100%",
                 height: "200px",
@@ -143,7 +143,7 @@ const CardDetailModal = ({ _id, boardId, spaceId }: Props) => {
               {card.coverImg && (
                 <img
                   src={card.coverImg}
-                  className="object-contain w-full h-full object-top"
+                  className="object-contain w-full h-full object-top rounded-t"
                   alt="card-cover"
                 />
               )}
@@ -276,12 +276,26 @@ const CardDetailModal = ({ _id, boardId, spaceId }: Props) => {
                 <div className="content flex flex-col">
                   {[BOARD_ROLES.ADMIN, BOARD_ROLES.NORMAL].includes(
                     card.role
-                  ) && <AddComment />}
+                  ) && (
+                    <AddComment
+                      queryKey={["getCard", _id]}
+                      cardId={card._id}
+                      boardId={boardId}
+                      spaceId={spaceId}
+                    />
+                  )}
 
                   <div className="actual-comments">
                     {card.comments &&
                       card.comments.map((c: any) => (
-                        <Comment key={c._id} comment={c} myRole={card.role} />
+                        <Comment
+                          key={c._id}
+                          comment={c}
+                          myRole={card.role}
+                          cardId={card._id}
+                          boardId={boardId}
+                          spaceId={spaceId}
+                        />
                       ))}
                   </div>
                 </div>

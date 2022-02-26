@@ -1,10 +1,16 @@
+import { AxiosError } from "axios";
 import React, { useState } from "react";
 import { HiOutlineX } from "react-icons/hi";
-import { useSelector } from "react-redux";
+import { useQueryClient } from "react-query";
+import { useDispatch, useSelector } from "react-redux";
+import axiosInstance from "../../axiosInstance";
 import useClose from "../../hooks/useClose";
 import { RootState } from "../../redux/app";
+import { hideModal } from "../../redux/features/modalSlice";
+import { addToast } from "../../redux/features/toastSlice";
 import { CommentObj } from "../../types";
-import { BOARD_ROLES } from "../../types/constants";
+import { BOARD_ROLES, ERROR } from "../../types/constants";
+import { getDate } from "../../utils/helpers";
 import Profile from "../Profile/Profile";
 
 interface Props {
@@ -13,9 +19,15 @@ interface Props {
     | typeof BOARD_ROLES.NORMAL
     | typeof BOARD_ROLES.OBSERVER;
   comment: CommentObj;
+  cardId: string;
+  boardId: string;
+  spaceId: string;
 }
 
-const Comment = ({ myRole, comment }: Props) => {
+const Comment = ({ myRole, comment, cardId, spaceId, boardId }: Props) => {
+  const dispatch = useDispatch();
+  const queryClient = useQueryClient();
+
   const { user } = useSelector((state: RootState) => state.auth);
   const [value, setValue] = useState(comment.comment);
   const [isEdit, setIsEdit] = useState(false);
@@ -31,14 +43,169 @@ const Comment = ({ myRole, comment }: Props) => {
     setValue(comment.comment);
   });
 
-  const updateComment = (commentId: string, newComment: string) => {
+  const updateComment = (
+    cardId: string,
+    commentId: string,
+    newComment: string
+  ) => {
     // send PUT request to backend
-    console.log(commentId);
-    console.log(newComment);
+    axiosInstance
+      .put(
+        `/cards/${cardId}/comments`,
+        {
+          comment: newComment,
+          commentId: commentId,
+        },
+        {
+          headers: {
+            ContentType: "application/json",
+          },
+        }
+      )
+      .then((response) => {
+        setIsEdit(false);
+
+        queryClient.setQueryData(["getCard", cardId], (oldValue: any) => {
+          return {
+            ...oldValue,
+            comments: oldValue.comments.map((c: CommentObj) => {
+              if (c._id === commentId) {
+                return {
+                  ...c,
+                  comment: newComment,
+                };
+              }
+              return c;
+            }),
+          };
+        });
+      })
+      .catch((error: AxiosError) => {
+        if (error.response) {
+          const response = error.response;
+          const { message } = response.data;
+
+          switch (response.status) {
+            case 403:
+              dispatch(addToast({ kind: ERROR, msg: message }));
+
+              queryClient.invalidateQueries(["getCard", cardId]);
+              queryClient.invalidateQueries(["getBoard", boardId]);
+
+              queryClient.invalidateQueries(["getSpaceInfo", spaceId]);
+              queryClient.invalidateQueries(["getSpaces"]);
+              queryClient.invalidateQueries(["getFavorites"]);
+              break;
+            case 404:
+              dispatch(hideModal());
+              dispatch(addToast({ kind: ERROR, msg: message }));
+
+              queryClient.invalidateQueries(["getCard", cardId]);
+              queryClient.invalidateQueries(["getBoard", boardId]);
+              queryClient.invalidateQueries(["getLists", boardId]);
+              queryClient.invalidateQueries(["getSpaces"]);
+              queryClient.invalidateQueries(["getFavorites"]);
+
+              queryClient.invalidateQueries(["getSpaceInfo", spaceId]);
+              queryClient.invalidateQueries(["getSpaceBoards", spaceId]);
+              queryClient.invalidateQueries(["getSpaceSettings", spaceId]);
+              queryClient.invalidateQueries(["getSpaceMembers", spaceId]);
+              break;
+            case 400:
+            case 500:
+              queryClient.invalidateQueries(["getCard", cardId]);
+              dispatch(hideModal());
+              dispatch(addToast({ kind: ERROR, msg: message }));
+              break;
+            default:
+              dispatch(
+                addToast({ kind: ERROR, msg: "Oops, something went wrong" })
+              );
+              break;
+          }
+        } else if (error.request) {
+          dispatch(
+            addToast({ kind: ERROR, msg: "Oops, something went wrong" })
+          );
+        } else {
+          dispatch(addToast({ kind: ERROR, msg: `Error: ${error.message}` }));
+        }
+      });
   };
 
-  const deleteComment = (commentId: string) => {
-    // send DELETE request to backend
+  const deleteComment = (commentId: string, cardId: string) => {
+    axiosInstance
+      .delete(`/cards/${cardId}/comments`, {
+        data: {
+          commentId: commentId,
+        },
+        headers: {
+          ContentType: "application/json",
+        },
+      })
+      .then((response) => {
+        setShowDelete(false);
+
+        queryClient.setQueryData(["getCard", cardId], (oldValue: any) => {
+          return {
+            ...oldValue,
+            comments: oldValue.comments.filter(
+              (c: CommentObj) => c._id !== commentId
+            ),
+          };
+        });
+      })
+      .catch((error: AxiosError) => {
+        if (error.response) {
+          const response = error.response;
+          const { message } = response.data;
+
+          switch (response.status) {
+            case 403:
+              dispatch(addToast({ kind: ERROR, msg: message }));
+
+              queryClient.invalidateQueries(["getCard", cardId]);
+              queryClient.invalidateQueries(["getBoard", boardId]);
+
+              queryClient.invalidateQueries(["getSpaceInfo", spaceId]);
+              queryClient.invalidateQueries(["getSpaces"]);
+              queryClient.invalidateQueries(["getFavorites"]);
+              break;
+            case 404:
+              dispatch(hideModal());
+              dispatch(addToast({ kind: ERROR, msg: message }));
+
+              queryClient.invalidateQueries(["getCard", cardId]);
+              queryClient.invalidateQueries(["getBoard", boardId]);
+              queryClient.invalidateQueries(["getLists", boardId]);
+              queryClient.invalidateQueries(["getSpaces"]);
+              queryClient.invalidateQueries(["getFavorites"]);
+
+              queryClient.invalidateQueries(["getSpaceInfo", spaceId]);
+              queryClient.invalidateQueries(["getSpaceBoards", spaceId]);
+              queryClient.invalidateQueries(["getSpaceSettings", spaceId]);
+              queryClient.invalidateQueries(["getSpaceMembers", spaceId]);
+              break;
+            case 400:
+            case 500:
+              queryClient.invalidateQueries(["getCard", cardId]);
+              dispatch(hideModal());
+              dispatch(addToast({ kind: ERROR, msg: message }));
+              break;
+            default:
+              dispatch(
+                addToast({ kind: ERROR, msg: "Oops, something went wrong" })
+              );
+              break;
+          }
+        } else if (error.request) {
+          dispatch(
+            addToast({ kind: ERROR, msg: "Oops, something went wrong" })
+          );
+        } else {
+          dispatch(addToast({ kind: ERROR, msg: `Error: ${error.message}` }));
+        }
+      });
   };
 
   return (
@@ -56,7 +223,7 @@ const Comment = ({ myRole, comment }: Props) => {
           <span className="username font-semibold mr-2">
             {comment.user.username}
           </span>
-          <span className="time mr-1">{comment.createdAt}</span>
+          <span className="time mr-1">{getDate(comment.createdAt)}</span>
           {comment.isUpdated && <span className="isUpdated">(edited)</span>}
         </div>
 
@@ -75,7 +242,7 @@ const Comment = ({ myRole, comment }: Props) => {
             <div className="buttons flex items-center">
               <button
                 disabled={value === ""}
-                onClick={() => updateComment(comment._id, value)}
+                onClick={() => updateComment(cardId, comment._id, value)}
                 className="btn-primary disabled:opacity-40 disabled:cursor-not-allowed w-20 mr-2"
               >
                 Save
@@ -144,7 +311,7 @@ const Comment = ({ myRole, comment }: Props) => {
 
                       <button
                         className="btn-danger w-full"
-                        onClick={() => deleteComment(comment._id)}
+                        onClick={() => deleteComment(comment._id, cardId)}
                       >
                         Delete
                       </button>

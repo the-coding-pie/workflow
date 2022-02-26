@@ -7,7 +7,6 @@ import {
   useNavigate,
 } from "react-router-dom";
 import { Outlet, useParams } from "react-router-dom";
-import spaces from "../../data/spaces";
 import Avatar from "react-avatar";
 import { HiOutlineStar } from "react-icons/hi";
 import { ERROR, SPACE_ROLES } from "../../types/constants";
