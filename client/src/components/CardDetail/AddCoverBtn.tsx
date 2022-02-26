@@ -237,9 +237,9 @@ const AddCoverBtn = ({
 
       {show && (
         <div
-          className="bg-white rounded shadow-lg"
+          className="bg-white rounded shadow-lg absolute top-0 left-0"
           style={{
-            minWidth: "400px",
+            width: "400px",
           }}
         >
           <header className="flex items-center justify-between p-3 border-b mb-2">

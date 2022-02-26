@@ -313,7 +313,13 @@ const CardDetailModal = ({ _id, boardId, spaceId }: Props) => {
                   width: "150px",
                 }}
               >
-                <AddMemberBtn />
+                <AddMemberBtn
+                  members={card.members}
+                  listId={card.listId}
+                  cardId={card._id}
+                  boardId={boardId}
+                  spaceId={spaceId}
+                />
                 <AddLabelBtn />
 
                 <DueDateBtn />
