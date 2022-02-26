@@ -1,10 +1,15 @@
+import { AxiosError } from "axios";
 import React, { useState } from "react";
-import { HiOutlineUser, HiOutlineX } from "react-icons/hi";
+import { HiOutlineCheck, HiOutlineUser, HiOutlineX } from "react-icons/hi";
 import { useQuery, useQueryClient } from "react-query";
 import { useDispatch } from "react-redux";
 import axiosInstance from "../../axiosInstance";
 import useClose from "../../hooks/useClose";
+import { hideModal } from "../../redux/features/modalSlice";
+import { addToast } from "../../redux/features/toastSlice";
 import { MemberObjM } from "../../types";
+import { ERROR } from "../../types/constants";
+import Profile from "../Profile/Profile";
 
 interface AllMembers {
   boardMembers: MemberObjM[];
@@ -27,6 +32,82 @@ const AddMemberBtn = ({ members, cardId, listId, boardId, spaceId }: Props) => {
   const [show, setShow] = useState(false);
 
   const ref = useClose(() => setShow(false));
+
+  const addAMember = (memberId: string) => {
+    axiosInstance
+      .put(
+        `/cards/${cardId}/members`,
+        {
+          memberId: memberId,
+        },
+        {
+          headers: {
+            ContentType: "application/json",
+          },
+        }
+      )
+      .then((response) => {
+        setShow(false);
+
+        queryClient.setQueryData(["getCard", cardId], (oldValue: any) => {
+          return {
+            ...oldValue,
+            members: oldValue.members ? [...oldValue.members] : [],
+          };
+        });
+
+        // update in getLists query Cache
+      })
+      .catch((error: AxiosError) => {
+        if (error.response) {
+          const response = error.response;
+          const { message } = response.data;
+
+          switch (response.status) {
+            case 403:
+              setShow(false);
+              dispatch(addToast({ kind: ERROR, msg: message }));
+
+              queryClient.invalidateQueries(["getCard", cardId]);
+              queryClient.invalidateQueries(["getBoard", boardId]);
+
+              queryClient.invalidateQueries(["getSpaces"]);
+              queryClient.invalidateQueries(["getFavorites"]);
+              break;
+            case 404:
+              setShow(false);
+              dispatch(hideModal());
+              dispatch(addToast({ kind: ERROR, msg: message }));
+
+              queryClient.invalidateQueries(["getCard", cardId]);
+              queryClient.invalidateQueries(["getBoard", boardId]);
+              queryClient.invalidateQueries(["getLists", boardId]);
+              queryClient.invalidateQueries(["getSpaces"]);
+              queryClient.invalidateQueries(["getFavorites"]);
+
+              queryClient.invalidateQueries(["getSpaceBoards", spaceId]);
+              queryClient.invalidateQueries(["getSpaceSettings", spaceId]);
+              queryClient.invalidateQueries(["getSpaceMembers", spaceId]);
+              break;
+            case 400:
+            case 500:
+              dispatch(addToast({ kind: ERROR, msg: message }));
+              break;
+            default:
+              dispatch(
+                addToast({ kind: ERROR, msg: "Oops, something went wrong" })
+              );
+              break;
+          }
+        } else if (error.request) {
+          dispatch(
+            addToast({ kind: ERROR, msg: "Oops, something went wrong" })
+          );
+        } else {
+          dispatch(addToast({ kind: ERROR, msg: `Error: ${error.message}` }));
+        }
+      });
+  };
 
   const getAllBoardMembers = async ({ queryKey }: any) => {
     const response = await axiosInstance.get(`/users/board/${queryKey[1]}`);
@@ -55,24 +136,64 @@ const AddMemberBtn = ({ members, cardId, listId, boardId, spaceId }: Props) => {
     component = <p className="mt-6 ml-4 text-center">Loading...</p>;
   } else {
     component = (
-      <div className="all-members">
-        <div className="board-members">
-          <span>Board Members</span>
+      <div className="all-members px-4">
+        <div className="board-members mb-4">
+          <span className="text-sm text-slate-600 mb-2 inline-block font-semibold">
+            Board Members
+          </span>
 
           <div className="flex flex-col">
-            {data!.boardMembers.map((m) => (
-              <div className="board-member">{m.username}</div>
-            ))}
+            {data!.boardMembers.length > 0 ? (
+              data!.boardMembers.map((m) => (
+                <button
+                  type="button"
+                  key={m._id}
+                  className="board-member text-sm px-2 py-1.5 bg-slate-200 rounded hover:bg-primary_light cursor-pointer mb-2 font-medium flex items-center justify-between"
+                >
+                  <div className="left flex items-center">
+                    <Profile src={m.profile} classes="mr-4" />
+                    <span>{m.username}</span>
+                  </div>
+                  {members?.map((cm) => cm._id).includes(m._id) && (
+                    <div className="right">
+                      <HiOutlineCheck size={16} />
+                    </div>
+                  )}
+                </button>
+              ))
+            ) : (
+              <div className="text-sm p-2">No users found</div>
+            )}
           </div>
         </div>
 
         <div className="space-members">
-          <span>Space Members</span>
+          <span className="text-sm text-slate-600 mb-2 inline-block font-semibold">
+            Space Members
+          </span>
 
           <div className="flex flex-col">
-            {data!.spaceMembers.map((m) => (
-              <div className="space-member">{m.username}</div>
-            ))}
+            {data!.spaceMembers.length > 0 ? (
+              data!.spaceMembers.map((m) => (
+                <button
+                  type="button"
+                  key={m._id}
+                  className="space-member text-sm px-2 py-1.5 bg-slate-200 rounded hover:bg-primary_light cursor-pointer mb-2 font-medium flex items-center justify-between"
+                >
+                  <div className="left flex items-center">
+                    <Profile src={m.profile} classes="mr-4" />
+                    <span>{m.username}</span>
+                  </div>
+                  {members?.map((cm) => cm._id).includes(m._id) && (
+                    <div className="right">
+                      <HiOutlineCheck size={16} />
+                    </div>
+                  )}
+                </button>
+              ))
+            ) : (
+              <div className="text-sm p-2">No users found</div>
+            )}
           </div>
         </div>
       </div>

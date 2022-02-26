@@ -1037,7 +1037,8 @@ export const addAMember = async (req: any, res: Response) => {
     const boardMembers = board.members.map((m: any) => m.memberId.toString());
     const spaceMembers = board.spaceId.members
       .filter((m: any) => !boardMembers.includes(m.memberId.toString()))
-      .filter((m: any) => m.role !== SPACE_MEMBER_ROLES.GUEST);
+      .filter((m: any) => m.role !== SPACE_MEMBER_ROLES.GUEST)
+      .map((m: any) => m.memberId.toString());
 
     allMembers = [...boardMembers, ...spaceMembers];
 
@@ -1060,9 +1061,19 @@ export const addAMember = async (req: any, res: Response) => {
       await card.save();
     }
 
+    const newMember = [
+      board.members,
+      board.spaceId.members
+        .filter((m: any) => !boardMembers.includes(m.memberId.toString()))
+        .filter((m: any) => m.role !== SPACE_MEMBER_ROLES.GUEST),
+    ].find((m) => m.memberId.toString === memberId);
+
     res.send({
       success: true,
-      data: {},
+      data: {
+        ...newMember,
+        profile: getProfile(newMember.profile),
+      },
       message: "Member added to card",
       statusCode: 200,
     });

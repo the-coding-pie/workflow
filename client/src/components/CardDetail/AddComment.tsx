@@ -47,7 +47,7 @@ const AddComment = ({ queryKey, cardId, boardId, spaceId }: Props) => {
         queryClient.setQueryData(queryKey, (oldData: any) => {
           return {
             ...oldData,
-            comments: [data, ...oldData.comments],
+            comments: oldData.comments ? [data, ...oldData.comments] : [data],
           };
         });
 
@@ -64,7 +64,7 @@ const AddComment = ({ queryKey, cardId, boardId, spaceId }: Props) => {
 
               queryClient.invalidateQueries(["getCard", cardId]);
               queryClient.invalidateQueries(["getBoard", boardId]);
-              
+
               queryClient.invalidateQueries(["getSpaceInfo", spaceId]);
               queryClient.invalidateQueries(["getSpaces"]);
               queryClient.invalidateQueries(["getFavorites"]);
