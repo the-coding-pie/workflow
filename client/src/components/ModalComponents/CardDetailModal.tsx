@@ -32,6 +32,7 @@ import AddMemberBtn from "../CardDetail/AddMemberBtn";
 import AddLabelBtn from "../CardDetail/AddLabelBtn";
 import DueDateBtn from "../CardDetail/DueDateBtn";
 import AddCoverBtn from "../CardDetail/AddCoverBtn";
+import { format } from "date-fns";
 
 interface Props {
   _id: string;
@@ -182,7 +183,24 @@ const CardDetailModal = ({ _id, boardId, spaceId }: Props) => {
             >
               {/* dueDate */}
               {card.dueDate && (
-                <div className="due-date mb-6">{card.dueDate}</div>
+                <div className="due-date mb-6">
+                  <span className="text-sm font-bold text-slate-600 block mb-2">
+                    Due Date
+                  </span>
+
+                  <div className="bg-slate-200 px-2 py-1 rounded w-max flex items-center">
+                    {[BOARD_ROLES.ADMIN, BOARD_ROLES.NORMAL].includes(
+                      card.role
+                    ) && (
+                      <div className="toggle-isComplete mr-2">
+                        <input type="checkbox" />
+                      </div>
+                    )}
+                    <span className="date">
+                      {format(new Date(card.dueDate), "dd MMM, yyyy")}
+                    </span>
+                  </div>
+                </div>
               )}
 
               {/* members */}
@@ -307,7 +325,13 @@ const CardDetailModal = ({ _id, boardId, spaceId }: Props) => {
                 />
                 <AddLabelBtn />
 
-                <DueDateBtn />
+                <DueDateBtn
+                  dueDate={card.dueDate}
+                  listId={card.listId}
+                  cardId={card._id}
+                  boardId={boardId}
+                  spaceId={spaceId}
+                />
                 <AddCoverBtn
                   coverImg={card.coverImg}
                   color={card.color}

@@ -1069,9 +1069,9 @@ export const addAMember = async (req: any, res: Response) => {
 
     await card.save();
 
-    const newMember = await User.findOne({ _id: memberId }).select(
-      "_id username profile"
-    ).lean()
+    const newMember = await User.findOne({ _id: memberId })
+      .select("_id username profile")
+      .lean();
 
     return res.send({
       success: true,
@@ -2510,7 +2510,7 @@ export const updateDueDate = async (req: any, res: Response) => {
 
     res.send({
       success: true,
-      data: {},
+      data: card.dueDate,
       message: "Card dueDate updated successfully.",
       statusCode: 200,
     });
@@ -2612,11 +2612,11 @@ export const removeDueDate = async (req: any, res: Response) => {
 
     // update the dueDate
     if (!card.dueDate) {
-      return res.status(403).send({
+      return res.status(400).send({
         success: false,
         data: {},
         message: "Card has no dueDate. First add dueDate.",
-        statusCode: 403,
+        statusCode: 400,
       });
     }
 

@@ -163,7 +163,7 @@ body {
   }
 
   .btn-primary {
-    @apply bg-primary py-2 px-5 text-white rounded font-bold;
+    @apply bg-primary py-2 px-5 text-white rounded font-bold disabled:cursor-not-allowed disabled:opacity-60;
   }
 
   .btn-danger {
@@ -172,6 +172,10 @@ body {
 
   .btn-slate {
     @apply text-sm px-5 py-2 bg-slate-200 rounded hover:bg-primary_light disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:bg-slate-200;
+  }
+
+  .btn-gray {
+    @apply text-sm px-5 py-2 bg-slate-200 rounded hover:bg-slate-200 disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:bg-slate-200;
   }
 
   .btn-primary_light {
