@@ -47,12 +47,14 @@ const AddMemberBtn = ({ members, cardId, listId, boardId, spaceId }: Props) => {
         }
       )
       .then((response) => {
+        const { data } = response.data;
+
         setShow(false);
 
         queryClient.setQueryData(["getCard", cardId], (oldValue: any) => {
           return {
             ...oldValue,
-            members: oldValue.members ? [...oldValue.members] : [],
+            members: oldValue.members ? [...oldValue.members, data] : [data],
           };
         });
 
@@ -90,6 +92,86 @@ const AddMemberBtn = ({ members, cardId, listId, boardId, spaceId }: Props) => {
               queryClient.invalidateQueries(["getSpaceMembers", spaceId]);
               break;
             case 400:
+              queryClient.invalidateQueries(["getCard", cardId]);
+              dispatch(addToast({ kind: ERROR, msg: message }));
+              break;
+            case 500:
+              dispatch(addToast({ kind: ERROR, msg: message }));
+              break;
+            default:
+              dispatch(
+                addToast({ kind: ERROR, msg: "Oops, something went wrong" })
+              );
+              break;
+          }
+        } else if (error.request) {
+          dispatch(
+            addToast({ kind: ERROR, msg: "Oops, something went wrong" })
+          );
+        } else {
+          dispatch(addToast({ kind: ERROR, msg: `Error: ${error.message}` }));
+        }
+      });
+  };
+
+  const removeCardMember = (memberId: string) => {
+    axiosInstance
+      .delete(`/cards/${cardId}/members`, {
+        data: {
+          memberId: memberId,
+        },
+        headers: {
+          ContentType: "application/json",
+        },
+      })
+      .then((response) => {
+        setShow(false);
+
+        queryClient.setQueryData(["getCard", cardId], (oldValue: any) => {
+          return {
+            ...oldValue,
+            members: oldValue.members.filter((m: any) => m._id !== memberId),
+          };
+        });
+
+        // update in getLists query Cache
+      })
+      .catch((error: AxiosError) => {
+        if (error.response) {
+          const response = error.response;
+          const { message } = response.data;
+
+          switch (response.status) {
+            case 403:
+              setShow(false);
+              dispatch(addToast({ kind: ERROR, msg: message }));
+
+              queryClient.invalidateQueries(["getCard", cardId]);
+              queryClient.invalidateQueries(["getBoard", boardId]);
+
+              queryClient.invalidateQueries(["getSpaces"]);
+              queryClient.invalidateQueries(["getFavorites"]);
+              break;
+            case 404:
+              setShow(false);
+              dispatch(hideModal());
+              dispatch(addToast({ kind: ERROR, msg: message }));
+
+              queryClient.invalidateQueries(["getCard", cardId]);
+              queryClient.invalidateQueries(["getBoard", boardId]);
+              queryClient.invalidateQueries(["getLists", boardId]);
+              queryClient.invalidateQueries(["getSpaces"]);
+              queryClient.invalidateQueries(["getFavorites"]);
+
+              queryClient.invalidateQueries(["getSpaceBoards", spaceId]);
+              queryClient.invalidateQueries(["getSpaceSettings", spaceId]);
+              queryClient.invalidateQueries(["getSpaceMembers", spaceId]);
+              break;
+            case 400:
+              queryClient.invalidateQueries(["getCard", cardId]);
+              dispatch(addToast({ kind: ERROR, msg: message }));
+
+              break;
             case 500:
               dispatch(addToast({ kind: ERROR, msg: message }));
               break;
@@ -148,6 +230,13 @@ const AddMemberBtn = ({ members, cardId, listId, boardId, spaceId }: Props) => {
                 <button
                   type="button"
                   key={m._id}
+                  onClick={() => {
+                    if (members?.map((cm) => cm._id).includes(m._id)) {
+                      removeCardMember(m._id);
+                    } else {
+                      addAMember(m._id);
+                    }
+                  }}
                   className="board-member text-sm px-2 py-1.5 bg-slate-200 rounded hover:bg-primary_light cursor-pointer mb-2 font-medium flex items-center justify-between"
                 >
                   <div className="left flex items-center">
@@ -176,6 +265,13 @@ const AddMemberBtn = ({ members, cardId, listId, boardId, spaceId }: Props) => {
             {data!.spaceMembers.length > 0 ? (
               data!.spaceMembers.map((m) => (
                 <button
+                  onClick={() => {
+                    if (members?.map((cm) => cm._id).includes(m._id)) {
+                      removeCardMember(m._id);
+                    } else {
+                      addAMember(m._id);
+                    }
+                  }}
                   type="button"
                   key={m._id}
                   className="space-member text-sm px-2 py-1.5 bg-slate-200 rounded hover:bg-primary_light cursor-pointer mb-2 font-medium flex items-center justify-between"

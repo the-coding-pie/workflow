@@ -188,33 +188,18 @@ const CardDetailModal = ({ _id, boardId, spaceId }: Props) => {
               {/* members */}
               {card.members && card.members.length > 0 && (
                 <div className="members mb-6">
-                  <span className="text-sm font-bold text-slate-600">
+                  <span className="text-sm font-bold text-slate-600 block mb-2">
                     Members
                   </span>
 
-                  <div className="members-content">
-                    {card.members.length > 5 ? (
-                      <div className="flex items-center">
-                        {card.members?.slice(0, 5).map((m) => (
-                          <Profile
-                            key={m._id}
-                            classes="w-7 h-7 cursor-pointer"
-                            src={m.profile}
-                          />
-                        ))}
-                        <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center text-sm font-medium">
-                          +{card.members!.slice(5).length}
-                        </div>
-                      </div>
-                    ) : (
-                      card.members.map((m) => (
-                        <Profile
-                          key={m._id}
-                          classes="w-7 h-7 cursor-pointer"
-                          src={m.profile}
-                        />
-                      ))
-                    )}
+                  <div className="members-content flex items-center gap-x-2">
+                    {card.members.map((m) => (
+                      <Profile
+                        key={m._id}
+                        classes="w-7 h-7 cursor-pointer"
+                        src={m.profile}
+                      />
+                    ))}
                   </div>
                 </div>
               )}

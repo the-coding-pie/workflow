@@ -22,6 +22,7 @@ import path from "path";
 import { getPos, getProfile } from "../utils/helpers";
 import Label from "../models/label.model";
 import datefns from "date-fns";
+import User from "../models/user.model";
 
 // POST /cards -> create card
 export const createCard = async (req: any, res: Response) => {
@@ -1054,24 +1055,29 @@ export const addAMember = async (req: any, res: Response) => {
 
     // now it is clear that, the memberId is a valid one
     // if they are not a card member already, then only add them to the card
-    if (!card.members.map((m: any) => m.toString()).includes(memberId)) {
-      // add them to card
-      card.members.push(memberId);
-
-      await card.save();
+    if (card.members.map((m: any) => m.toString()).includes(memberId)) {
+      return res.status(400).send({
+        success: false,
+        data: {},
+        message: "Already added to card!",
+        statusCode: 400,
+      });
     }
 
-    const newMember = [
-      board.members,
-      board.spaceId.members
-        .filter((m: any) => !boardMembers.includes(m.memberId.toString()))
-        .filter((m: any) => m.role !== SPACE_MEMBER_ROLES.GUEST),
-    ].find((m) => m.memberId.toString === memberId);
+    // add them to card
+    card.members.push(memberId);
 
-    res.send({
+    await card.save();
+
+    const newMember = await User.findOne({ _id: memberId }).select(
+      "_id username profile"
+    ).lean()
+
+    return res.send({
       success: true,
       data: {
-        ...newMember,
+        _id: newMember._id,
+        username: newMember.username,
         profile: getProfile(newMember.profile),
       },
       message: "Member added to card",
@@ -1935,7 +1941,6 @@ export const createComment = async (req: any, res: Response) => {
       statusCode: 201,
     });
   } catch (err) {
-    console.log(err);
     res.status(500).send({
       success: false,
       data: {},
