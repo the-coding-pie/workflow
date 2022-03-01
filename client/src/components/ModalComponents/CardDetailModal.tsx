@@ -33,6 +33,7 @@ import AddLabelBtn from "../CardDetail/AddLabelBtn";
 import DueDateBtn from "../CardDetail/DueDateBtn";
 import AddCoverBtn from "../CardDetail/AddCoverBtn";
 import { format } from "date-fns";
+import { AxiosError } from "axios";
 
 interface Props {
   _id: string;
@@ -46,6 +47,78 @@ const CardDetailModal = ({ _id, boardId, spaceId }: Props) => {
   const queryClient = useQueryClient();
 
   const [showDescEdit, setShowDescEdit] = useState(false);
+
+  const toggleIsComplete = (cardId: string) => {
+    axiosInstance
+      .put(`/cards/${cardId}/isComplete`, {
+        headers: {
+          ContentType: "application/json",
+        },
+      })
+      .then((response) => {
+        const { data } = response.data;
+
+        queryClient.setQueryData(["getCard", cardId], (oldValue: any) => {
+          return {
+            ...oldValue,
+            isComplete: data.isComplete,
+          };
+        });
+
+        // update in getLists query Cache
+      })
+      .catch((error: AxiosError) => {
+        if (error.response) {
+          const response = error.response;
+          const { message } = response.data;
+
+          switch (response.status) {
+            case 403:
+              dispatch(addToast({ kind: ERROR, msg: message }));
+
+              queryClient.invalidateQueries(["getCard", cardId]);
+              queryClient.invalidateQueries(["getBoard", boardId]);
+
+              queryClient.invalidateQueries(["getSpaces"]);
+              queryClient.invalidateQueries(["getFavorites"]);
+              break;
+            case 404:
+              dispatch(hideModal());
+              dispatch(addToast({ kind: ERROR, msg: message }));
+
+              queryClient.invalidateQueries(["getCard", cardId]);
+              queryClient.invalidateQueries(["getBoard", boardId]);
+              queryClient.invalidateQueries(["getLists", boardId]);
+              queryClient.invalidateQueries(["getSpaces"]);
+              queryClient.invalidateQueries(["getFavorites"]);
+
+              queryClient.invalidateQueries(["getSpaceBoards", spaceId]);
+              queryClient.invalidateQueries(["getSpaceSettings", spaceId]);
+              queryClient.invalidateQueries(["getSpaceMembers", spaceId]);
+              break;
+            case 400:
+              dispatch(hideModal());
+              queryClient.invalidateQueries(["getCard", cardId]);
+              dispatch(addToast({ kind: ERROR, msg: message }));
+              break;
+            case 500:
+              dispatch(addToast({ kind: ERROR, msg: message }));
+              break;
+            default:
+              dispatch(
+                addToast({ kind: ERROR, msg: "Oops, something went wrong" })
+              );
+              break;
+          }
+        } else if (error.request) {
+          dispatch(
+            addToast({ kind: ERROR, msg: "Oops, something went wrong" })
+          );
+        } else {
+          dispatch(addToast({ kind: ERROR, msg: `Error: ${error.message}` }));
+        }
+      });
+  };
 
   const getCard = async ({ queryKey }: any) => {
     const response = await axiosInstance.get(`/cards/${queryKey[1]}`);
@@ -193,7 +266,11 @@ const CardDetailModal = ({ _id, boardId, spaceId }: Props) => {
                       card.role
                     ) && (
                       <div className="toggle-isComplete mr-2">
-                        <input type="checkbox" />
+                        <input
+                          type="checkbox"
+                          checked={card.isComplete ? true : false}
+                          onChange={() => toggleIsComplete(card._id)}
+                        />
                       </div>
                     )}
                     <span className="date">

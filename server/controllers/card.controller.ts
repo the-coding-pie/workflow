@@ -2750,7 +2750,9 @@ export const toggleIsComplete = async (req: any, res: Response) => {
 
     res.send({
       success: true,
-      data: {},
+      data: {
+        isComplete: card.isComplete,
+      },
       message: "Card isComplete updated successfully.",
       statusCode: 200,
     });
