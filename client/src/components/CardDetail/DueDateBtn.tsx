@@ -208,7 +208,7 @@ const DueDateBtn = ({ dueDate, cardId, listId, boardId, spaceId }: Props) => {
               value={date}
               onChange={(e) => setDate(e.target.value)}
               type="date"
-              className="outline-none cursor-pointer"
+              className="outline-none cursor-pointer border border-primary_light rounded p-0.5"
             />
           </div>
 

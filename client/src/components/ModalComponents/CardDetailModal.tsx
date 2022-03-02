@@ -34,6 +34,7 @@ import DueDateBtn from "../CardDetail/DueDateBtn";
 import AddCoverBtn from "../CardDetail/AddCoverBtn";
 import { format } from "date-fns";
 import { AxiosError } from "axios";
+import DueDateStatus from "../CardDetail/DueDateStatus";
 
 interface Props {
   _id: string;
@@ -276,6 +277,11 @@ const CardDetailModal = ({ _id, boardId, spaceId }: Props) => {
                     <span className="date">
                       {format(new Date(card.dueDate), "dd MMM, yyyy")}
                     </span>
+
+                    <DueDateStatus
+                      date={card.dueDate}
+                      isComplete={card.isComplete}
+                    />
                   </div>
                 </div>
               )}

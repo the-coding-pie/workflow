@@ -63,3 +63,9 @@ export const CARD_POSSIBLE_DRAGS = {
   DOWN: "DOWN",
   UP: "UP",
 };
+
+// DUE DATE STATUSES
+export const DUE_DATE_STATUSES = {
+  OVERDUE: "OVERDUE",
+  COMPLETE: "COMPLETE",
+};

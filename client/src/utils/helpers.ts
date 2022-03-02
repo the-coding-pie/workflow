@@ -1,6 +1,8 @@
 import TimeAgo from "javascript-time-ago";
 import jwtDecode, { JwtPayload } from "jwt-decode";
 import en from "javascript-time-ago/locale/en.json";
+import { DUE_DATE_STATUSES } from "../types/constants";
+import { isBefore } from "date-fns";
 
 export const checkTokens = (): boolean => {
   try {
@@ -129,4 +131,17 @@ export const getDate = (date: string) => {
   const timeAgo = new TimeAgo("en-US");
 
   return timeAgo.format(new Date(date));
+};
+
+// get status
+export const getStatus = (date: string, isComplete: boolean) => {
+  if (isComplete) {
+    return DUE_DATE_STATUSES.COMPLETE;
+  }
+
+  if (date && isBefore(new Date(date), new Date())) {
+    return DUE_DATE_STATUSES.OVERDUE;
+  }
+
+  return null;
 };
