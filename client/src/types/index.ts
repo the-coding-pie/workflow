@@ -242,3 +242,10 @@ export interface CardDetailObj {
     | typeof BOARD_ROLES.NORMAL
     | typeof BOARD_ROLES.OBSERVER;
 }
+
+export interface BoardLabel {
+  _id: string;
+  name: string | null;
+  color: string;
+  pos: number;
+}
