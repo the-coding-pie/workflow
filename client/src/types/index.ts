@@ -1,6 +1,7 @@
 import { string } from "yup/lib/locale";
 import {
   BOARD,
+  BOARD_LABEL_MODAL,
   BOARD_ROLES,
   BOARD_VISIBILITY_TYPES,
   CARD_DETAIL_MODAL,
@@ -169,6 +170,7 @@ export interface ModalObj {
     | typeof CONFIRM_LEAVE_BOARD_MODAL
     | typeof CONFIRM_REMOVE_BOARD_MEMBER_MODAL
     | typeof CARD_DETAIL_MODAL
+    | typeof BOARD_LABEL_MODAL
     | null;
   modalProps?: object;
   modalTitle?: string;

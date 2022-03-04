@@ -5,6 +5,7 @@ import useEscClose from "../../hooks/useEscClose";
 import { hideModal } from "../../redux/features/modalSlice";
 import { ModalObj } from "../../types";
 import {
+  BOARD_LABEL_MODAL,
   CARD_DETAIL_MODAL,
   CONFIRM_DELETE_SPACE_MODAL,
   CONFIRM_LEAVE_BOARD_MODAL,
@@ -24,6 +25,7 @@ import DeleteSpaceConfirmationModal from "../ModalComponents/DeleteSpaceConfirma
 import LeaveBoardConfirmationModal from "../ModalComponents/LeaveBoardConfirmationModal";
 import RemoveMemberBoardConfirmationModal from "../ModalComponents/RemoveMemberBoardConfirmationModal";
 import CardDetailModal from "../ModalComponents/CardDetailModal";
+import BoardLabelModal from "../ModalComponents/BoardLabelModal";
 
 interface Props extends ModalObj {}
 
@@ -72,6 +74,9 @@ const Modal = ({
       break;
     case CARD_DETAIL_MODAL:
       Component = CardDetailModal;
+      break;
+    case BOARD_LABEL_MODAL:
+      Component = BoardLabelModal;
       break;
     default:
       Component = null;

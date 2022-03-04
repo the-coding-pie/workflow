@@ -1,20 +1,26 @@
 import React from "react";
+import { HiOutlineTrash } from "react-icons/hi";
 import { useQuery, useQueryClient } from "react-query";
 import { useDispatch } from "react-redux";
 import { Navigate } from "react-router-dom";
 import axiosInstance from "../../axiosInstance";
+import { showModal } from "../../redux/features/modalSlice";
 import { addToast } from "../../redux/features/toastSlice";
 import { BoardLabel } from "../../types";
-import { ERROR } from "../../types/constants";
+import { BOARD_LABEL_MODAL, BOARD_ROLES, ERROR } from "../../types/constants";
 import ErrorBoardLists from "../ErrorBoardLists/ErrorBoardLists";
 import Loader from "../Loader/Loader";
 
 interface Props {
   spaceId: string;
   boardId: string;
+  myRole:
+    | typeof BOARD_ROLES.ADMIN
+    | typeof BOARD_ROLES.NORMAL
+    | typeof BOARD_ROLES.OBSERVER;
 }
 
-const LabelMenu = ({ spaceId, boardId }: Props) => {
+const LabelMenu = ({ spaceId, boardId, myRole }: Props) => {
   const dispatch = useDispatch();
   const queryClient = useQueryClient();
 
@@ -111,14 +117,65 @@ const LabelMenu = ({ spaceId, boardId }: Props) => {
       <div className="labels">
         {data && data.length > 0 ? (
           data.sort().map((l) => {
-            return <div key={l._id} className="label" style={{
-              background: l.color
-            }}>
-              {l.name}
-            </div>;
+            return (
+              <div className="flex items-center gap-x-4 w-full">
+                {[BOARD_ROLES.ADMIN, BOARD_ROLES.NORMAL].includes(myRole) ? (
+                  <button
+                    onClick={() => {
+                      dispatch(
+                        showModal({
+                          modalType: BOARD_LABEL_MODAL,
+                          modalProps: l,
+                        })
+                      );
+                    }}
+                    key={l._id}
+                    className="label p-2 rounded text-white text-left 
+                hover:border-l-8 hover:border-slate-700 font-semibold mb-2 w-full"
+                    style={{
+                      background: l.color,
+                    }}
+                  >
+                    {l.name}
+                  </button>
+                ) : (
+                  <div
+                    key={l._id}
+                    className="label p-2 rounded text-white text-left font-semibold mb-2 w-full"
+                    style={{
+                      background: l.color,
+                    }}
+                  >
+                    {l.name}
+                  </div>
+                )}
+                {[BOARD_ROLES.ADMIN, BOARD_ROLES.NORMAL].includes(myRole) && (
+                  <button>
+                    <HiOutlineTrash className="text-slate-700" size={18} />
+                  </button>
+                )}
+              </div>
+            );
           })
         ) : (
           <div className="no-labels">No labels :(</div>
+        )}
+      </div>
+
+      <div className="buttons">
+        {[BOARD_ROLES.ADMIN, BOARD_ROLES.NORMAL].includes(myRole) && (
+          <button
+            className="btn-primary_light mt-6 w-full"
+            onClick={() => {
+              dispatch(
+                showModal({
+                  modalType: BOARD_LABEL_MODAL,
+                })
+              );
+            }}
+          >
+            Create a new label
+          </button>
         )}
       </div>
     </div>
