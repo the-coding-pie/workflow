@@ -49,9 +49,7 @@ const BoardMenu = ({
         break;
       case "Labels":
         setShowOption(true);
-        setCurrentComponent(
-          <LabelMenu myRole={myRole} spaceId={spaceId} boardId={boardId} />
-        );
+        setCurrentComponent(<LabelMenu spaceId={spaceId} boardId={boardId} />);
         break;
       default:
         setCurrentComponent(null);
