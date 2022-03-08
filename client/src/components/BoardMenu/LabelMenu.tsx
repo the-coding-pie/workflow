@@ -120,7 +120,9 @@ const LabelMenu = ({ spaceId, boardId }: Props) => {
                     dispatch(
                       showModal({
                         modalType: BOARD_LABEL_MODAL,
-                        modalProps: l,
+                        modalProps: {
+                          label: l,
+                        },
                       })
                     );
                   }}

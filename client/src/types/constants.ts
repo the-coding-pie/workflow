@@ -53,6 +53,16 @@ export const BOARD_COLORS = [
   "#90be6d",
 ];
 
+export const LABEL_COLORS = [
+  "#61BD4F",
+  "#F1D737",
+  "#FA9F2E",
+  "#EB5A46",
+  "#C377E0",
+  "#0079BF",
+  "##3BC3E0",
+];
+
 // LIST POSSIBLE DRAGS
 export const LIST_POSSIBLE_DRAGS = {
   LEFT: "LEFT",
