@@ -2050,6 +2050,185 @@ export const createNewLabel = async (req: any, res: Response) => {
   }
 };
 
+// PUT /boards/:id/labels -> update label
+export const updateLabel = async (req: any, res: Response) => {
+  try {
+    const { id } = req.params;
+    const { labelId } = req.body;
+    const { name, color } = req.body;
+
+    if (!id) {
+      return res.status(400).send({
+        success: false,
+        data: {},
+        message: "board _id is required",
+        statusCode: 400,
+      });
+    } else if (!mongoose.isValidObjectId(id)) {
+      return res.status(400).send({
+        success: false,
+        data: {},
+        message: "Invalid board _id",
+        statusCode: 400,
+      });
+    }
+
+    if (!labelId) {
+      return res.status(400).send({
+        success: false,
+        data: {},
+        message: "labelId is required",
+        statusCode: 400,
+      });
+    } else if (!mongoose.isValidObjectId(labelId)) {
+      return res.status(400).send({
+        success: false,
+        data: {},
+        message: "Invalid labelId",
+        statusCode: 400,
+      });
+    }
+
+    if (
+      !Object.keys(req.body).includes("name") &&
+      !Object.keys(req.body).includes("color")
+    ) {
+      return res.status(400).send({
+        success: false,
+        data: {},
+        message: "Please provide name/color",
+        statusCode: 400,
+      });
+    }
+
+    // name is optional
+    if (Object.keys(req.body).includes("name") && name.legth > 512) {
+      return res.status(400).send({
+        success: false,
+        data: {},
+        message: "Label name should be less than or equal to 512 chars",
+        statusCode: 400,
+      });
+    }
+
+    // color validation
+    if (Object.keys(req.body).includes("color")) {
+      if (!color) {
+        return res.status(400).send({
+          success: false,
+          data: {},
+          message: "Label color is required",
+          statusCode: 400,
+        });
+      } else if (!Object.values(LABEL_COLORS).includes(color)) {
+        return res.status(400).send({
+          success: false,
+          data: {},
+          message: "Invalid value for label color",
+          statusCode: 400,
+        });
+      }
+    }
+
+    // every needed inputs are present
+    // check if the board is valid & check current user has the rights to do this
+    const board = await Board.findOne({ _id: id })
+      .select("_id spaceId members labels lists visibility")
+      .populate({
+        path: "spaceId",
+        select: "_id name members",
+      });
+
+    if (!board) {
+      return res.status(404).send({
+        success: false,
+        data: {},
+        message: "Board not found!",
+        statusCode: 404,
+      });
+    }
+
+    // check whether the current user is board member or space member
+    const boardMember = board.members.find(
+      (m: any) => m.memberId.toString() === req.user._id.toString()
+    );
+    const spaceMember = board.spaceId.members.find(
+      (m: any) => m.memberId.toString() === req.user._id.toString()
+    );
+
+    if (
+      (!boardMember && !spaceMember) ||
+      (!boardMember &&
+        spaceMember &&
+        spaceMember.role === SPACE_MEMBER_ROLES.GUEST) ||
+      (!boardMember &&
+        spaceMember &&
+        spaceMember.role === SPACE_MEMBER_ROLES.NORMAL &&
+        board.visibility === BOARD_VISIBILITY.PRIVATE)
+    ) {
+      // you can't see this board at all
+      return res.status(404).send({
+        success: false,
+        data: {},
+        message: "Board not found",
+        statusCode: 404,
+      });
+    }
+
+    if (boardMember && boardMember.role === BOARD_MEMBER_ROLES.OBSERVER) {
+      return res.status(403).send({
+        success: false,
+        data: {},
+        message: "You don't have permission to perform this action",
+        statusCode: 403,
+      });
+    }
+
+    // now you have the rights to delete a label in this board
+    // check if label exists or not
+    const label = await Label.findOne({
+      _id: labelId,
+      boardId: board._id,
+    }).select("_id name color pos");
+
+    if (!label) {
+      return res.status(404).send({
+        success: false,
+        data: {},
+        message: "Label not found",
+        statusCode: 404,
+      });
+    }
+
+    // update the label
+    if (Object.keys(req.body).includes("color")) {
+      label.color = color;
+      label.pos = getPos(color);
+    }
+
+    if (Object.keys(req.body).includes("name")) {
+      label.name = validator.escape(name);
+    }
+
+    await board.save();
+    await label.save();
+
+    res.send({
+      success: true,
+      data: {},
+      message: "Label updated successfully",
+      statusCode: 200,
+    });
+  } catch (err) {
+    res.status(500).send({
+      success: false,
+      data: {},
+      message: "Oops, something went wrong!",
+      statusCode: 500,
+    });
+  }
+};
+
 // DELETE /boards/:id/labels -> remove label from board
 export const removeLabel = async (req: any, res: Response) => {
   try {

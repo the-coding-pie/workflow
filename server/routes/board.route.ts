@@ -59,6 +59,8 @@ boardRouter.delete(
 boardRouter.get("/:id/labels", authMiddleware, boardController.getAllLabels);
 // Protected(Auth) PUT /boards/:id/labels -> create new label
 boardRouter.post("/:id/labels", authMiddleware, boardController.createNewLabel);
+// Protected(Auth) PUT /boards/:id/labels -> update label
+boardRouter.put("/:id/labels", authMiddleware, boardController.updateLabel);
 // Protected(Auth) DELETE /boards/:id/labels -> remove label
 boardRouter.delete("/:id/labels", authMiddleware, boardController.removeLabel);
 
