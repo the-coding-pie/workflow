@@ -1,10 +1,11 @@
-import React from "react";
+import { AxiosError } from "axios";
+import React, { useCallback } from "react";
 import { HiOutlineTrash } from "react-icons/hi";
 import { useQuery, useQueryClient } from "react-query";
 import { useDispatch } from "react-redux";
 import { Navigate } from "react-router-dom";
 import axiosInstance from "../../axiosInstance";
-import { showModal } from "../../redux/features/modalSlice";
+import { hideModal, showModal } from "../../redux/features/modalSlice";
 import { addToast } from "../../redux/features/toastSlice";
 import { BoardLabel } from "../../types";
 import { BOARD_LABEL_MODAL, BOARD_ROLES, ERROR } from "../../types/constants";
@@ -19,6 +20,88 @@ interface Props {
 const LabelMenu = ({ spaceId, boardId }: Props) => {
   const dispatch = useDispatch();
   const queryClient = useQueryClient();
+
+  const deleteLabel = useCallback((boardId: string, labelId: string) => {
+    axiosInstance
+      .delete(`/boards/${boardId}/labels`, {
+        data: {
+          labelId,
+        },
+        headers: {
+          ContentType: "application/json",
+        },
+      })
+      .then((response) => {
+        queryClient.setQueryData(
+          ["getBoardLabels", boardId],
+          (oldData: any) => {
+            return oldData.filter((l: any) => l._id !== labelId);
+          }
+        );
+
+        // update all card which depends on it
+        queryClient.invalidateQueries(["getLists", boardId]);
+      })
+      .catch((error: AxiosError) => {
+        if (error.response) {
+          const response = error.response;
+          const { message } = response.data;
+
+          switch (response.status) {
+            case 403:
+              dispatch(hideModal());
+              dispatch(addToast({ kind: ERROR, msg: message }));
+
+              queryClient.invalidateQueries(["getBoard", boardId]);
+
+              queryClient.invalidateQueries(["getSpaceInfo", spaceId]);
+              queryClient.invalidateQueries(["getSpaceBoards", spaceId]);
+              queryClient.invalidateQueries(["getSpaceSettings", spaceId]);
+              queryClient.invalidateQueries(["getSpaceMembers", spaceId]);
+
+              queryClient.invalidateQueries(["getSpaces"]);
+              queryClient.invalidateQueries(["getFavorites"]);
+              break;
+            case 404:
+              dispatch(hideModal());
+              dispatch(addToast({ kind: ERROR, msg: message }));
+
+              queryClient.invalidateQueries(["getBoard", boardId]);
+              queryClient.invalidateQueries(["getLists", boardId]);
+              queryClient.invalidateQueries(["getSpaces"]);
+              queryClient.invalidateQueries(["getFavorites"]);
+
+              queryClient.invalidateQueries(["getSpaceInfo", spaceId]);
+              queryClient.invalidateQueries(["getSpaceBoards", spaceId]);
+              queryClient.invalidateQueries(["getSpaceSettings", spaceId]);
+              queryClient.invalidateQueries(["getSpaceMembers", spaceId]);
+              break;
+            case 400:
+              queryClient.invalidateQueries(["getBoard", boardId]);
+              queryClient.invalidateQueries(["getBoardLabels", boardId]);
+
+              dispatch(addToast({ kind: ERROR, msg: message }));
+
+              dispatch(hideModal());
+              break;
+            case 500:
+              dispatch(addToast({ kind: ERROR, msg: message }));
+              break;
+            default:
+              dispatch(
+                addToast({ kind: ERROR, msg: "Oops, something went wrong" })
+              );
+              break;
+          }
+        } else if (error.request) {
+          dispatch(
+            addToast({ kind: ERROR, msg: "Oops, something went wrong" })
+          );
+        } else {
+          dispatch(addToast({ kind: ERROR, msg: `Error: ${error.message}` }));
+        }
+      });
+  }, []);
 
   const getBoardLabels = async ({ queryKey }: any) => {
     const response = await axiosInstance.get(`/boards/${queryKey[1]}/labels`);
@@ -136,7 +219,7 @@ const LabelMenu = ({ spaceId, boardId }: Props) => {
                   {l.name}
                 </button>
 
-                <button>
+                <button onClick={() => deleteLabel(boardId, l._id)}>
                   <HiOutlineTrash className="text-slate-700" size={18} />
                 </button>
               </div>

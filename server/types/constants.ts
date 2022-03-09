@@ -41,5 +41,5 @@ export const LABEL_COLORS = {
   RED: "#EB5A46",
   PURPLE: "#C377E0",
   BLUE: "#0079BF",
-  LIGHTBLUE: "##3BC3E0",
+  LIGHTBLUE: "#3BC3E0",
 };

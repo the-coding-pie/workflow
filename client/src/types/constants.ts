@@ -60,7 +60,7 @@ export const LABEL_COLORS = [
   "#EB5A46",
   "#C377E0",
   "#0079BF",
-  "##3BC3E0",
+  "#3BC3E0",
 ];
 
 // LIST POSSIBLE DRAGS

@@ -33,7 +33,11 @@ const BoardLabelModal = ({ label }: Props) => {
   });
 
   const handleSubmit = useCallback((value) => {
-    console.log(value);
+    if (label) {
+      // update
+    } else {
+      // create
+    }
   }, []);
 
   return (
@@ -42,7 +46,9 @@ const BoardLabelModal = ({ label }: Props) => {
       validationSchema={validationSchema}
       onSubmit={(values) => handleSubmit(values)}
     >
-      <Form className="board-label p-4">
+      <Form className="board-label p-4" style={{
+        width: "650px"
+      }}>
         <Input id="name" label="Name" name="name" type="text" />
 
         <ColorLabel
