@@ -53,7 +53,7 @@ const LabelMenu = ({ spaceId, boardId }: Props) => {
               dispatch(addToast({ kind: ERROR, msg: message }));
 
               queryClient.invalidateQueries(["getBoard", boardId]);
-
+              queryClient.invalidateQueries(["getBoardLabels", boardId]);
               queryClient.invalidateQueries(["getSpaceInfo", spaceId]);
               queryClient.invalidateQueries(["getSpaceBoards", spaceId]);
               queryClient.invalidateQueries(["getSpaceSettings", spaceId]);
@@ -67,6 +67,7 @@ const LabelMenu = ({ spaceId, boardId }: Props) => {
               dispatch(addToast({ kind: ERROR, msg: message }));
 
               queryClient.invalidateQueries(["getBoard", boardId]);
+              queryClient.invalidateQueries(["getBoardLabels", boardId]);
               queryClient.invalidateQueries(["getLists", boardId]);
               queryClient.invalidateQueries(["getSpaces"]);
               queryClient.invalidateQueries(["getFavorites"]);
@@ -108,7 +109,7 @@ const LabelMenu = ({ spaceId, boardId }: Props) => {
 
     const { data } = response.data;
 
-    return data;
+    return data.sort();
   };
 
   const { data, isLoading, isRefetching, error } = useQuery<
@@ -205,6 +206,8 @@ const LabelMenu = ({ spaceId, boardId }: Props) => {
                         modalType: BOARD_LABEL_MODAL,
                         modalProps: {
                           label: l,
+                          boardId,
+                          spaceId,
                         },
                       })
                     );

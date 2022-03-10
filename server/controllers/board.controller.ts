@@ -2215,7 +2215,12 @@ export const updateLabel = async (req: any, res: Response) => {
 
     res.send({
       success: true,
-      data: {},
+      data: {
+        _id: label._id,
+        name: label.name,
+        color: label.color,
+        pos: label.pos,
+      },
       message: "Label updated successfully",
       statusCode: 200,
     });

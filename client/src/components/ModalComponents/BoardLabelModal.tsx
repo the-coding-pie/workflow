@@ -7,9 +7,16 @@ import ColorLabel from "../FormikComponents/ColorLabel";
 import SubmitBtn from "../FormikComponents/SubmitBtn";
 import { useDispatch } from "react-redux";
 import { hideModal } from "../../redux/features/modalSlice";
+import axiosInstance from "../../axiosInstance";
+import { useQueryClient } from "react-query";
+import { AxiosError } from "axios";
+import { addToast } from "../../redux/features/toastSlice";
+import { ERROR } from "../../types/constants";
 
 interface Props {
   label?: LabelObj;
+  boardId: string;
+  spaceId: string;
 }
 
 interface LabelDetailObj {
@@ -17,8 +24,9 @@ interface LabelDetailObj {
   color: string;
 }
 
-const BoardLabelModal = ({ label }: Props) => {
+const BoardLabelModal = ({ label, boardId, spaceId }: Props) => {
   const dispatch = useDispatch();
+  const queryClient = useQueryClient();
 
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -32,13 +40,194 @@ const BoardLabelModal = ({ label }: Props) => {
     color: Yup.string().required("Color is required"),
   });
 
-  const handleSubmit = useCallback((value) => {
+  const handleSubmit = (value: any) => {
     if (label) {
       // update
+      axiosInstance
+        .put(
+          `/boards/${boardId}/labels`,
+          {
+            labelId: label._id,
+            ...value,
+          },
+          {
+            headers: {
+              ContentType: "application/json",
+            },
+          }
+        )
+        .then((response) => {
+          const { data } = response.data;
+
+          queryClient.setQueryData(
+            ["getBoardLabels", boardId],
+            (oldData: any) => {
+              return oldData.map((l: LabelObj) => {
+                console.log(l);
+                if (l._id !== label._id) {
+                  return {
+                    ...data,
+                  };
+                }
+                return l;
+              });
+            }
+          );
+
+          // update all card which depends on it
+          queryClient.invalidateQueries(["getLists", boardId]);
+        })
+        .catch((error: AxiosError) => {
+          if (error.response) {
+            const response = error.response;
+            const { message } = response.data;
+
+            switch (response.status) {
+              case 403:
+                dispatch(hideModal());
+                dispatch(addToast({ kind: ERROR, msg: message }));
+
+                queryClient.invalidateQueries(["getBoard", boardId]);
+
+                queryClient.invalidateQueries(["getSpaceInfo", spaceId]);
+                queryClient.invalidateQueries(["getBoardLabels", boardId]);
+                queryClient.invalidateQueries(["getSpaceBoards", spaceId]);
+                queryClient.invalidateQueries(["getSpaceSettings", spaceId]);
+                queryClient.invalidateQueries(["getSpaceMembers", spaceId]);
+
+                queryClient.invalidateQueries(["getSpaces"]);
+                queryClient.invalidateQueries(["getFavorites"]);
+                break;
+              case 404:
+                dispatch(hideModal());
+                dispatch(addToast({ kind: ERROR, msg: message }));
+
+                queryClient.invalidateQueries(["getBoard", boardId]);
+                queryClient.invalidateQueries(["getBoardLabels", boardId]);
+                queryClient.invalidateQueries(["getLists", boardId]);
+                queryClient.invalidateQueries(["getSpaces"]);
+                queryClient.invalidateQueries(["getFavorites"]);
+
+                queryClient.invalidateQueries(["getSpaceInfo", spaceId]);
+                queryClient.invalidateQueries(["getSpaceBoards", spaceId]);
+                queryClient.invalidateQueries(["getSpaceSettings", spaceId]);
+                queryClient.invalidateQueries(["getSpaceMembers", spaceId]);
+                break;
+              case 400:
+                queryClient.invalidateQueries(["getBoard", boardId]);
+                queryClient.invalidateQueries(["getBoardLabels", boardId]);
+
+                dispatch(addToast({ kind: ERROR, msg: message }));
+
+                dispatch(hideModal());
+                break;
+              case 500:
+                dispatch(addToast({ kind: ERROR, msg: message }));
+                break;
+              default:
+                dispatch(
+                  addToast({ kind: ERROR, msg: "Oops, something went wrong" })
+                );
+                break;
+            }
+          } else if (error.request) {
+            dispatch(
+              addToast({ kind: ERROR, msg: "Oops, something went wrong" })
+            );
+          } else {
+            dispatch(addToast({ kind: ERROR, msg: `Error: ${error.message}` }));
+          }
+        });
     } else {
       // create
+      axiosInstance
+        .post(
+          `/boards/${boardId}/labels`,
+          {
+            ...value,
+          },
+          {
+            headers: {
+              ContentType: "application/json",
+            },
+          }
+        )
+        .then((response) => {
+          const { data } = response.data;
+
+          queryClient.setQueryData(
+            ["getBoardLabels", boardId],
+            (oldData: any) => {
+              return oldData.push(data);
+            }
+          );
+        })
+        .catch((error: AxiosError) => {
+          if (error.response) {
+            const response = error.response;
+            const { message } = response.data;
+
+            switch (response.status) {
+              case 409:
+                dispatch(addToast({ kind: ERROR, msg: message }));
+                break;
+              case 403:
+                dispatch(hideModal());
+                dispatch(addToast({ kind: ERROR, msg: message }));
+
+                queryClient.invalidateQueries(["getBoard", boardId]);
+
+                queryClient.invalidateQueries(["getSpaceInfo", spaceId]);
+                queryClient.invalidateQueries(["getBoardLabels", boardId]);
+                queryClient.invalidateQueries(["getSpaceBoards", spaceId]);
+                queryClient.invalidateQueries(["getSpaceSettings", spaceId]);
+                queryClient.invalidateQueries(["getSpaceMembers", spaceId]);
+
+                queryClient.invalidateQueries(["getSpaces"]);
+                queryClient.invalidateQueries(["getFavorites"]);
+                break;
+              case 404:
+                dispatch(hideModal());
+                dispatch(addToast({ kind: ERROR, msg: message }));
+
+                queryClient.invalidateQueries(["getBoard", boardId]);
+                queryClient.invalidateQueries(["getBoardLabels", boardId]);
+                queryClient.invalidateQueries(["getLists", boardId]);
+                queryClient.invalidateQueries(["getSpaces"]);
+                queryClient.invalidateQueries(["getFavorites"]);
+
+                queryClient.invalidateQueries(["getSpaceInfo", spaceId]);
+                queryClient.invalidateQueries(["getSpaceBoards", spaceId]);
+                queryClient.invalidateQueries(["getSpaceSettings", spaceId]);
+                queryClient.invalidateQueries(["getSpaceMembers", spaceId]);
+                break;
+              case 400:
+                queryClient.invalidateQueries(["getBoard", boardId]);
+                queryClient.invalidateQueries(["getBoardLabels", boardId]);
+
+                dispatch(addToast({ kind: ERROR, msg: message }));
+
+                dispatch(hideModal());
+                break;
+              case 500:
+                dispatch(addToast({ kind: ERROR, msg: message }));
+                break;
+              default:
+                dispatch(
+                  addToast({ kind: ERROR, msg: "Oops, something went wrong" })
+                );
+                break;
+            }
+          } else if (error.request) {
+            dispatch(
+              addToast({ kind: ERROR, msg: "Oops, something went wrong" })
+            );
+          } else {
+            dispatch(addToast({ kind: ERROR, msg: `Error: ${error.message}` }));
+          }
+        });
     }
-  }, []);
+  };
 
   return (
     <Formik
@@ -46,9 +235,12 @@ const BoardLabelModal = ({ label }: Props) => {
       validationSchema={validationSchema}
       onSubmit={(values) => handleSubmit(values)}
     >
-      <Form className="board-label p-4" style={{
-        width: "650px"
-      }}>
+      <Form
+        className="board-label p-4"
+        style={{
+          width: "650px",
+        }}
+      >
         <Input id="name" label="Name" name="name" type="text" />
 
         <ColorLabel
