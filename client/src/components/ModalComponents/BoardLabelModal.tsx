@@ -40,7 +40,8 @@ const BoardLabelModal = ({ label, boardId, spaceId }: Props) => {
     color: Yup.string().required("Color is required"),
   });
 
-  const handleSubmit = (value: any) => {
+  const handleSubmit = (value: any, boardId: string) => {
+    console.log(boardId)
     if (label) {
       // update
       axiosInstance
@@ -57,22 +58,25 @@ const BoardLabelModal = ({ label, boardId, spaceId }: Props) => {
           }
         )
         .then((response) => {
+          dispatch(hideModal());
+
           const { data } = response.data;
 
-          queryClient.setQueryData(
-            ["getBoardLabels", boardId],
-            (oldData: any) => {
-              return oldData.map((l: LabelObj) => {
-                console.log(l);
-                if (l._id !== label._id) {
-                  return {
-                    ...data,
-                  };
-                }
-                return l;
-              });
-            }
-          );
+          queryClient.invalidateQueries(["getBoardLabels", boardId]);
+
+          // queryClient.setQueryData(
+          //   ["getBoardLabels", boardId],
+          //   (oldData: any) => {
+          //     return oldData.map((l: LabelObj) => {
+          //       console.log(l, "d");
+          //       if (l._id !== label._id) {
+          //         return data;
+          //       } else {
+          //         return l;
+          //       }
+          //     });
+          //   }
+          // );
 
           // update all card which depends on it
           queryClient.invalidateQueries(["getLists", boardId]);
@@ -139,6 +143,7 @@ const BoardLabelModal = ({ label, boardId, spaceId }: Props) => {
           }
         });
     } else {
+      console.log(boardId);
       // create
       axiosInstance
         .post(
@@ -153,12 +158,15 @@ const BoardLabelModal = ({ label, boardId, spaceId }: Props) => {
           }
         )
         .then((response) => {
+          dispatch(hideModal());
+
           const { data } = response.data;
 
           queryClient.setQueryData(
             ["getBoardLabels", boardId],
             (oldData: any) => {
-              return oldData.push(data);
+              const newLabels = oldData.push(data);
+              return newLabels;
             }
           );
         })
@@ -233,7 +241,7 @@ const BoardLabelModal = ({ label, boardId, spaceId }: Props) => {
     <Formik
       initialValues={initialValues}
       validationSchema={validationSchema}
-      onSubmit={(values) => handleSubmit(values)}
+      onSubmit={(values) => handleSubmit(values, boardId)}
     >
       <Form
         className="board-label p-4"
