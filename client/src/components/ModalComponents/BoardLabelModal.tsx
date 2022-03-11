@@ -41,7 +41,6 @@ const BoardLabelModal = ({ label, boardId, spaceId }: Props) => {
   });
 
   const handleSubmit = (value: any, boardId: string) => {
-    console.log(boardId)
     if (label) {
       // update
       axiosInstance
@@ -62,21 +61,18 @@ const BoardLabelModal = ({ label, boardId, spaceId }: Props) => {
 
           const { data } = response.data;
 
-          queryClient.invalidateQueries(["getBoardLabels", boardId]);
-
-          // queryClient.setQueryData(
-          //   ["getBoardLabels", boardId],
-          //   (oldData: any) => {
-          //     return oldData.map((l: LabelObj) => {
-          //       console.log(l, "d");
-          //       if (l._id !== label._id) {
-          //         return data;
-          //       } else {
-          //         return l;
-          //       }
-          //     });
-          //   }
-          // );
+          queryClient.setQueryData(
+            ["getBoardLabels", boardId],
+            (oldData: any) => {
+              return oldData.map((l: LabelObj) => {
+                if (l._id === label._id) {
+                  return data;
+                } else {
+                  return l;
+                }
+              });
+            }
+          );
 
           // update all card which depends on it
           queryClient.invalidateQueries(["getLists", boardId]);
@@ -87,6 +83,9 @@ const BoardLabelModal = ({ label, boardId, spaceId }: Props) => {
             const { message } = response.data;
 
             switch (response.status) {
+              case 409:
+                dispatch(addToast({ kind: ERROR, msg: message }));
+                break;
               case 403:
                 dispatch(hideModal());
                 dispatch(addToast({ kind: ERROR, msg: message }));
@@ -143,7 +142,6 @@ const BoardLabelModal = ({ label, boardId, spaceId }: Props) => {
           }
         });
     } else {
-      console.log(boardId);
       // create
       axiosInstance
         .post(
@@ -165,8 +163,8 @@ const BoardLabelModal = ({ label, boardId, spaceId }: Props) => {
           queryClient.setQueryData(
             ["getBoardLabels", boardId],
             (oldData: any) => {
-              const newLabels = oldData.push(data);
-              return newLabels;
+              oldData.push(data);
+              return oldData;
             }
           );
         })
@@ -241,7 +239,9 @@ const BoardLabelModal = ({ label, boardId, spaceId }: Props) => {
     <Formik
       initialValues={initialValues}
       validationSchema={validationSchema}
-      onSubmit={(values) => handleSubmit(values, boardId)}
+      onSubmit={(values) => {
+        handleSubmit(values, boardId);
+      }}
     >
       <Form
         className="board-label p-4"

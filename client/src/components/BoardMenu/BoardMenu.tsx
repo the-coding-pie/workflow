@@ -49,7 +49,9 @@ const BoardMenu = ({
         break;
       case "Labels":
         setShowOption(true);
-        setCurrentComponent(<LabelMenu spaceId={spaceId} boardId={boardId} />);
+        setCurrentComponent(
+          <LabelMenu myRole={myRole} spaceId={spaceId} boardId={boardId} />
+        );
         break;
       default:
         setCurrentComponent(null);
@@ -109,16 +111,14 @@ const BoardMenu = ({
               </button>
             </li>
           )}
-          {[BOARD_ROLES.ADMIN, BOARD_ROLES.NORMAL].includes(myRole) && (
-            <li>
-              <button
-                onClick={() => setCurrentOption("Labels")}
-                className="w-full px-3 py-3 text-left hover:bg-slate-200"
-              >
-                Labels
-              </button>
-            </li>
-          )}
+          <li>
+            <button
+              onClick={() => setCurrentOption("Labels")}
+              className="w-full px-3 py-3 text-left hover:bg-slate-200"
+            >
+              Labels
+            </button>
+          </li>
 
           {myRole === BOARD_ROLES.ADMIN && (
             <li className="w-full px-3 py-3 text-left hover:bg-slate-200 text-red-500 cursor-pointer">

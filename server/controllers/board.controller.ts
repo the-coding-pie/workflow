@@ -2137,6 +2137,10 @@ export const updateLabel = async (req: any, res: Response) => {
       .populate({
         path: "spaceId",
         select: "_id name members",
+      })
+      .populate({
+        path: "labels",
+        select: "_id name color boardId",
       });
 
     if (!board) {
@@ -2197,6 +2201,41 @@ export const updateLabel = async (req: any, res: Response) => {
         data: {},
         message: "Label not found",
         statusCode: 404,
+      });
+    }
+
+    // now you have the rights to create a label in this board
+    // check for duplicate
+    let alreadyExists = false;
+
+    if (name) {
+      // check for name & color
+      alreadyExists = board.labels.find(
+        (l: any) =>
+          l.name === name &&
+          l.color === color && l._id.toString() !== label._id.toString() &&
+          l.boardId.toString() === board._id.toString()
+      )
+        ? true
+        : false;
+    } else {
+      // check for color
+      alreadyExists = board.labels.find(
+        (l: any) =>
+          l.name === "" &&
+          l.color === color && l._id.toString() !== label._id.toString() &&
+          l.boardId.toString() === board._id.toString()
+      )
+        ? true
+        : false;
+    }
+
+    if (alreadyExists) {
+      return res.status(409).send({
+        success: false,
+        data: {},
+        message: "Label already exists",
+        statusCode: 409,
       });
     }
 

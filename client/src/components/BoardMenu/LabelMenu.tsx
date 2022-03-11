@@ -15,9 +15,13 @@ import Loader from "../Loader/Loader";
 interface Props {
   spaceId: string;
   boardId: string;
+  myRole:
+    | typeof BOARD_ROLES.ADMIN
+    | typeof BOARD_ROLES.NORMAL
+    | typeof BOARD_ROLES.OBSERVER;
 }
 
-const LabelMenu = ({ spaceId, boardId }: Props) => {
+const LabelMenu = ({ spaceId, boardId, myRole }: Props) => {
   const dispatch = useDispatch();
   const queryClient = useQueryClient();
 
@@ -109,7 +113,7 @@ const LabelMenu = ({ spaceId, boardId }: Props) => {
 
     const { data } = response.data;
 
-    return data.sort();
+    return data;
   };
 
   const { data, isLoading, isRefetching, error } = useQuery<
@@ -196,56 +200,84 @@ const LabelMenu = ({ spaceId, boardId }: Props) => {
 
       <div className="labels">
         {data && data.length > 0 ? (
-          data.sort().map((l) => {
-            return (
-              <div className="flex items-center gap-x-4 w-full">
-                <button
-                  onClick={() => {
-                    dispatch(
-                      showModal({
-                        modalType: BOARD_LABEL_MODAL,
-                        modalProps: {
-                          label: l,
-                          boardId,
-                          spaceId,
-                        },
-                      })
-                    );
-                  }}
-                  key={l._id}
-                  className="label p-2 rounded text-white text-left 
-                hover:border-l-8 hover:border-slate-700 font-semibold mb-2 w-full"
-                  style={{
-                    background: l.color,
-                  }}
-                >
-                  {l.name}
-                </button>
+          data
+            .sort((a: any, b: any) =>
+              a.pos > b.pos ? 1 : b.pos > a.pos ? -1 : 0
+            )
+            .map((l) => {
+              return (
+                <div className="flex items-center gap-x-4 w-full">
+                  {[BOARD_ROLES.ADMIN, BOARD_ROLES.NORMAL].includes(myRole) ? (
+                    <button
+                      onClick={() => {
+                        dispatch(
+                          showModal({
+                            modalType: BOARD_LABEL_MODAL,
+                            modalProps: {
+                              label: l,
+                              boardId,
+                              spaceId,
+                            },
+                          })
+                        );
+                      }}
+                      key={l._id}
+                      className="label p-2 rounded text-white text-left 
+                hover:border-l-8 hover:border-slate-700 font-semibold mb-2 w-full h-9"
+                      style={{
+                        background: l.color,
+                      }}
+                    >
+                      {l.name && l.name.length > 28
+                        ? l.name?.slice(0, 28) + "..."
+                        : l.name}
+                    </button>
+                  ) : (
+                    <div
+                      className="label p-2 rounded text-white text-left 
+                  hover:border-l-8 hover:border-slate-700 font-semibold mb-2 w-full h-9"
+                      key={l._id}
+                      style={{
+                        background: l.color,
+                      }}
+                    >
+                      {l.name && l.name.length > 28
+                        ? l.name?.slice(0, 28) + "..."
+                        : l.name}
+                    </div>
+                  )}
 
-                <button onClick={() => deleteLabel(boardId, l._id)}>
-                  <HiOutlineTrash className="text-slate-700" size={18} />
-                </button>
-              </div>
-            );
-          })
+                  {[BOARD_ROLES.ADMIN, BOARD_ROLES.NORMAL].includes(myRole) && (
+                    <button onClick={() => deleteLabel(boardId, l._id)}>
+                      <HiOutlineTrash className="text-slate-700" size={18} />
+                    </button>
+                  )}
+                </div>
+              );
+            })
         ) : (
           <div className="no-labels">No labels :(</div>
         )}
       </div>
 
       <div className="buttons">
-        <button
-          className="btn-primary_light mt-6 w-full"
-          onClick={() => {
-            dispatch(
-              showModal({
-                modalType: BOARD_LABEL_MODAL,
-              })
-            );
-          }}
-        >
-          Create a new label
-        </button>
+        {[BOARD_ROLES.ADMIN, BOARD_ROLES.NORMAL].includes(myRole) && (
+          <button
+            className="btn-primary_light mt-6 w-full"
+            onClick={() => {
+              dispatch(
+                showModal({
+                  modalType: BOARD_LABEL_MODAL,
+                  modalProps: {
+                    boardId,
+                  },
+                })
+              );
+            }}
+          >
+            Create a new label
+          </button>
+        )}
       </div>
     </div>
   );
