@@ -180,7 +180,7 @@ const DueDateBtn = ({ dueDate, cardId, listId, boardId, spaceId }: Props) => {
   };
 
   return (
-    <div ref={ref} className="due-date-btn relative z-40">
+    <div ref={ref} className="due-date-btn relative">
       <button
         onClick={() => setShow((prevValue) => !prevValue)}
         className="card-detail-btn"
@@ -191,7 +191,7 @@ const DueDateBtn = ({ dueDate, cardId, listId, boardId, spaceId }: Props) => {
 
       {show && (
         <div
-          className="bg-white rounded shadow-lg absolute top-8 left-0"
+          className="bg-white rounded shadow-lg absolute top-8 left-0 z-40"
           style={{
             width: "350px",
           }}

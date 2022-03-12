@@ -195,7 +195,7 @@ const LabelMenu = ({ spaceId, boardId, myRole }: Props) => {
   }
 
   return (
-    <div className="board-labels px-4">
+    <div className="board-labels px-4 mb-8">
       <h3 className="font-semibold mb-4">Labels</h3>
 
       <div className="labels">

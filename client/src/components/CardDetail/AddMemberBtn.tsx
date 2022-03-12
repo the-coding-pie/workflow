@@ -1,6 +1,11 @@
 import { AxiosError } from "axios";
 import React, { useState } from "react";
-import { HiOutlineCheck, HiOutlineUser, HiOutlineX } from "react-icons/hi";
+import {
+  HiOutlineCheck,
+  HiOutlineRefresh,
+  HiOutlineUser,
+  HiOutlineX,
+} from "react-icons/hi";
 import { useQuery, useQueryClient } from "react-query";
 import { useDispatch } from "react-redux";
 import axiosInstance from "../../axiosInstance";
@@ -10,6 +15,7 @@ import { addToast } from "../../redux/features/toastSlice";
 import { MemberObjM } from "../../types";
 import { ERROR } from "../../types/constants";
 import Profile from "../Profile/Profile";
+import UtilityBtn from "../UtilityBtn/UtilityBtn";
 
 interface AllMembers {
   boardMembers: MemberObjM[];
@@ -210,8 +216,18 @@ const AddMemberBtn = ({ members, cardId, listId, boardId, spaceId }: Props) => {
 
   if (error) {
     component = (
-      <p className="mt-6 ml-4 text-center">
+      <p className="mt-6 ml-4 text-center flex items-center p-1">
         An error has occurred: {error.message}
+        <UtilityBtn
+          iconSize={16}
+          Icon={HiOutlineRefresh}
+          label="Retry"
+          classes="ml-2"
+          uniqueId="error-board-lists-retry"
+          onClick={() => {
+            queryClient.invalidateQueries(["getAllBoardMembers", boardId]);
+          }}
+        />
       </p>
     );
   } else if (isLoading) {
@@ -297,7 +313,7 @@ const AddMemberBtn = ({ members, cardId, listId, boardId, spaceId }: Props) => {
   }
 
   return (
-    <div ref={ref} className="add-member-btn relative z-40">
+    <div ref={ref} className="add-member-btn relative">
       <button
         onClick={() => setShow((prevValue) => !prevValue)}
         className="card-detail-btn"
@@ -308,7 +324,7 @@ const AddMemberBtn = ({ members, cardId, listId, boardId, spaceId }: Props) => {
 
       {show && (
         <div
-          className="bg-white rounded shadow-lg absolute top-8 left-0"
+          className="bg-white rounded shadow-lg absolute top-8 left-0 z-40"
           style={{
             width: "400px",
           }}

@@ -237,7 +237,7 @@ const AddCoverBtn = ({
 
       {show && (
         <div
-          className="bg-white rounded shadow-lg absolute top-0 left-0"
+          className="bg-white rounded shadow-lg absolute top-0 left-0 z-40"
           style={{
             width: "400px",
           }}

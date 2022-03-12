@@ -218,6 +218,14 @@ export interface LabelObj {
   color: string;
 }
 
+export interface LabelObjCard {
+  _id: string;
+  name: string | null;
+  color: string;
+  pos: number;
+  isPresent: boolean;
+}
+
 export interface CommentObj {
   _id: string;
   comment: string;

@@ -297,7 +297,7 @@ const CardDetailModal = ({ _id, boardId, spaceId }: Props) => {
                     {card.members.map((m) => (
                       <Profile
                         key={m._id}
-                        classes="w-7 h-7 cursor-pointer"
+                        classes="w-7 h-7 cursor-default"
                         src={m.profile}
                       />
                     ))}
@@ -308,11 +308,23 @@ const CardDetailModal = ({ _id, boardId, spaceId }: Props) => {
               {/* labels */}
               {card.labels && card.labels.length > 0 && (
                 <div className="labels mb-6">
-                  {card.labels.map((l) => (
-                    <div key={l._id} className="label">
-                      {l.name}
-                    </div>
-                  ))}
+                  <span className="text-sm font-bold text-slate-600 block mb-2">
+                    Labels
+                  </span>
+
+                  <div className="labels flex items-center gap-x-4 mb-6">
+                    {card.labels.map((l) => (
+                      <div
+                        key={l._id}
+                        className="label text-sm p-1 rounded font-semibold text-white"
+                        style={{
+                          background: l.color,
+                        }}
+                      >
+                        {l.name}
+                      </div>
+                    ))}
+                  </div>
                 </div>
               )}
 
@@ -406,7 +418,12 @@ const CardDetailModal = ({ _id, boardId, spaceId }: Props) => {
                   boardId={boardId}
                   spaceId={spaceId}
                 />
-                <AddLabelBtn />
+                <AddLabelBtn
+                  listId={card.listId}
+                  cardId={card._id}
+                  boardId={boardId}
+                  spaceId={spaceId}
+                />
 
                 <DueDateBtn
                   dueDate={card.dueDate}
