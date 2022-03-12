@@ -45,6 +45,7 @@ const LabelMenu = ({ spaceId, boardId, myRole }: Props) => {
 
         // update all card which depends on it
         queryClient.invalidateQueries(["getLists", boardId]);
+        queryClient.invalidateQueries(["getAllCardLabels"]);
       })
       .catch((error: AxiosError) => {
         if (error.response) {

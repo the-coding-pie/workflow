@@ -1465,9 +1465,16 @@ export const addCardLabel = async (req: any, res: Response) => {
 
     await card.save();
 
+    const l = board.labels.find((l: any) => l._id.toString() === labelId);
+
     res.send({
       success: true,
-      data: {},
+      data: {
+        _id: l._id,
+        name: l.name,
+        color: l.color,
+        pos: l.pos,
+      },
       message: "Label added to card",
       statusCode: 200,
     });

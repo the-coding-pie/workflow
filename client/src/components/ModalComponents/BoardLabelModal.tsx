@@ -61,6 +61,8 @@ const BoardLabelModal = ({ label, boardId, spaceId }: Props) => {
 
           const { data } = response.data;
 
+          queryClient.invalidateQueries(["getAllCardLabels"]);
+
           queryClient.setQueryData(
             ["getBoardLabels", boardId],
             (oldData: any) => {
@@ -159,6 +161,8 @@ const BoardLabelModal = ({ label, boardId, spaceId }: Props) => {
           dispatch(hideModal());
 
           const { data } = response.data;
+
+          queryClient.invalidateQueries(["getAllCardLabels"]);
 
           queryClient.setQueryData(
             ["getBoardLabels", boardId],

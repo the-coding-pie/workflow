@@ -1,5 +1,7 @@
-import React, { useState } from "react";
+import { AxiosError } from "axios";
+import React, { useCallback, useState } from "react";
 import {
+  HiOutlineCheck,
   HiOutlinePencil,
   HiOutlinePencilAlt,
   HiOutlineRefresh,
@@ -11,9 +13,10 @@ import { useQuery, useQueryClient } from "react-query";
 import { useDispatch } from "react-redux";
 import axiosInstance from "../../axiosInstance";
 import useClose from "../../hooks/useClose";
-import { showModal } from "../../redux/features/modalSlice";
+import { hideModal, showModal } from "../../redux/features/modalSlice";
+import { addToast } from "../../redux/features/toastSlice";
 import { LabelObj, LabelObjCard } from "../../types";
-import { BOARD_LABEL_MODAL } from "../../types/constants";
+import { BOARD_LABEL_MODAL, ERROR } from "../../types/constants";
 import UtilityBtn from "../UtilityBtn/UtilityBtn";
 
 interface Props {
@@ -31,8 +34,316 @@ const AddLabelBtn = ({ cardId, listId, boardId, spaceId }: Props) => {
 
   const ref = useClose(() => setShow(false));
 
-  const removeLabel = () => {};
-  const addLabel = () => {};
+  const removeLabel = (labelId: string) => {
+    axiosInstance
+      .delete(`/cards/${cardId}/labels`, {
+        data: {
+          labelId,
+        },
+      })
+      .then((response) => {
+        queryClient.setQueryData(["getCard", cardId], (oldData: any) => {
+          return {
+            ...oldData,
+            labels: oldData.labels.filter((l: any) => l._id !== labelId),
+          };
+        });
+
+        queryClient.setQueryData(
+          ["getAllCardLabels", cardId],
+          (oldData: any) => {
+            return oldData.map((l: any) => {
+              if (l._id === labelId) {
+                return {
+                  ...l,
+                  isPresent: false,
+                };
+              } else {
+                return l;
+              }
+            });
+          }
+        );
+
+        // update all card which depends on it
+        queryClient.invalidateQueries(["getLists", boardId]);
+      })
+      .catch((error: AxiosError) => {
+        if (error.response) {
+          const response = error.response;
+          const { message } = response.data;
+
+          switch (response.status) {
+            case 403:
+              setShow(false);
+              dispatch(hideModal());
+              dispatch(addToast({ kind: ERROR, msg: message }));
+
+              queryClient.invalidateQueries(["getBoard", boardId]);
+
+              queryClient.invalidateQueries(["getSpaceInfo", spaceId]);
+              queryClient.invalidateQueries(["getAllCardLabels", cardId]);
+              queryClient.invalidateQueries(["getBoardLabels", boardId]);
+              queryClient.invalidateQueries(["getSpaceBoards", spaceId]);
+              queryClient.invalidateQueries(["getSpaceSettings", spaceId]);
+              queryClient.invalidateQueries(["getSpaceMembers", spaceId]);
+
+              queryClient.invalidateQueries(["getSpaces"]);
+              queryClient.invalidateQueries(["getFavorites"]);
+              break;
+            case 404:
+              setShow(false);
+              dispatch(hideModal());
+              dispatch(addToast({ kind: ERROR, msg: message }));
+
+              queryClient.invalidateQueries(["getBoard", boardId]);
+              queryClient.invalidateQueries(["getBoardLabels", boardId]);
+              queryClient.invalidateQueries(["getAllCardLabels", cardId]);
+              queryClient.invalidateQueries(["getLists", boardId]);
+              queryClient.invalidateQueries(["getSpaces"]);
+              queryClient.invalidateQueries(["getFavorites"]);
+
+              queryClient.invalidateQueries(["getSpaceInfo", spaceId]);
+              queryClient.invalidateQueries(["getSpaceBoards", spaceId]);
+              queryClient.invalidateQueries(["getSpaceSettings", spaceId]);
+              queryClient.invalidateQueries(["getSpaceMembers", spaceId]);
+              break;
+            case 400:
+              queryClient.invalidateQueries(["getBoard", boardId]);
+              queryClient.invalidateQueries(["getBoardLabels", boardId]);
+
+              queryClient.invalidateQueries(["getAllCardLabels", cardId]);
+              dispatch(addToast({ kind: ERROR, msg: message }));
+              setShow(false);
+              dispatch(hideModal());
+              break;
+            case 500:
+              dispatch(addToast({ kind: ERROR, msg: message }));
+              break;
+            default:
+              dispatch(
+                addToast({ kind: ERROR, msg: "Oops, something went wrong" })
+              );
+              break;
+          }
+        } else if (error.request) {
+          dispatch(
+            addToast({ kind: ERROR, msg: "Oops, something went wrong" })
+          );
+        } else {
+          dispatch(addToast({ kind: ERROR, msg: `Error: ${error.message}` }));
+        }
+      });
+  };
+
+  const addLabel = (labelId: string) => {
+    axiosInstance
+      .put(`/cards/${cardId}/labels`, {
+        labelId,
+      })
+      .then((response) => {
+        const { data } = response.data;
+
+        queryClient.setQueryData(["getCard", cardId], (oldData: any) => {
+          return {
+            ...oldData,
+            labels: [...oldData.labels, data],
+          };
+        });
+
+        queryClient.setQueryData(
+          ["getAllCardLabels", cardId],
+          (oldData: any) => {
+            return oldData.map((l: any) => {
+              if (l._id === labelId) {
+                return {
+                  ...l,
+                  isPresent: true,
+                };
+              }
+              return l;
+            });
+          }
+        );
+
+        // update all card which depends on it
+        queryClient.invalidateQueries(["getLists", boardId]);
+      })
+      .catch((error: AxiosError) => {
+        if (error.response) {
+          const response = error.response;
+          const { message } = response.data;
+
+          switch (response.status) {
+            case 409:
+              dispatch(addToast({ kind: ERROR, msg: message }));
+              break;
+            case 403:
+              setShow(false);
+              dispatch(hideModal());
+              dispatch(addToast({ kind: ERROR, msg: message }));
+
+              queryClient.invalidateQueries(["getBoard", boardId]);
+
+              queryClient.invalidateQueries(["getSpaceInfo", spaceId]);
+              queryClient.invalidateQueries(["getAllCardLabels", cardId]);
+              queryClient.invalidateQueries(["getBoardLabels", boardId]);
+              queryClient.invalidateQueries(["getSpaceBoards", spaceId]);
+              queryClient.invalidateQueries(["getSpaceSettings", spaceId]);
+              queryClient.invalidateQueries(["getSpaceMembers", spaceId]);
+
+              queryClient.invalidateQueries(["getSpaces"]);
+              queryClient.invalidateQueries(["getFavorites"]);
+              break;
+            case 404:
+              setShow(false);
+              dispatch(hideModal());
+              dispatch(addToast({ kind: ERROR, msg: message }));
+
+              queryClient.invalidateQueries(["getBoard", boardId]);
+              queryClient.invalidateQueries(["getBoardLabels", boardId]);
+              queryClient.invalidateQueries(["getAllCardLabels", cardId]);
+              queryClient.invalidateQueries(["getLists", boardId]);
+              queryClient.invalidateQueries(["getSpaces"]);
+              queryClient.invalidateQueries(["getFavorites"]);
+
+              queryClient.invalidateQueries(["getSpaceInfo", spaceId]);
+              queryClient.invalidateQueries(["getSpaceBoards", spaceId]);
+              queryClient.invalidateQueries(["getSpaceSettings", spaceId]);
+              queryClient.invalidateQueries(["getSpaceMembers", spaceId]);
+              break;
+            case 400:
+              queryClient.invalidateQueries(["getBoard", boardId]);
+              queryClient.invalidateQueries(["getBoardLabels", boardId]);
+
+              queryClient.invalidateQueries(["getAllCardLabels", cardId]);
+              dispatch(addToast({ kind: ERROR, msg: message }));
+              setShow(false);
+              dispatch(hideModal());
+              break;
+            case 500:
+              dispatch(addToast({ kind: ERROR, msg: message }));
+              break;
+            default:
+              dispatch(
+                addToast({ kind: ERROR, msg: "Oops, something went wrong" })
+              );
+              break;
+          }
+        } else if (error.request) {
+          dispatch(
+            addToast({ kind: ERROR, msg: "Oops, something went wrong" })
+          );
+        } else {
+          dispatch(addToast({ kind: ERROR, msg: `Error: ${error.message}` }));
+        }
+      });
+  };
+
+  const deleteLabel = useCallback((boardId: string, labelId: string) => {
+    axiosInstance
+      .delete(`/boards/${boardId}/labels`, {
+        data: {
+          labelId,
+        },
+        headers: {
+          ContentType: "application/json",
+        },
+      })
+      .then((response) => {
+        queryClient.setQueryData(["getCard", cardId], (oldData: any) => {
+          return {
+            ...oldData,
+            labels: oldData.labels.filter((l: any) => l._id !== labelId),
+          };
+        });
+
+        if (queryClient.getQueryData(["getBoardLabels", boardId])) {
+          queryClient.setQueryData(
+            ["getBoardLabels", boardId],
+            (oldData: any) => {
+              return oldData.filter((l: any) => l._id !== labelId);
+            }
+          );
+        }
+
+        queryClient.setQueryData(
+          ["getAllCardLabels", cardId],
+          (oldData: any) => {
+            return oldData.filter((l: any) => l._id !== labelId);
+          }
+        );
+
+        // update all card which depends on it
+        queryClient.invalidateQueries(["getLists", boardId]);
+      })
+      .catch((error: AxiosError) => {
+        if (error.response) {
+          const response = error.response;
+          const { message } = response.data;
+
+          switch (response.status) {
+            case 403:
+              setShow(false);
+              dispatch(hideModal());
+
+              dispatch(addToast({ kind: ERROR, msg: message }));
+
+              queryClient.invalidateQueries(["getBoard", boardId]);
+              queryClient.invalidateQueries(["getBoardLabels", boardId]);
+              queryClient.invalidateQueries(["getAllCardLabels", cardId]);
+              queryClient.invalidateQueries(["getSpaceInfo", spaceId]);
+              queryClient.invalidateQueries(["getSpaceBoards", spaceId]);
+              queryClient.invalidateQueries(["getSpaceSettings", spaceId]);
+              queryClient.invalidateQueries(["getSpaceMembers", spaceId]);
+
+              queryClient.invalidateQueries(["getSpaces"]);
+              queryClient.invalidateQueries(["getFavorites"]);
+              break;
+            case 404:
+              setShow(false);
+              dispatch(hideModal());
+              dispatch(addToast({ kind: ERROR, msg: message }));
+
+              queryClient.invalidateQueries(["getBoard", boardId]);
+              queryClient.invalidateQueries(["getBoardLabels", boardId]);
+              queryClient.invalidateQueries(["getAllCardLabels", cardId]);
+              queryClient.invalidateQueries(["getLists", boardId]);
+              queryClient.invalidateQueries(["getSpaces"]);
+              queryClient.invalidateQueries(["getFavorites"]);
+
+              queryClient.invalidateQueries(["getSpaceInfo", spaceId]);
+              queryClient.invalidateQueries(["getSpaceBoards", spaceId]);
+              queryClient.invalidateQueries(["getSpaceSettings", spaceId]);
+              queryClient.invalidateQueries(["getSpaceMembers", spaceId]);
+              break;
+            case 400:
+              queryClient.invalidateQueries(["getBoard", boardId]);
+              queryClient.invalidateQueries(["getBoardLabels", boardId]);
+              queryClient.invalidateQueries(["getAllCardLabels", cardId]);
+
+              dispatch(addToast({ kind: ERROR, msg: message }));
+              setShow(false);
+              dispatch(hideModal());
+              break;
+            case 500:
+              dispatch(addToast({ kind: ERROR, msg: message }));
+              break;
+            default:
+              dispatch(
+                addToast({ kind: ERROR, msg: "Oops, something went wrong" })
+              );
+              break;
+          }
+        } else if (error.request) {
+          dispatch(
+            addToast({ kind: ERROR, msg: "Oops, something went wrong" })
+          );
+        } else {
+          dispatch(addToast({ kind: ERROR, msg: `Error: ${error.message}` }));
+        }
+      });
+  }, []);
 
   const getAllBoardLabels = async ({ queryKey }: any) => {
     const response = await axiosInstance.get(`/cards/${queryKey[1]}/labels`);
@@ -90,21 +401,25 @@ const AddLabelBtn = ({ cardId, listId, boardId, spaceId }: Props) => {
                     <button
                       onClick={() => {
                         if (l.isPresent) {
-                          removeLabel();
+                          removeLabel(l._id);
                         } else {
-                          addLabel();
+                          addLabel(l._id);
                         }
                       }}
                       key={l._id}
                       className="label p-2 rounded text-white text-left 
-          hover:border-l-8 hover:border-slate-700 font-semibold mb-2 w-full h-9 text-sm"
+          hover:border-l-8 hover:border-slate-700 font-semibold mb-2 w-full h-9 text-sm flex items-center justify-between"
                       style={{
                         background: l.color,
                       }}
                     >
-                      {l.name && l.name.length > 28
-                        ? l.name?.slice(0, 28) + "..."
-                        : l.name}
+                      <span className="name">
+                        {l.name && l.name.length > 28
+                          ? l.name?.slice(0, 28) + "..."
+                          : l.name}
+                      </span>
+
+                      {l.isPresent && <HiOutlineCheck size={16} />}
                     </button>
 
                     <div className="right-btns flex items-center gap-x-4">
@@ -124,7 +439,7 @@ const AddLabelBtn = ({ cardId, listId, boardId, spaceId }: Props) => {
                       >
                         <HiOutlinePencil className="text-slate-700" size={18} />
                       </button>
-                      <button onClick={() => {}}>
+                      <button onClick={() => deleteLabel(boardId, l._id)}>
                         <HiOutlineTrash className="text-slate-700" size={18} />
                       </button>
                     </div>
@@ -164,6 +479,24 @@ const AddLabelBtn = ({ cardId, listId, boardId, spaceId }: Props) => {
           </header>
 
           {component && component}
+
+          <div className="buttons mx-4 mb-4">
+            <button
+              className="btn-primary_light text-sm mt-6 w-full"
+              onClick={() => {
+                dispatch(
+                  showModal({
+                    modalType: BOARD_LABEL_MODAL,
+                    modalProps: {
+                      boardId,
+                    },
+                  })
+                );
+              }}
+            >
+              Create a new label
+            </button>
+          </div>
         </div>
       )}
     </div>

@@ -313,17 +313,21 @@ const CardDetailModal = ({ _id, boardId, spaceId }: Props) => {
                   </span>
 
                   <div className="labels flex items-center gap-x-4 mb-6">
-                    {card.labels.map((l) => (
-                      <div
-                        key={l._id}
-                        className="label text-sm p-1 rounded font-semibold text-white"
-                        style={{
-                          background: l.color,
-                        }}
-                      >
-                        {l.name}
-                      </div>
-                    ))}
+                    {card.labels
+                      .sort((a: any, b: any) =>
+                        a.pos > b.pos ? 1 : b.pos > a.pos ? -1 : 0
+                      )
+                      .map((l) => (
+                        <div
+                          key={l._id}
+                          className="label text-sm p-1 rounded font-semibold text-white"
+                          style={{
+                            background: l.color,
+                          }}
+                        >
+                          {l.name}
+                        </div>
+                      ))}
                   </div>
                 </div>
               )}
