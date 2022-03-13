@@ -3,7 +3,6 @@ import React, { useState } from "react";
 import { HiChevronLeft, HiOutlineArrowLeft, HiOutlineX } from "react-icons/hi";
 import { useQueryClient } from "react-query";
 import { useDispatch } from "react-redux";
-import { hideModal } from "../../redux/features/modalSlice";
 import { addToast } from "../../redux/features/toastSlice";
 import { LabelObj } from "../../types";
 import { ERROR } from "../../types/constants";
