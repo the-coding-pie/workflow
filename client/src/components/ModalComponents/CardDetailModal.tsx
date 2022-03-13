@@ -293,7 +293,7 @@ const CardDetailModal = ({ _id, boardId, spaceId }: Props) => {
                     Members
                   </span>
 
-                  <div className="members-content flex items-center gap-x-2">
+                  <div className="members-content flex items-center flex-wrap gap-2">
                     {card.members.map((m) => (
                       <Profile
                         key={m._id}
@@ -312,7 +312,7 @@ const CardDetailModal = ({ _id, boardId, spaceId }: Props) => {
                     Labels
                   </span>
 
-                  <div className="labels flex items-center gap-x-4 mb-6">
+                  <div className="labels flex items-center flex-wrap gap-4 mb-6">
                     {card.labels
                       .sort((a: any, b: any) =>
                         a.pos > b.pos ? 1 : b.pos > a.pos ? -1 : 0
@@ -325,7 +325,9 @@ const CardDetailModal = ({ _id, boardId, spaceId }: Props) => {
                             background: l.color,
                           }}
                         >
-                          {l.name}
+                          {l.name && l.name.length > 28
+                            ? l.name?.slice(0, 28) + "..."
+                            : l.name}
                         </div>
                       ))}
                   </div>

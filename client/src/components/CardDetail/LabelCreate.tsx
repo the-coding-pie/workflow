@@ -1,38 +1,51 @@
 import { Form, Formik } from "formik";
-import React, { useCallback, useState } from "react";
+import React, { useState } from "react";
+import { HiChevronLeft, HiOutlineArrowLeft, HiOutlineX } from "react-icons/hi";
+import { useQueryClient } from "react-query";
+import { useDispatch } from "react-redux";
+import { hideModal } from "../../redux/features/modalSlice";
+import { addToast } from "../../redux/features/toastSlice";
 import { LabelObj } from "../../types";
+import { ERROR } from "../../types/constants";
 import * as Yup from "yup";
+import axiosInstance from "../../axiosInstance";
+import { AxiosError } from "axios";
 import Input from "../FormikComponents/Input";
 import ColorLabel from "../FormikComponents/ColorLabel";
 import SubmitBtn from "../FormikComponents/SubmitBtn";
-import { useDispatch } from "react-redux";
-import { hideModal } from "../../redux/features/modalSlice";
-import axiosInstance from "../../axiosInstance";
-import { useQueryClient } from "react-query";
-import { AxiosError } from "axios";
-import { addToast } from "../../redux/features/toastSlice";
-import { ERROR } from "../../types/constants";
-
-interface Props {
-  label?: LabelObj;
-  boardId: string;
-  spaceId: string;
-}
 
 interface LabelDetailObj {
   name: string;
   color: string;
 }
 
-const BoardLabelModal = ({ label, boardId, spaceId }: Props) => {
+interface Props {
+  cardId: string;
+  boardId: string;
+  spaceId: string;
+  currentLabel: LabelObj | null;
+  setShow: React.Dispatch<React.SetStateAction<boolean>>;
+  setIsFirst: React.Dispatch<React.SetStateAction<boolean>>;
+  setCurrentLabel: React.Dispatch<React.SetStateAction<LabelObj | null>>;
+}
+
+const LabelCreate = ({
+  cardId,
+  boardId,
+  spaceId,
+  currentLabel,
+  setIsFirst,
+  setShow,
+  setCurrentLabel,
+}: Props) => {
   const dispatch = useDispatch();
   const queryClient = useQueryClient();
 
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const initialValues: LabelDetailObj = {
-    name: label && label.name ? label.name : "",
-    color: label ? label.color : "",
+    name: currentLabel && currentLabel.name ? currentLabel.name : "",
+    color: currentLabel ? currentLabel.color : "",
   };
 
   const validationSchema = Yup.object({
@@ -41,13 +54,13 @@ const BoardLabelModal = ({ label, boardId, spaceId }: Props) => {
   });
 
   const handleSubmit = (value: any, boardId: string) => {
-    if (label) {
+    if (currentLabel) {
       // update
       axiosInstance
         .put(
           `/boards/${boardId}/labels`,
           {
-            labelId: label._id,
+            labelId: currentLabel._id,
             ...value,
           },
           {
@@ -57,19 +70,31 @@ const BoardLabelModal = ({ label, boardId, spaceId }: Props) => {
           }
         )
         .then((response) => {
-          dispatch(hideModal());
+          setIsFirst(true);
+          setCurrentLabel(null);
 
           const { data } = response.data;
 
-          queryClient.invalidateQueries(["getCard"]);
-
-          queryClient.invalidateQueries(["getAllCardLabels"]);
+          queryClient.setQueryData(["getCard", cardId], (oldData: any) => {
+            return {
+              ...oldData,
+              labels: oldData.labels
+                ? oldData.labels.map((l: LabelObj) => {
+                    if (l._id === currentLabel._id) {
+                      return data;
+                    } else {
+                      return l;
+                    }
+                  })
+                : [],
+            };
+          });
 
           queryClient.setQueryData(
-            ["getBoardLabels", boardId],
+            ["getAllCardLabels", cardId],
             (oldData: any) => {
               return oldData.map((l: LabelObj) => {
-                if (l._id === label._id) {
+                if (l._id === currentLabel._id) {
                   return data;
                 } else {
                   return l;
@@ -77,6 +102,21 @@ const BoardLabelModal = ({ label, boardId, spaceId }: Props) => {
               });
             }
           );
+
+          if (queryClient.getQueryData(["getBoardLabels", boardId])) {
+            queryClient.setQueryData(
+              ["getBoardLabels", boardId],
+              (oldData: any) => {
+                return oldData.map((l: LabelObj) => {
+                  if (l._id === currentLabel._id) {
+                    return data;
+                  } else {
+                    return l;
+                  }
+                });
+              }
+            );
+          }
 
           // update all card which depends on it
           queryClient.invalidateQueries(["getLists", boardId]);
@@ -91,12 +131,16 @@ const BoardLabelModal = ({ label, boardId, spaceId }: Props) => {
                 dispatch(addToast({ kind: ERROR, msg: message }));
                 break;
               case 403:
-                dispatch(hideModal());
+                setShow(false);
+                setIsFirst(true);
+                setCurrentLabel(null);
+
                 dispatch(addToast({ kind: ERROR, msg: message }));
 
                 queryClient.invalidateQueries(["getBoard", boardId]);
 
                 queryClient.invalidateQueries(["getSpaceInfo", spaceId]);
+                queryClient.invalidateQueries(["getAllCardLabels", cardId]);
                 queryClient.invalidateQueries(["getBoardLabels", boardId]);
                 queryClient.invalidateQueries(["getSpaceBoards", spaceId]);
                 queryClient.invalidateQueries(["getSpaceSettings", spaceId]);
@@ -106,10 +150,14 @@ const BoardLabelModal = ({ label, boardId, spaceId }: Props) => {
                 queryClient.invalidateQueries(["getFavorites"]);
                 break;
               case 404:
-                dispatch(hideModal());
+                setShow(false);
+                setIsFirst(true);
+                setCurrentLabel(null);
+
                 dispatch(addToast({ kind: ERROR, msg: message }));
 
                 queryClient.invalidateQueries(["getBoard", boardId]);
+                queryClient.invalidateQueries(["getAllCardLabels", cardId]);
                 queryClient.invalidateQueries(["getBoardLabels", boardId]);
                 queryClient.invalidateQueries(["getLists", boardId]);
                 queryClient.invalidateQueries(["getSpaces"]);
@@ -122,11 +170,14 @@ const BoardLabelModal = ({ label, boardId, spaceId }: Props) => {
                 break;
               case 400:
                 queryClient.invalidateQueries(["getBoard", boardId]);
+                queryClient.invalidateQueries(["getAllCardLabels", cardId]);
                 queryClient.invalidateQueries(["getBoardLabels", boardId]);
 
                 dispatch(addToast({ kind: ERROR, msg: message }));
 
-                dispatch(hideModal());
+                setShow(false);
+                setIsFirst(true);
+                setCurrentLabel(null);
                 break;
               case 500:
                 dispatch(addToast({ kind: ERROR, msg: message }));
@@ -149,7 +200,7 @@ const BoardLabelModal = ({ label, boardId, spaceId }: Props) => {
       // create
       axiosInstance
         .post(
-          `/boards/${boardId}/labels`,
+          `/cards/${cardId}/labels`,
           {
             ...value,
           },
@@ -160,21 +211,26 @@ const BoardLabelModal = ({ label, boardId, spaceId }: Props) => {
           }
         )
         .then((response) => {
-          dispatch(hideModal());
+          setIsFirst(true);
+          setCurrentLabel(null);
 
           const { data } = response.data;
 
-          queryClient.invalidateQueries(["getCard"]);
+          queryClient.invalidateQueries(["getCard", cardId]);
 
           queryClient.invalidateQueries(["getAllCardLabels"]);
 
-          queryClient.setQueryData(
-            ["getBoardLabels", boardId],
-            (oldData: any) => {
-              oldData.push(data);
-              return oldData;
-            }
-          );
+          if (queryClient.getQueryData(["getBoardLabels", boardId])) {
+            queryClient.setQueryData(
+              ["getBoardLabels", boardId],
+              (oldData: any) => {
+                oldData.push(data);
+                return oldData;
+              }
+            );
+          }
+
+          queryClient.invalidateQueries(["getLists", boardId]);
         })
         .catch((error: AxiosError) => {
           if (error.response) {
@@ -186,13 +242,17 @@ const BoardLabelModal = ({ label, boardId, spaceId }: Props) => {
                 dispatch(addToast({ kind: ERROR, msg: message }));
                 break;
               case 403:
-                dispatch(hideModal());
+                setShow(false);
+                setIsFirst(true);
+                setCurrentLabel(null);
+
                 dispatch(addToast({ kind: ERROR, msg: message }));
 
                 queryClient.invalidateQueries(["getBoard", boardId]);
 
                 queryClient.invalidateQueries(["getSpaceInfo", spaceId]);
                 queryClient.invalidateQueries(["getBoardLabels", boardId]);
+                queryClient.invalidateQueries(["getAllCardLabels", cardId]);
                 queryClient.invalidateQueries(["getSpaceBoards", spaceId]);
                 queryClient.invalidateQueries(["getSpaceSettings", spaceId]);
                 queryClient.invalidateQueries(["getSpaceMembers", spaceId]);
@@ -201,11 +261,15 @@ const BoardLabelModal = ({ label, boardId, spaceId }: Props) => {
                 queryClient.invalidateQueries(["getFavorites"]);
                 break;
               case 404:
-                dispatch(hideModal());
+                setShow(false);
+                setIsFirst(true);
+                setCurrentLabel(null);
+
                 dispatch(addToast({ kind: ERROR, msg: message }));
 
                 queryClient.invalidateQueries(["getBoard", boardId]);
                 queryClient.invalidateQueries(["getBoardLabels", boardId]);
+                queryClient.invalidateQueries(["getAllCardLabels", cardId]);
                 queryClient.invalidateQueries(["getLists", boardId]);
                 queryClient.invalidateQueries(["getSpaces"]);
                 queryClient.invalidateQueries(["getFavorites"]);
@@ -218,10 +282,13 @@ const BoardLabelModal = ({ label, boardId, spaceId }: Props) => {
               case 400:
                 queryClient.invalidateQueries(["getBoard", boardId]);
                 queryClient.invalidateQueries(["getBoardLabels", boardId]);
+                queryClient.invalidateQueries(["getAllCardLabels", cardId]);
 
                 dispatch(addToast({ kind: ERROR, msg: message }));
 
-                dispatch(hideModal());
+                setShow(false);
+                setIsFirst(true);
+                setCurrentLabel(null);
                 break;
               case 500:
                 dispatch(addToast({ kind: ERROR, msg: message }));
@@ -244,48 +311,72 @@ const BoardLabelModal = ({ label, boardId, spaceId }: Props) => {
   };
 
   return (
-    <Formik
-      initialValues={initialValues}
-      validationSchema={validationSchema}
-      onSubmit={(values) => {
-        handleSubmit(values, boardId);
+    <div
+      className="bg-white rounded shadow-lg absolute top-8 left-0 z-40"
+      style={{
+        width: "400px",
       }}
     >
-      <Form
-        className="board-label p-4"
-        style={{
-          width: "650px",
+      <header className="flex items-center justify-between p-3 border-b mb-2">
+        <button
+          onClick={() => {
+            setIsFirst(true);
+            setCurrentLabel(null);
+          }}
+        >
+          <HiChevronLeft size={18} />
+        </button>
+        <span className="font-semibold">Create Label</span>
+        <button
+          onClick={() => {
+            setShow(false);
+            setIsFirst(true);
+            setCurrentLabel(null);
+          }}
+        >
+          <HiOutlineX size={18} />
+        </button>
+      </header>
+
+      <Formik
+        initialValues={initialValues}
+        validationSchema={validationSchema}
+        onSubmit={(values) => {
+          handleSubmit(values, boardId);
         }}
       >
-        <Input id="name" label="Name" name="name" type="text" />
+        <Form className="board-label p-4 w-full">
+          <Input id="name" label="Name" name="name" type="text" />
 
-        <ColorLabel
-          label="Select a color"
-          name="color"
-          selected={label?.color}
-        />
-
-        <div className="buttons flex items-center gap-x-4 justify-center">
-          <SubmitBtn
-            isSubmitting={isSubmitting}
-            text="Save"
-            classes="w-24"
-            noDirtyCheck={true}
+          <ColorLabel
+            label="Select a color"
+            name="color"
+            selected={currentLabel?.color}
           />
 
-          <button
-            type="button"
-            onClick={() => {
-              dispatch(hideModal());
-            }}
-            className="font-semibold"
-          >
-            Cancel
-          </button>
-        </div>
-      </Form>
-    </Formik>
+          <div className="buttons flex items-center gap-x-4 justify-center">
+            <SubmitBtn
+              isSubmitting={isSubmitting}
+              text="Save"
+              classes="w-24"
+              noDirtyCheck={true}
+            />
+
+            <button
+              type="button"
+              onClick={() => {
+                setIsFirst(true);
+                setCurrentLabel(null);
+              }}
+              className="font-semibold"
+            >
+              Cancel
+            </button>
+          </div>
+        </Form>
+      </Formik>
+    </div>
   );
 };
 
-export default BoardLabelModal;
+export default LabelCreate;

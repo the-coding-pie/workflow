@@ -1307,7 +1307,9 @@ export const getCardLabels = async (req: any, res: Response) => {
       });
     }
 
-    const cardLabelsIds = card.labels.map((l: any) => l.toString());
+    const cardLabelsIds = card.labels
+      ? card.labels.map((l: any) => l.toString())
+      : [];
 
     // send the info
     res.send({
@@ -1322,6 +1324,7 @@ export const getCardLabels = async (req: any, res: Response) => {
       statusCode: 200,
     });
   } catch (err) {
+    console.log(err);
     res.status(500).send({
       success: false,
       data: {},

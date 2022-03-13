@@ -18,6 +18,7 @@ import { addToast } from "../../redux/features/toastSlice";
 import { LabelObj, LabelObjCard } from "../../types";
 import { BOARD_LABEL_MODAL, ERROR } from "../../types/constants";
 import UtilityBtn from "../UtilityBtn/UtilityBtn";
+import LabelCreate from "./LabelCreate";
 
 interface Props {
   cardId: string;
@@ -31,8 +32,14 @@ const AddLabelBtn = ({ cardId, listId, boardId, spaceId }: Props) => {
   const queryClient = useQueryClient();
 
   const [show, setShow] = useState(false);
+  const [isFirst, setIsFirst] = useState(true);
+  const [currentLabel, setCurrentLabel] = useState<LabelObj | null>(null);
 
-  const ref = useClose(() => setShow(false));
+  const ref = useClose(() => {
+    setShow(false);
+    setIsFirst(true);
+    setCurrentLabel(null);
+  });
 
   const removeLabel = (labelId: string) => {
     axiosInstance
@@ -45,7 +52,9 @@ const AddLabelBtn = ({ cardId, listId, boardId, spaceId }: Props) => {
         queryClient.setQueryData(["getCard", cardId], (oldData: any) => {
           return {
             ...oldData,
-            labels: oldData.labels.filter((l: any) => l._id !== labelId),
+            labels: oldData.labels
+              ? oldData.labels.filter((l: any) => l._id !== labelId)
+              : [],
           };
         });
 
@@ -76,6 +85,9 @@ const AddLabelBtn = ({ cardId, listId, boardId, spaceId }: Props) => {
           switch (response.status) {
             case 403:
               setShow(false);
+              setIsFirst(true);
+              setCurrentLabel(null);
+
               dispatch(hideModal());
               dispatch(addToast({ kind: ERROR, msg: message }));
 
@@ -93,6 +105,9 @@ const AddLabelBtn = ({ cardId, listId, boardId, spaceId }: Props) => {
               break;
             case 404:
               setShow(false);
+              setIsFirst(true);
+              setCurrentLabel(null);
+
               dispatch(hideModal());
               dispatch(addToast({ kind: ERROR, msg: message }));
 
@@ -115,6 +130,9 @@ const AddLabelBtn = ({ cardId, listId, boardId, spaceId }: Props) => {
               queryClient.invalidateQueries(["getAllCardLabels", cardId]);
               dispatch(addToast({ kind: ERROR, msg: message }));
               setShow(false);
+              setIsFirst(true);
+              setCurrentLabel(null);
+
               dispatch(hideModal());
               break;
             case 500:
@@ -147,7 +165,7 @@ const AddLabelBtn = ({ cardId, listId, boardId, spaceId }: Props) => {
         queryClient.setQueryData(["getCard", cardId], (oldData: any) => {
           return {
             ...oldData,
-            labels: [...oldData.labels, data],
+            labels: oldData.labels ? [...oldData.labels, data] : [data],
           };
         });
 
@@ -180,6 +198,9 @@ const AddLabelBtn = ({ cardId, listId, boardId, spaceId }: Props) => {
               break;
             case 403:
               setShow(false);
+              setIsFirst(true);
+              setCurrentLabel(null);
+
               dispatch(hideModal());
               dispatch(addToast({ kind: ERROR, msg: message }));
 
@@ -197,6 +218,9 @@ const AddLabelBtn = ({ cardId, listId, boardId, spaceId }: Props) => {
               break;
             case 404:
               setShow(false);
+              setIsFirst(true);
+              setCurrentLabel(null);
+
               dispatch(hideModal());
               dispatch(addToast({ kind: ERROR, msg: message }));
 
@@ -219,6 +243,9 @@ const AddLabelBtn = ({ cardId, listId, boardId, spaceId }: Props) => {
               queryClient.invalidateQueries(["getAllCardLabels", cardId]);
               dispatch(addToast({ kind: ERROR, msg: message }));
               setShow(false);
+              setIsFirst(true);
+              setCurrentLabel(null);
+
               dispatch(hideModal());
               break;
             case 500:
@@ -254,7 +281,9 @@ const AddLabelBtn = ({ cardId, listId, boardId, spaceId }: Props) => {
         queryClient.setQueryData(["getCard", cardId], (oldData: any) => {
           return {
             ...oldData,
-            labels: oldData.labels.filter((l: any) => l._id !== labelId),
+            labels: oldData.labels
+              ? oldData.labels.filter((l: any) => l._id !== labelId)
+              : [],
           };
         });
 
@@ -285,6 +314,9 @@ const AddLabelBtn = ({ cardId, listId, boardId, spaceId }: Props) => {
           switch (response.status) {
             case 403:
               setShow(false);
+              setIsFirst(true);
+              setCurrentLabel(null);
+
               dispatch(hideModal());
 
               dispatch(addToast({ kind: ERROR, msg: message }));
@@ -302,6 +334,9 @@ const AddLabelBtn = ({ cardId, listId, boardId, spaceId }: Props) => {
               break;
             case 404:
               setShow(false);
+              setIsFirst(true);
+              setCurrentLabel(null);
+
               dispatch(hideModal());
               dispatch(addToast({ kind: ERROR, msg: message }));
 
@@ -324,6 +359,9 @@ const AddLabelBtn = ({ cardId, listId, boardId, spaceId }: Props) => {
 
               dispatch(addToast({ kind: ERROR, msg: message }));
               setShow(false);
+              setIsFirst(true);
+              setCurrentLabel(null);
+
               dispatch(hideModal());
               break;
             case 500:
@@ -397,7 +435,7 @@ const AddLabelBtn = ({ cardId, listId, boardId, spaceId }: Props) => {
               )
               .map((l) => {
                 return (
-                  <div className="label flex items-center gap-x-6">
+                  <div key={l._id} className="label flex items-center gap-x-6">
                     <button
                       onClick={() => {
                         if (l.isPresent) {
@@ -424,18 +462,10 @@ const AddLabelBtn = ({ cardId, listId, boardId, spaceId }: Props) => {
 
                     <div className="right-btns flex items-center gap-x-4">
                       <button
-                        onClick={() =>
-                          dispatch(
-                            showModal({
-                              modalType: BOARD_LABEL_MODAL,
-                              modalProps: {
-                                label: l,
-                                boardId,
-                                spaceId,
-                              },
-                            })
-                          )
-                        }
+                        onClick={() => {
+                          setIsFirst(false);
+                          setCurrentLabel(l);
+                        }}
                       >
                         <HiOutlinePencil className="text-slate-700" size={18} />
                       </button>
@@ -465,39 +495,52 @@ const AddLabelBtn = ({ cardId, listId, boardId, spaceId }: Props) => {
       </button>
 
       {show && (
-        <div
-          className="bg-white rounded shadow-lg absolute top-8 left-0 z-40"
-          style={{
-            width: "400px",
-          }}
-        >
-          <header className="flex items-center justify-between p-3 border-b mb-2">
-            <span className="font-semibold">Labels</span>
-            <button onClick={() => setShow(false)}>
-              <HiOutlineX size={18} />
-            </button>
-          </header>
-
-          {component && component}
-
-          <div className="buttons mx-4 mb-4">
-            <button
-              className="btn-primary_light text-sm mt-6 w-full"
-              onClick={() => {
-                dispatch(
-                  showModal({
-                    modalType: BOARD_LABEL_MODAL,
-                    modalProps: {
-                      boardId,
-                    },
-                  })
-                );
+        <>
+          {isFirst ? (
+            <div
+              className="bg-white rounded shadow-lg absolute top-8 left-0 z-40"
+              style={{
+                width: "400px",
               }}
             >
-              Create a new label
-            </button>
-          </div>
-        </div>
+              <header className="flex items-center justify-between p-3 border-b mb-2">
+                <span className="font-semibold">Labels</span>
+                <button
+                  onClick={() => {
+                    setShow(false);
+                    setIsFirst(true);
+                    setCurrentLabel(null);
+                  }}
+                >
+                  <HiOutlineX size={18} />
+                </button>
+              </header>
+
+              {component && component}
+
+              <div className="buttons mx-4 mb-4">
+                <button
+                  className="btn-primary_light text-sm mt-6 w-full"
+                  onClick={() => {
+                    setIsFirst(false);
+                  }}
+                >
+                  Create a new label
+                </button>
+              </div>
+            </div>
+          ) : (
+            <LabelCreate
+              cardId={cardId}
+              boardId={boardId}
+              spaceId={spaceId}
+              setShow={setShow}
+              setIsFirst={setIsFirst}
+              currentLabel={currentLabel}
+              setCurrentLabel={setCurrentLabel}
+            />
+          )}
+        </>
       )}
     </div>
   );

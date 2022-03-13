@@ -2213,7 +2213,8 @@ export const updateLabel = async (req: any, res: Response) => {
       alreadyExists = board.labels.find(
         (l: any) =>
           l.name === name &&
-          l.color === color && l._id.toString() !== label._id.toString() &&
+          l.color === color &&
+          l._id.toString() !== label._id.toString() &&
           l.boardId.toString() === board._id.toString()
       )
         ? true
@@ -2223,7 +2224,8 @@ export const updateLabel = async (req: any, res: Response) => {
       alreadyExists = board.labels.find(
         (l: any) =>
           l.name === "" &&
-          l.color === color && l._id.toString() !== label._id.toString() &&
+          l.color === color &&
+          l._id.toString() !== label._id.toString() &&
           l.boardId.toString() === board._id.toString()
       )
         ? true
@@ -2259,6 +2261,7 @@ export const updateLabel = async (req: any, res: Response) => {
         name: label.name,
         color: label.color,
         pos: label.pos,
+        isPresent: true,
       },
       message: "Label updated successfully",
       statusCode: 200,
