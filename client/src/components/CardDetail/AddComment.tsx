@@ -52,6 +52,7 @@ const AddComment = ({ queryKey, cardId, boardId, spaceId }: Props) => {
         });
 
         // update [getLists, id] queryCache to reflect comment + 1
+        queryClient.invalidateQueries(["getLists", boardId]);
       })
       .catch((error: AxiosError) => {
         if (error.response) {

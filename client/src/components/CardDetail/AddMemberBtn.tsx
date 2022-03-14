@@ -65,6 +65,7 @@ const AddMemberBtn = ({ members, cardId, listId, boardId, spaceId }: Props) => {
         });
 
         // update in getLists query Cache
+        queryClient.invalidateQueries(["getLists", boardId]);
       })
       .catch((error: AxiosError) => {
         if (error.response) {
@@ -141,6 +142,7 @@ const AddMemberBtn = ({ members, cardId, listId, boardId, spaceId }: Props) => {
         });
 
         // update in getLists query Cache
+        queryClient.invalidateQueries(["getLists", boardId]);
       })
       .catch((error: AxiosError) => {
         if (error.response) {

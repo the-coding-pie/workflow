@@ -103,6 +103,7 @@ const AddCoverBtn = ({
         });
 
         // update in getLists query Cache
+        queryClient.invalidateQueries(["getLists", boardId]);
       })
       .catch((error: AxiosError) => {
         if (error.response) {
@@ -171,6 +172,7 @@ const AddCoverBtn = ({
         });
 
         // update in getLists query Cache
+        queryClient.invalidateQueries(["getLists", boardId]);
       })
       .catch((error: AxiosError) => {
         if (error.response) {

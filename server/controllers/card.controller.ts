@@ -1927,6 +1927,7 @@ export const createComment = async (req: any, res: Response) => {
       data: {
         _id: newComment._id,
         comment: newComment.comment,
+        createdAt: newComment.createdAt,
         isUpdated: newComment.isUpdated,
         user: {
           _id: newComment.user._id,

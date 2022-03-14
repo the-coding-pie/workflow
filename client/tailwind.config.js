@@ -11,7 +11,7 @@ module.exports = {
         ubuntu: "Ubuntu, sans-serif",
       },
       transitionProperty: {
-        width: 'width',
+        width: "width",
       },
     },
   },

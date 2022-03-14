@@ -7,10 +7,11 @@ interface Props {
   alt?: string;
   classes?: string;
   isAdmin?: boolean;
+  styles?: Object;
   onClick?: () => void;
 }
 
-const Profile = ({ src, alt, isAdmin, classes, onClick }: Props) => {
+const Profile = ({ src, alt, isAdmin, classes, onClick, styles }: Props) => {
   return (
     <div className="relative">
       {src ? (
@@ -20,11 +21,13 @@ const Profile = ({ src, alt, isAdmin, classes, onClick }: Props) => {
           onClick={onClick}
           src={src}
           alt={alt!}
+          style={styles ? styles : {}}
         />
       ) : (
         <div
           className={`w-8 h-8 rounded-full ${classes ? classes : ""}`}
           onClick={onClick}
+          style={styles ? styles : {}}
         >
           *
         </div>

@@ -203,8 +203,10 @@ export interface CardObj {
   _id: string;
   listId: string;
   pos: string;
-  cover: string | null;
+  coverImg: string | null;
+  color: string;
   name: string;
+  description: string;
   isComplete: boolean;
   dueDate: string | null;
   members: MemberObjM[] | null;

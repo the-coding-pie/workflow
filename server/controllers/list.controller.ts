@@ -264,19 +264,11 @@ export const getLists = async (req: any, res: Response) => {
       listId: { $in: board.lists.map((l: any) => l._id) },
     })
       .select(
-        "_id name listId pos coverImg color dueDate members labels comments isComplete"
+        "_id name listId pos coverImg color dueDate members labels comments description isComplete"
       )
       .populate({
         path: "members",
         select: "_id username profile",
-      })
-      .populate({
-        path: "comments",
-        select: "_id comment user",
-        populate: {
-          path: "user",
-          select: "_id username profile",
-        },
       })
       .populate({
         path: "labels",
@@ -298,6 +290,9 @@ export const getLists = async (req: any, res: Response) => {
             coverImg: card.coverImg,
             color: card.color,
             name: card.name,
+            labels: card.labels,
+
+            description: card.description,
             isComplete: card.isComplete,
             dueDate: card.dueDate,
             members: card.members?.map((m: any) => {
@@ -306,7 +301,6 @@ export const getLists = async (req: any, res: Response) => {
                 profile: getProfile(m.profile),
               };
             }),
-            labels: card.labels,
             comments: card.comments?.length,
           };
         }),
