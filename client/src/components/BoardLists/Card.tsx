@@ -108,45 +108,63 @@ const Card = ({ myRole, card, index, boardId, spaceId }: Props) => {
           </div>
 
           {/* bottom */}
-          <div className="extras flex items-center justify-between my-2 px-2 text-slate-600">
-            <div className="left flex items-center gap-x-2">
-              {/* due date */}
-              {card.dueDate && (
-                <div
-                  className={`due-date flex items-center rounded text-xs ${
-                    card.isComplete
-                      ? "bg-green-400 text-white p-0.5"
-                      : getStatus(card.dueDate, card.isComplete) ===
-                        DUE_DATE_STATUSES.OVERDUE
-                      ? "bg-red-400 text-white p-0.5"
-                      : ""
-                  }`}
-                >
-                  <HiOutlineClock size={14} className="mr-1" />
-                  <span className="date">
-                    {format(new Date(card.dueDate), "dd MMM, yyyy")}
-                  </span>
-                </div>
-              )}
+          {(card.dueDate ||
+            card.description ||
+            card.comments ||
+            (card.members && card.members.length > 0)) && (
+            <div className="extras flex items-center justify-between my-2 px-2 text-slate-600">
+              <div className="left flex items-center gap-x-2">
+                {/* due date */}
+                {card.dueDate && (
+                  <div
+                    className={`due-date flex items-center rounded text-xs ${
+                      card.isComplete
+                        ? "bg-green-400 text-white p-0.5"
+                        : getStatus(card.dueDate, card.isComplete) ===
+                          DUE_DATE_STATUSES.OVERDUE
+                        ? "bg-red-400 text-white p-0.5"
+                        : ""
+                    }`}
+                  >
+                    <HiOutlineClock size={14} className="mr-1" />
+                    <span className="date">
+                      {format(new Date(card.dueDate), "dd MMM, yyyy")}
+                    </span>
+                  </div>
+                )}
 
-              {/* description */}
-              {card.description && <HiMenuAlt2 size={16} />}
+                {/* description */}
+                {card.description && <HiMenuAlt2 size={16} />}
 
-              {/* comments */}
-              {card.comments ? (
-                <div className="comments flex items-center">
-                  <HiOutlineChatAlt size={16} className="mr-0.5" />
-                  <span>{card.comments}</span>
-                </div>
-              ) : (
-                <></>
-              )}
-            </div>
-            <div className="members flex items-center gap-x-1">
-              {card.members &&
-                (card.members.length > 3 ? (
-                  <>
-                    {card.members.slice(0, 3).map((m) => (
+                {/* comments */}
+                {card.comments ? (
+                  <div className="comments flex items-center">
+                    <HiOutlineChatAlt size={16} className="mr-0.5" />
+                    <span>{card.comments}</span>
+                  </div>
+                ) : (
+                  <></>
+                )}
+              </div>
+              <div className="members flex items-center gap-x-1">
+                {card.members &&
+                  (card.members.length > 3 ? (
+                    <>
+                      {card.members.slice(0, 3).map((m) => (
+                        <Profile
+                          key={m._id}
+                          classes="w-7 h-7 cursor-default"
+                          src={m.profile}
+                          styles={{
+                            width: "1.65rem",
+                            height: "1.65rem",
+                          }}
+                        />
+                      ))}
+                      <div>+{card.members.slice(3).length}</div>
+                    </>
+                  ) : (
+                    card.members.map((m) => (
                       <Profile
                         key={m._id}
                         classes="w-7 h-7 cursor-default"
@@ -156,24 +174,11 @@ const Card = ({ myRole, card, index, boardId, spaceId }: Props) => {
                           height: "1.65rem",
                         }}
                       />
-                    ))}
-                    <div>+{card.members.slice(3).length}</div>
-                  </>
-                ) : (
-                  card.members.map((m) => (
-                    <Profile
-                      key={m._id}
-                      classes="w-7 h-7 cursor-default"
-                      src={m.profile}
-                      styles={{
-                        width: "1.65rem",
-                        height: "1.65rem",
-                      }}
-                    />
-                  ))
-                ))}
+                    ))
+                  ))}
+              </div>
             </div>
-          </div>
+          )}
         </li>
       )}
     </Draggable>

@@ -79,6 +79,7 @@ const AddAList = ({
       )
       .then((response) => {
         setName("");
+        setIsFirst(true);
 
         const { data } = response.data;
 
