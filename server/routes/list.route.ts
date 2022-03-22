@@ -12,5 +12,7 @@ listRouter.put("/:id/name", authMiddleware, listController.updateListName);
 listRouter.put("/:id/dnd", authMiddleware, listController.dndList);
 // Protected(Auth) GET /lists?boardId="boardId" -> get all lists under this board
 listRouter.get("/", authMiddleware, listController.getLists);
+// Protected(Auth) DELETE /lists/:id -> delete list and cards below it
+listRouter.delete("/:id", authMiddleware, listController.deleteList);
 
 export default listRouter;

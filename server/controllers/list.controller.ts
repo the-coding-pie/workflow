@@ -4,6 +4,7 @@ import validator from "validator";
 import { BOARD_VISIBILITY } from "../dist/types/constants";
 import Board from "../models/board.model";
 import Card from "../models/card.model";
+import Comment from "../models/comment.model";
 import List from "../models/list.model";
 import {
   BOARD_MEMBER_ROLES,
@@ -626,6 +627,110 @@ export const dndList = async (req: any, res: Response) => {
         refetch: refetch,
       },
       message: "List position updated successfully!",
+      statusCode: 200,
+    });
+  } catch (err) {
+    res.status(500).send({
+      success: false,
+      data: {},
+      message: "Oops, something went wrong!",
+      statusCode: 500,
+    });
+  }
+};
+
+// DELETE /lists/:id -> delete list, cards, and comments
+export const deleteList = async (req: any, res: Response) => {
+  try {
+    const { id } = req.params;
+
+    if (!id) {
+      return res.status(400).send({
+        success: false,
+        data: {},
+        message: "list _id is required",
+        statusCode: 400,
+      });
+    } else if (!mongoose.isValidObjectId(id)) {
+      return res.status(400).send({
+        success: false,
+        data: {},
+        message: "Invalid list _id",
+        statusCode: 400,
+      });
+    }
+
+    const list = await List.findOne({ _id: id })
+      .select("_id name boardId cards")
+      .lean();
+
+    if (!list) {
+      return res.status(404).send({
+        success: false,
+        data: {},
+        message: "List not found",
+        statusCode: 404,
+      });
+    }
+
+    // if list is present, then board will be also present
+    const board = await Board.findOne({ _id: list.boardId })
+      .select("_id spaceId members visibility")
+      .populate({
+        path: "spaceId",
+        select: "_id name members",
+      });
+
+    // check whether the user has the rights to update name of list -> ADMIN / NORMAL
+    // check whether the current user is board member or space member
+    const boardMember = board.members.find(
+      (m: any) => m.memberId.toString() === req.user._id.toString()
+    );
+    const spaceMember = board.spaceId.members.find(
+      (m: any) => m.memberId.toString() === req.user._id.toString()
+    );
+
+    if (
+      (!boardMember && !spaceMember) ||
+      (!boardMember &&
+        spaceMember &&
+        spaceMember.role === SPACE_MEMBER_ROLES.GUEST) ||
+      (!boardMember &&
+        spaceMember &&
+        spaceMember.role === SPACE_MEMBER_ROLES.NORMAL &&
+        board.visibility === BOARD_VISIBILITY.PRIVATE)
+    ) {
+      // you can't see this board at all
+      return res.status(404).send({
+        success: false,
+        data: {},
+        message: "List not found",
+        statusCode: 404,
+      });
+    }
+
+    // now it is clear that the current user can see this board
+    // but that's not enough for the current user to delete a list
+    // only board member (ADMIN and NORMAL) or space member (ADMIN or NORMAL)
+    if (boardMember && boardMember.role === BOARD_MEMBER_ROLES.OBSERVER) {
+      return res.status(403).send({
+        success: false,
+        data: {},
+        message: "You don't have permission to perform this action",
+        statusCode: 403,
+      });
+    }
+
+    // delete the list
+    await List.deleteOne({ _id: list._id });
+    // delete all cards and their comments
+    await Card.deleteMany({ _id: { $in: list.cards } });
+    await Comment.deleteMany({ cardId: { $in: list.cards } });
+
+    res.send({
+      success: true,
+      data: {},
+      message: "List has been deleted successfully.",
       statusCode: 200,
     });
   } catch (err) {
