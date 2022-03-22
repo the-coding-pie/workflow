@@ -21,6 +21,8 @@ import path from "path";
 import { checkAllString, getPos, getUniqueValues } from "../utils/helpers";
 import User from "../models/user.model";
 import Card from "../models/card.model";
+import List from "../models/list.model";
+import Comment from "../models/comment.model";
 
 // POST /boards -> create new board
 export const createBoard = async (req: any, res: Response) => {
@@ -2497,6 +2499,125 @@ export const getAllLabels = async (req: any, res: Response) => {
       success: true,
       data: board.labels,
       message: "",
+      statusCode: 200,
+    });
+  } catch (err) {
+    res.status(500).send({
+      success: false,
+      data: {},
+      message: "Oops, something went wrong!",
+      statusCode: 500,
+    });
+  }
+};
+
+// DELETE /boards/:id -> delete board, lists, cards, comments
+export const deleteBoard = async (req: any, res: Response) => {
+  try {
+    const { id } = req.params;
+
+    if (!id) {
+      return res.status(400).send({
+        success: false,
+        data: {},
+        message: "board _id is required",
+        statusCode: 400,
+      });
+    } else if (!mongoose.isValidObjectId(id)) {
+      return res.status(400).send({
+        success: false,
+        data: {},
+        message: "Invalid board _id",
+        statusCode: 400,
+      });
+    }
+
+    // check if the board is valid & check current user has the rights to do this
+    const board = await Board.findOne({ _id: id })
+      .select("_id spaceId members visibility lists")
+      .populate({
+        path: "spaceId",
+        select: "_id name members",
+      });
+
+    if (!board) {
+      return res.status(404).send({
+        success: false,
+        data: {},
+        message: "Board not found!",
+        statusCode: 404,
+      });
+    }
+
+    // check whether this board is visible to the current user first
+    const boardMember = board.members.find(
+      (m: any) => m.memberId.toString() === req.user._id.toString()
+    );
+    const spaceMember = board.spaceId.members.find(
+      (m: any) => m.memberId.toString() === req.user._id.toString()
+    );
+
+    if (
+      (!boardMember && !spaceMember) ||
+      (!boardMember &&
+        spaceMember &&
+        spaceMember.role === SPACE_MEMBER_ROLES.GUEST) ||
+      (!boardMember &&
+        spaceMember &&
+        spaceMember.role === SPACE_MEMBER_ROLES.NORMAL &&
+        board.visibility === BOARD_VISIBILITY.PRIVATE)
+    ) {
+      // you can't see this board at all
+      return res.status(404).send({
+        success: false,
+        data: {},
+        message: "Board not found",
+        statusCode: 404,
+      });
+    }
+
+    // now it is clear that the current user can see this board
+    // but that's not enough for the current user to delete a board
+    // only board ADMIN or space ADMIN can do this
+    if (
+      !(boardMember && boardMember.role === BOARD_MEMBER_ROLES.ADMIN) &&
+      !(spaceMember && spaceMember.role === SPACE_MEMBER_ROLES.ADMIN)
+    ) {
+      return res.status(403).send({
+        success: false,
+        data: {},
+        message: "You don't have permission to perform this action",
+        statusCode: 403,
+      });
+    }
+
+    const cards = await Card.find({ listId: { $in: board.lists } }).select(
+      "_id"
+    );
+
+    // delete board, lists, cards, comments, labels, favorites
+    await Board.deleteOne({ _id: board._id });
+    await List.deleteMany({ boardId: board._id });
+    await Card.deleteMany({ listId: { $in: board.lists } });
+    await Comment.deleteMany({ cardId: { $in: cards } });
+
+    await Label.deleteMany({ boardId: board._id });
+    await Favorite.deleteOne({ resourceId: board._id, type: BOARD });
+
+    // remove board from space
+    const space = await Space.findOne({ _id: board.spaceId._id }).select(
+      "_id boards"
+    );
+
+    space.boards = space.boards.filter(
+      (b: any) => b.toString() !== board._id.toString()
+    );
+    await space.save();
+
+    res.send({
+      success: true,
+      data: {},
+      message: "Board has been deleted successfully.",
       statusCode: 200,
     });
   } catch (err) {

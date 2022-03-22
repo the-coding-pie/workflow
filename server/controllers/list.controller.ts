@@ -675,7 +675,7 @@ export const deleteList = async (req: any, res: Response) => {
 
     // if list is present, then board will be also present
     const board = await Board.findOne({ _id: list.boardId })
-      .select("_id spaceId members visibility")
+      .select("_id spaceId members visibility lists")
       .populate({
         path: "spaceId",
         select: "_id name members",
@@ -726,6 +726,12 @@ export const deleteList = async (req: any, res: Response) => {
     // delete all cards and their comments
     await Card.deleteMany({ _id: { $in: list.cards } });
     await Comment.deleteMany({ cardId: { $in: list.cards } });
+
+    // remove list from board
+    board.lists = board.lists.filter(
+      (l: any) => l.toString() !== list._id.toString()
+    );
+    await board.save();
 
     res.send({
       success: true,

@@ -4,6 +4,7 @@ import React, { useCallback } from "react";
 import { useState } from "react";
 import { useQuery, useQueryClient } from "react-query";
 import { useDispatch } from "react-redux";
+import { useNavigate } from "react-router-dom";
 import * as Yup from "yup";
 import axiosInstance from "../../axiosInstance";
 import { hideModal } from "../../redux/features/modalSlice";
@@ -36,6 +37,7 @@ interface Props {
 const CreateBoardModal = ({ spaceId }: Props) => {
   const dispatch = useDispatch();
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
 
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -140,7 +142,9 @@ const CreateBoardModal = ({ spaceId }: Props) => {
         setIsSubmitting(false);
 
         dispatch(hideModal());
-        // update existing board cache react query
+
+        // redirect them to the created board
+        navigate(`/b/${data._id}`);
       })
       .catch((error: AxiosError) => {
         setIsSubmitting(false);

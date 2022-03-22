@@ -64,4 +64,7 @@ boardRouter.put("/:id/labels", authMiddleware, boardController.updateLabel);
 // Protected(Auth) DELETE /boards/:id/labels -> remove label
 boardRouter.delete("/:id/labels", authMiddleware, boardController.removeLabel);
 
+// Protected(Auth) DELETE /boards/:id -> delete board
+boardRouter.delete("/:id", authMiddleware, boardController.deleteBoard);
+
 export default boardRouter;

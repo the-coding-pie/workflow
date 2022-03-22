@@ -220,6 +220,8 @@ export const registerUser = async (req: Request, res: Response) => {
 
     // fail silently if error happens
     transporter.sendMail(mailOptions, function (err, info) {
+      console.log(err)
+      console.log(info)
       transporter.close();
     });
 
