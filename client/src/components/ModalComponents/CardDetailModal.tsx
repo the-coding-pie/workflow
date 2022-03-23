@@ -22,6 +22,7 @@ import {
   HiOutlineChatAlt,
   HiOutlineClock,
   HiOutlineTag,
+  HiOutlineTrash,
   HiOutlineUser,
   HiTag,
 } from "react-icons/hi";
@@ -48,6 +49,72 @@ const CardDetailModal = ({ _id, boardId, spaceId }: Props) => {
   const queryClient = useQueryClient();
 
   const [showDescEdit, setShowDescEdit] = useState(false);
+
+  const deleteCard = (_id: string) => {
+    axiosInstance
+      .delete(`/cards/${_id}`)
+      .then((response) => {
+        queryClient.setQueryData(["getLists", boardId], (oldData: any) => {
+          return {
+            ...oldData,
+            cards: oldData.cards.filter((c: any) => c._id !== _id),
+          };
+        });
+
+        dispatch(hideModal());
+      })
+      .catch((error: AxiosError) => {
+        if (error.response) {
+          const response = error.response;
+          const { message } = response.data;
+
+          switch (response.status) {
+            case 403:
+              dispatch(addToast({ kind: ERROR, msg: message }));
+
+              queryClient.invalidateQueries(["getCard", _id]);
+              queryClient.invalidateQueries(["getBoard", boardId]);
+
+              queryClient.invalidateQueries(["getSpaces"]);
+              queryClient.invalidateQueries(["getFavorites"]);
+              break;
+            case 404:
+              dispatch(hideModal());
+              dispatch(addToast({ kind: ERROR, msg: message }));
+
+              queryClient.invalidateQueries(["getCard", _id]);
+              queryClient.invalidateQueries(["getBoard", boardId]);
+              queryClient.invalidateQueries(["getLists", boardId]);
+              queryClient.invalidateQueries(["getSpaces"]);
+              queryClient.invalidateQueries(["getFavorites"]);
+
+              queryClient.invalidateQueries(["getSpaceBoards", spaceId]);
+              queryClient.invalidateQueries(["getSpaceSettings", spaceId]);
+              queryClient.invalidateQueries(["getSpaceMembers", spaceId]);
+              break;
+            case 400:
+              dispatch(hideModal());
+              queryClient.invalidateQueries(["getCard", _id]);
+              dispatch(addToast({ kind: ERROR, msg: message }));
+              break;
+            case 500:
+              dispatch(addToast({ kind: ERROR, msg: message }));
+              break;
+            default:
+              dispatch(
+                addToast({ kind: ERROR, msg: "Oops, something went wrong" })
+              );
+              break;
+          }
+        } else if (error.request) {
+          dispatch(
+            addToast({ kind: ERROR, msg: "Oops, something went wrong" })
+          );
+        } else {
+          dispatch(addToast({ kind: ERROR, msg: `Error: ${error.message}` }));
+        }
+      });
+  };
 
   const toggleIsComplete = (cardId: string) => {
     axiosInstance
@@ -447,6 +514,14 @@ const CardDetailModal = ({ _id, boardId, spaceId }: Props) => {
                   boardId={boardId}
                   spaceId={spaceId}
                 />
+
+                <button
+                  className="bg-red-400 rounded text-sm text-white p-2 flex items-center font-normal"
+                  onClick={() => deleteCard(card._id)}
+                >
+                  <HiOutlineTrash size={16} className="mr-1" />
+                  Delete Card
+                </button>
               </div>
             )}
           </div>

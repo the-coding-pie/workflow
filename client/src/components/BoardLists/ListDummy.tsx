@@ -4,7 +4,7 @@ import {
   DraggableRubric,
   DraggableStateSnapshot,
 } from "react-beautiful-dnd";
-import { HiOutlinePlus } from "react-icons/hi";
+import { HiOutlineDotsHorizontal, HiOutlinePlus } from "react-icons/hi";
 import { CardObj, ListObj } from "../../types";
 import { BOARD_ROLES } from "../../types/constants";
 import CardDummy from "./CardDummy";
@@ -14,6 +14,7 @@ interface Props {
   provided: DraggableProvided;
   snapshot: DraggableStateSnapshot;
   list: ListObj;
+  spaceId: string;
   boardId: string;
   cards: CardObj[];
   myRole:
@@ -22,7 +23,15 @@ interface Props {
     | typeof BOARD_ROLES.OBSERVER;
 }
 
-const ListDummy = ({ provided, snapshot, list, cards, myRole, boardId }: Props) => {
+const ListDummy = ({
+  provided,
+  snapshot,
+  list,
+  cards,
+  myRole,
+  boardId,
+  spaceId,
+}: Props) => {
   return (
     <div
       {...provided.draggableProps}
@@ -35,19 +44,32 @@ const ListDummy = ({ provided, snapshot, list, cards, myRole, boardId }: Props) 
         maxHeight: "calc(100vh - 10.2rem)",
       }}
     >
-      <header {...provided.dragHandleProps} className="list__header mb-1 pt-3">
-            {[BOARD_ROLES.ADMIN, BOARD_ROLES.NORMAL].includes(myRole) ? (
-              <ListName
-                listId={list._id}
-                boardId={boardId}
-                initialValue={list.name}
-              />
-            ) : (
-              <h3 className="list-title font-semibold text-base h-7 px-2">
-                {list.name.length > 34 ? list.name.slice(0, 34) + "..." : list.name}
-              </h3>
-            )}
-          </header>
+      <header
+        {...provided.dragHandleProps}
+        className="list__header mb-1 flex justify-between items-center pt-3"
+      >
+        <>
+          {[BOARD_ROLES.ADMIN, BOARD_ROLES.NORMAL].includes(myRole) ? (
+            <ListName
+              spaceId={spaceId}
+              listId={list._id}
+              boardId={boardId}
+              initialValue={list.name}
+            />
+          ) : (
+            <h3 className="list-title font-semibold text-base h-7 px-2">
+              {list.name.length > 34
+                ? list.name.slice(0, 34) + "..."
+                : list.name}
+            </h3>
+          )}
+        </>
+        {[BOARD_ROLES.ADMIN, BOARD_ROLES.NORMAL].includes(myRole) && (
+          <button>
+            <HiOutlineDotsHorizontal size={16} />
+          </button>
+        )}
+      </header>
 
       <div className={`flex-1 flex flex-col overflow-hidden`}>
         <ul

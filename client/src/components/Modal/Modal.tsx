@@ -7,6 +7,7 @@ import { ModalObj } from "../../types";
 import {
   BOARD_LABEL_MODAL,
   CARD_DETAIL_MODAL,
+  CONFIRM_DELETE_BOARD_MODAL,
   CONFIRM_DELETE_SPACE_MODAL,
   CONFIRM_LEAVE_BOARD_MODAL,
   CONFIRM_LEAVE_SPACE_MODAL,
@@ -26,6 +27,7 @@ import LeaveBoardConfirmationModal from "../ModalComponents/LeaveBoardConfirmati
 import RemoveMemberBoardConfirmationModal from "../ModalComponents/RemoveMemberBoardConfirmationModal";
 import CardDetailModal from "../ModalComponents/CardDetailModal";
 import BoardLabelModal from "../ModalComponents/BoardLabelModal";
+import DeleteBoardConfirmationModal from "../ModalComponents/DeleteBoardConfirmationModal";
 
 interface Props extends ModalObj {}
 
@@ -65,6 +67,9 @@ const Modal = ({
       break;
     case CONFIRM_DELETE_SPACE_MODAL:
       Component = DeleteSpaceConfirmationModal;
+      break;
+    case CONFIRM_DELETE_BOARD_MODAL:
+      Component = DeleteBoardConfirmationModal;
       break;
     case CONFIRM_LEAVE_BOARD_MODAL:
       Component = LeaveBoardConfirmationModal;

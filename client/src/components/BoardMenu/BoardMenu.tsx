@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { MdChevronLeft, MdClose } from "react-icons/md";
-import { BOARD_ROLES } from "../../types/constants";
+import { useDispatch } from "react-redux";
+import { showModal } from "../../redux/features/modalSlice";
+import { BOARD_ROLES, CONFIRM_DELETE_BOARD_MODAL } from "../../types/constants";
 import AboutMenu from "./AboutMenu";
 import ChangeBgMenu from "./ChangeBgMenu";
 import LabelMenu from "./LabelMenu";
@@ -23,6 +25,8 @@ const BoardMenu = ({
   setShowMenu,
   myRole,
 }: Props) => {
+  const dispatch = useDispatch();
+
   const [showOption, setShowOption] = useState(false);
   const [currentOption, setCurrentOption] = useState<string | null>(null);
 
@@ -121,8 +125,24 @@ const BoardMenu = ({
           </li>
 
           {myRole === BOARD_ROLES.ADMIN && (
-            <li className="w-full px-3 py-3 text-left hover:bg-slate-200 text-red-500 cursor-pointer">
-              Delete board
+            <li>
+              <button
+                className="w-full px-3 py-3 text-left hover:bg-slate-200 text-red-500 cursor-pointer"
+                onClick={() =>
+                  dispatch(
+                    showModal({
+                      modalType: CONFIRM_DELETE_BOARD_MODAL,
+                      modalProps: {
+                        boardId,
+                        spaceId,
+                      },
+                      modalTitle: "Delete board?",
+                    })
+                  )
+                }
+              >
+                Delete board
+              </button>
             </li>
           )}
         </ul>

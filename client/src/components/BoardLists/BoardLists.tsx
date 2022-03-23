@@ -576,6 +576,7 @@ const BoardLists = ({ myRole, boardId, spaceId }: Props) => {
               list={list}
               boardId={boardId}
               cards={cards}
+              spaceId={spaceId}
             />
           );
         }}
