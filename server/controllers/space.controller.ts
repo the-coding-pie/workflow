@@ -25,6 +25,9 @@ import {
 } from "../config";
 import path from "path";
 import Card from "../models/card.model";
+import List from "../models/list.model";
+import Comment from "../models/comment.model";
+import Label from "../models/label.model";
 
 // GET /spaces -> get space and its corresponding boards (for sidebar)
 export const getSpaces = async (req: any, res: Response) => {
@@ -1976,6 +1979,105 @@ export const updateSpaceSettings = async (req: any, res: Response) => {
       success: false,
       data: {},
       message: "Space updated successfully",
+      statusCode: 200,
+    });
+  } catch (err) {
+    res.status(500).send({
+      success: false,
+      data: {},
+      message: "Oops, something went wrong!",
+      statusCode: 500,
+    });
+  }
+};
+
+// DELETE /spaces/:id -> delete space, boards, lists, cards, labels, comments, space favorites, board favorites, icon
+export const deleteSpace = async (req: any, res: Response) => {
+  try {
+    const { id } = req.params;
+
+    if (!id) {
+      return res.status(400).send({
+        success: false,
+        data: {},
+        message: "space _id is required",
+        statusCode: 400,
+      });
+    } else if (!mongoose.isValidObjectId(id)) {
+      return res.status(400).send({
+        success: false,
+        data: {},
+        message: "Invalid space _id",
+        statusCode: 400,
+      });
+    }
+
+    const space = await Space.findOne({ _id: id }).select(
+      "_id members boards icon"
+    );
+
+    if (!space) {
+      return res.status(404).send({
+        success: false,
+        data: {},
+        message: "Space not found!",
+        statusCode: 404,
+      });
+    }
+
+    // check if the current user is space member and space admin
+    const spaceMember = space.members.find(
+      (m: any) => m.memberId.toString() === req.user._id.toString()
+    );
+
+    if (!spaceMember) {
+      return res.status(404).send({
+        success: false,
+        data: {},
+        message: "Space not found",
+        statusCode: 404,
+      });
+    }
+
+    if (spaceMember.role !== SPACE_MEMBER_ROLES.ADMIN) {
+      return res.status(403).send({
+        success: false,
+        data: {},
+        message: "You don't have permission to perform this action",
+        statusCode: 403,
+      });
+    }
+
+    const lists = await List.find({ boardId: { $in: space.boards } }).select(
+      "_id"
+    );
+    const cards = await Card.find({ listId: { $in: lists } }).select("_id");
+
+    await Space.deleteOne({ _id: space._id });
+    await Favorite.deleteOne({ resourceId: space._id, type: SPACE });
+
+    await Board.deleteMany({ _id: { $in: space.boards } });
+    await List.deleteMany({ boardId: { $in: space.boards } });
+    await Card.deleteMany({ listId: { $in: lists } });
+    await Comment.deleteMany({ cardId: { $in: cards } });
+
+    await Label.deleteMany({ boardId: { $in: space.boards } });
+    await Favorite.deleteMany({
+      resourceId: { $in: space.boards },
+      type: BOARD,
+    });
+
+    // delete icon image
+    if (space.icon) {
+      await removeFile(
+        path.join(PUBLIC_DIR_NAME, SPACE_ICONS_DIR_NAME, space.icon)
+      );
+    }
+
+    return res.status(200).send({
+      success: false,
+      data: {},
+      message: "Space deleted successfully",
       statusCode: 200,
     });
   } catch (err) {

@@ -44,12 +44,12 @@ const CreateBoardModal = ({ spaceId }: Props) => {
   const boardVisibilityOptions = [
     {
       value: BOARD_VISIBILITY_TYPES.PUBLIC,
-      label: "Public - All members of this workspace can see & edit this board",
+      label: "Public - All members of this space can see & edit this board",
     },
     {
       value: BOARD_VISIBILITY_TYPES.PRIVATE,
       label:
-        "Private - Board members and workspace admins can see & edit this board",
+        "Private - Board members and space admins can see & edit this board",
     },
   ];
 

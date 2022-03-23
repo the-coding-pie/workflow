@@ -2511,7 +2511,7 @@ export const getAllLabels = async (req: any, res: Response) => {
   }
 };
 
-// DELETE /boards/:id -> delete board, lists, cards, comments
+// DELETE /boards/:id -> delete board, lists, cards, comments, labels
 export const deleteBoard = async (req: any, res: Response) => {
   try {
     const { id } = req.params;

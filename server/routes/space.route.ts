@@ -66,5 +66,7 @@ spaceRouter.put(
   },
   spaceController.updateSpaceSettings
 );
+// Protected(Auth) DELETE /spaces/:id -> delete space
+spaceRouter.delete("/:id", authMiddleware, spaceController.deleteSpace);
 
 export default spaceRouter;
