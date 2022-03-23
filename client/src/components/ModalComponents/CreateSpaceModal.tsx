@@ -15,6 +15,7 @@ import { hideModal } from "../../redux/features/modalSlice";
 import { ERROR } from "../../types/constants";
 import axiosInstance from "../../axiosInstance";
 import { useQueryClient } from "react-query";
+import { useNavigate } from "react-router-dom";
 
 interface SpaceObj {
   name: string;
@@ -30,6 +31,7 @@ interface UserObj {
 
 const CreateSpaceModal = () => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const queryClient = useQueryClient();
 
   const [isFirstPage, setIsFirstPage] = useState(true);
@@ -62,7 +64,7 @@ const CreateSpaceModal = () => {
       ...space,
       members: space.members.map((m) => m.value),
     };
-    
+
     setIsSubmitting(true);
 
     axiosInstance
@@ -81,6 +83,7 @@ const CreateSpaceModal = () => {
 
         setIsSubmitting(false);
 
+        navigate(`/s/${data._id}/boards`);
         dispatch(hideModal());
       })
       .catch((error: AxiosError) => {
