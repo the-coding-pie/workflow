@@ -1,9 +1,14 @@
 import { AxiosError } from "axios";
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { HiDotsHorizontal, HiOutlineStar } from "react-icons/hi";
 import { useQuery, useQueryClient } from "react-query";
 import { useDispatch, useSelector } from "react-redux";
-import { Navigate, useNavigate, useParams } from "react-router-dom";
+import {
+  Navigate,
+  useNavigate,
+  useParams,
+  useLocation,
+} from "react-router-dom";
 import ReactTooltip from "react-tooltip";
 import axiosInstance from "../../../axiosInstance";
 import BoardLists from "../../../components/BoardLists/BoardLists";
@@ -29,6 +34,13 @@ import {
 
 const BoardDetail = () => {
   const { id } = useParams();
+  const { state } = useLocation();
+
+  useEffect(() => {
+    if (state && state?.showSettings) {
+      setShowMenu(true);
+    }
+  }, []);
 
   const dispatch = useDispatch();
 

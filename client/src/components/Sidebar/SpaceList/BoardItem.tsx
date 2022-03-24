@@ -9,7 +9,7 @@ import {
   HiOutlineStar,
   HiOutlineTrash,
 } from "react-icons/hi";
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { setCurrentActiveMenu } from "../../../redux/features/sidebarMenu";
@@ -19,6 +19,7 @@ import OptionsItem from "../../Options/OptionsItem";
 import {
   BOARD_ROLES,
   BOARD_VISIBILITY_TYPES,
+  CONFIRM_DELETE_BOARD_MODAL,
   ERROR,
 } from "../../../types/constants";
 import { setCurrentActiveSpace } from "../../../redux/features/spaceMenu";
@@ -28,6 +29,7 @@ import { useQueryClient } from "react-query";
 import axiosInstance from "../../../axiosInstance";
 import { addToast } from "../../../redux/features/toastSlice";
 import UtilityBtn from "../../UtilityBtn/UtilityBtn";
+import { showModal } from "../../../redux/features/modalSlice";
 
 interface Props {
   board: BoardObj;
@@ -38,6 +40,8 @@ interface Props {
 const BoardItem = ({ board, setShowPlusIcon, setShowBoardOptions }: Props) => {
   const dispatch = useDispatch();
   const queryClient = useQueryClient();
+
+  const navigate = useNavigate();
 
   const [showIcon, setShowIcon] = useState(false);
   const [showOptions, setShowOptions] = useState(false);
@@ -377,31 +381,25 @@ const BoardItem = ({ board, setShowPlusIcon, setShowBoardOptions }: Props) => {
             {board.role === BOARD_ROLES.ADMIN && (
               <>
                 <OptionsItem
-                  key="Rename"
-                  Icon={HiOutlinePencil}
-                  text="Rename"
-                  onClick={() => {}}
-                />
-                <OptionsHR />
-              </>
-            )}
-
-            <OptionsItem
-              key="Invite"
-              Icon={HiOutlineShare}
-              text="Invite"
-              onClick={() => {}}
-            />
-
-            {board.role === BOARD_ROLES.ADMIN && (
-              <>
-                <OptionsItem
                   key="Delete"
                   Icon={HiOutlineTrash}
                   text="Delete"
                   iconColor="#f87171"
                   textColor="#f87171"
-                  onClick={() => {}}
+                  onClick={() => {
+                    setShowOptions(false);
+                    
+                    dispatch(
+                      showModal({
+                        modalType: CONFIRM_DELETE_BOARD_MODAL,
+                        modalProps: {
+                          boardId: board._id,
+                          spaceId: board.spaceId,
+                        },
+                        modalTitle: "Delete board?",
+                      })
+                    );
+                  }}
                 />
                 <OptionsHR />
               </>
@@ -411,7 +409,11 @@ const BoardItem = ({ board, setShowPlusIcon, setShowBoardOptions }: Props) => {
               key="Settings"
               Icon={HiOutlineCog}
               text="Settings"
-              onClick={() => {}}
+              onClick={() => {
+                setShowOptions(false);
+
+                navigate(`/b/${board._id}`, { state: { showSettings: true } });
+              }}
             />
           </>
         )}

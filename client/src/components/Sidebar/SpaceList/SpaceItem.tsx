@@ -13,7 +13,7 @@ import {
   HiOutlinePencil,
 } from "react-icons/hi";
 import BoardList from "./BoardList";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import CustomNavLink from "../../CustomNavLink/CustomNavLink";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../../redux/app";
@@ -25,6 +25,7 @@ import CustomReactToolTip from "../../CustomReactToolTip/CustomReactToolTip";
 import Options from "../../Options/Options";
 import OptionsItem from "../../Options/OptionsItem";
 import {
+  CONFIRM_DELETE_SPACE_MODAL,
   CREATE_BOARD_MODAL,
   ERROR,
   SPACE_ROLES,
@@ -45,6 +46,8 @@ interface Props {
 const SpaceItem = ({ space }: Props) => {
   const dispatch = useDispatch();
   const queryClient = useQueryClient();
+
+  const navigate = useNavigate();
 
   const { currentActiveSpace } = useSelector(
     (state: RootState) => state.spaceMenu
@@ -478,32 +481,24 @@ const SpaceItem = ({ space }: Props) => {
             {space.role === SPACE_ROLES.ADMIN && (
               <>
                 <OptionsItem
-                  key="Rename"
-                  Icon={HiOutlinePencil}
-                  text="Rename"
-                  onClick={() => {}}
-                />
-                <OptionsHR />
-              </>
-            )}
-            {space.role === SPACE_ROLES.ADMIN && (
-              <OptionsItem
-                key="Invite"
-                Icon={HiOutlineShare}
-                text="Invite"
-                onClick={() => {}}
-              />
-            )}
-
-            {space.role === SPACE_ROLES.ADMIN && (
-              <>
-                <OptionsItem
                   key="Delete"
                   Icon={HiOutlineTrash}
                   text="Delete"
                   iconColor="#f87171"
                   textColor="#f87171"
-                  onClick={() => {}}
+                  onClick={() => {
+                    setShowOptions(false);
+
+                    dispatch(
+                      showModal({
+                        modalType: CONFIRM_DELETE_SPACE_MODAL,
+                        modalProps: {
+                          spaceId: space._id,
+                        },
+                        modalTitle: "Are you sure want to delete this Space?",
+                      })
+                    );
+                  }}
                 />
 
                 <OptionsHR />
@@ -511,7 +506,11 @@ const SpaceItem = ({ space }: Props) => {
                   key="Settings"
                   Icon={HiOutlineCog}
                   text="Settings"
-                  onClick={() => {}}
+                  onClick={() => {
+                    setShowOptions(false);
+
+                    navigate(`/s/${space._id}/settings`);
+                  }}
                 />
               </>
             )}
