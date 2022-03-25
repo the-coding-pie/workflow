@@ -34,7 +34,7 @@ const DefaultLayout = () => {
               <Routes>
                 <Route path="/" element={<Home />} />
                 <Route path="/notifications" element={<Notifications />} />
-                <Route path="/settings" element={<Settings />} />
+                <Route path="/profile" element={<Settings />} />
 
                 {/* /s/:id/* */}
                 <Route path="/s/:id/*" element={<SpaceLayout />} />
