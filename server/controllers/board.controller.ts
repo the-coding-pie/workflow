@@ -23,6 +23,61 @@ import User from "../models/user.model";
 import Card from "../models/card.model";
 import List from "../models/list.model";
 import Comment from "../models/comment.model";
+import RecentBoard from "../models/recentBoards.model";
+
+// GET /recentBoards -> get recently visited 5 boards
+export const getRecentBoards = async (req: any, res: Response) => {
+  try {
+    const recentBoards = await RecentBoard.find({ userId: req.user._id })
+      .select("boardId lastVisited")
+      .populate({
+        path: "boardId",
+        select: "_id name spaceId color bgImg visibility createdAt",
+      })
+      .sort({ lastVisited: -1 })
+      .limit(5)
+      .lean();
+
+    const finalBoards = [
+      ...(await Promise.all(
+        recentBoards.map(async (b: any) => {
+          const favorite = await Favorite.findOne({
+            resourceId: b.boardId._id,
+            userId: req.user._id,
+            type: BOARD,
+          });
+
+          return {
+            _id: b.boardId._id,
+            name: b.boardId.name,
+            color: b.boardId.color,
+            spaceId: b.boardId.spaceId,
+            bgImg: b.boardId.bgImg,
+            visibility: b.boardId.visibility,
+            isFavorite: favorite ? true : false,
+            favoriteId: favorite && favorite._id,
+            createdAt: b.boardId.createdAt,
+          };
+        })
+      )),
+    ];
+
+    res.send({
+      success: true,
+      data: finalBoards,
+      message: "",
+      statusCode: 200,
+    });
+  } catch (err) {
+    console.log(err);
+    res.status(500).send({
+      success: false,
+      data: {},
+      message: "Oops, something went wrong!",
+      statusCode: 500,
+    });
+  }
+};
 
 // POST /boards -> create new board
 export const createBoard = async (req: any, res: Response) => {
@@ -262,6 +317,23 @@ export const getBoard = async (req: any, res: Response) => {
         .map((m: any) => m.memberId._id.toString())
         .includes(req.user._id.toString())
     ) {
+      // add/update recentBoard
+      const recentBoard = await RecentBoard.findOne({
+        userId: req.user._id,
+        boardId: board._id,
+      });
+
+      if (recentBoard) {
+        recentBoard.lastVisited = Date.now();
+        await recentBoard.save();
+      } else {
+        const newRecentBoard = new RecentBoard({
+          userId: req.user._id,
+          boardId: board._id,
+        });
+        await newRecentBoard.save();
+      }
+
       return res.send({
         success: true,
         data: {
@@ -348,6 +420,23 @@ export const getBoard = async (req: any, res: Response) => {
         message: "Board not found!",
         statusCode: 404,
       });
+    }
+
+    // add/update recentBoard
+    const recentBoard = await RecentBoard.findOne({
+      userId: req.user._id,
+      boardId: board._id,
+    });
+
+    if (recentBoard) {
+      recentBoard.lastVisited = Date.now();
+      await recentBoard.save();
+    } else {
+      const newRecentBoard = new RecentBoard({
+        userId: req.user._id,
+        boardId: board._id,
+      });
+      await newRecentBoard.save();
     }
 
     // if you managed to came this far, you can see this board

@@ -4,6 +4,12 @@ import * as boardController from "../controllers/board.controller";
 
 const boardRouter = express.Router();
 
+// Protected(Auth) GET /recentBoards -> get recently visited boards
+boardRouter.get(
+  "/recentBoards",
+  authMiddleware,
+  boardController.getRecentBoards
+);
 // Protected(Auth) POST /boards -> create new board
 boardRouter.post("/", authMiddleware, boardController.createBoard);
 // Protected(Auth) GET /boards/:id -> get board info
