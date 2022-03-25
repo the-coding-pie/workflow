@@ -1,6 +1,7 @@
 import React from "react";
 import { HiOutlineRefresh } from "react-icons/hi";
 import { useQuery, useQueryClient } from "react-query";
+import Masonry from "react-masonry-css";
 import axiosInstance from "../../axiosInstance";
 import { BoardObj, CardObj, CardObjExt } from "../../types";
 import Board from "../Board/Board";
@@ -62,11 +63,20 @@ const MyCards = () => {
     <div className="my-cards">
       <div className="my-cards-container">
         {cards && cards.length > 0 ? (
-          <div className="mt-6 flex items-center justify-start flex-wrap gap-x-6 gap-y-6">
+          <Masonry
+            breakpointCols={{
+              default: 3,
+              1100: 3,
+              700: 2,
+              500: 1,
+            }}
+            className="my-masonry-grid"
+            columnClassName="my-masonry-grid_column"
+          >
             {cards.map((c) => (
               <MyCard key={c._id} card={c} />
             ))}
-          </div>
+          </Masonry>
         ) : (
           <p className="mt-4">No Cards!</p>
         )}

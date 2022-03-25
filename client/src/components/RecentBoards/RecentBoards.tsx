@@ -62,7 +62,7 @@ const RecentBoards = () => {
     <div className="recent-boards">
       <div className="recent-boards-container">
         {boards && boards.length > 0 ? (
-          <div className="mt-6 flex items-center justify-start flex-wrap gap-x-6 gap-y-6">
+          <div className="flex items-center justify-start flex-wrap gap-x-6 gap-y-6">
             {boards.map((b) => (
               <RecentBoard key={b._id} board={b} />
             ))}

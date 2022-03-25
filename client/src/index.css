@@ -100,6 +100,26 @@ body {
   @apply rounded-none;
 }
 
+.my-masonry-grid {
+  display: -webkit-box; /* Not needed if autoprefixing */
+  display: -ms-flexbox; /* Not needed if autoprefixing */
+  display: flex;
+  margin-left: -30px; /* gutter size offset */
+  width: auto;
+}
+
+.my-masonry-grid_column {
+  margin-left: 30px; /* gutter size */
+  background-clip: padding-box;
+}
+
+/* Style your items */
+.my-masonry-grid_column > div {
+  width: 100%;
+  min-width: 18rem;
+  margin-bottom: 30px;
+}
+
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;

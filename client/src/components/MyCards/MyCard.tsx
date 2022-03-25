@@ -30,9 +30,7 @@ const MyCard = ({ card }: Props) => {
         )
       }
       className="bg-white mb-2 rounded p-2 shadow hover:bg-slate-100 cursor-pointer font-normal text-gray-900 text-sm list-none"
-      style={{
-        width: "18rem",
-      }}
+     
     >
       {/* card cover */}
       {(card.coverImg || card.color) && (

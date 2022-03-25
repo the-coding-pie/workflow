@@ -11,7 +11,7 @@ const Home = () => {
           minHeight: "250px",
         }}
       >
-        <h3 className="font-bold text-xl text-slate-700">Recent Boards</h3>
+        <h3 className="font-bold text-xl text-slate-700 mb-5">Recent Boards</h3>
 
         <RecentBoards />
       </section>
@@ -22,7 +22,7 @@ const Home = () => {
           minHeight: "250px",
         }}
       >
-        <h3 className="font-bold text-xl text-slate-700">My Tasks</h3>
+        <h3 className="font-bold text-xl text-slate-700 mb-5">My Tasks</h3>
 
         <MyCards />
       </section>
