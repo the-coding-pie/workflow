@@ -6,7 +6,7 @@ import {
   HiOutlineChevronDoubleLeft,
 } from "react-icons/hi";
 import { VscHome } from "react-icons/vsc";
-import { IoNotificationsOutline } from "react-icons/io5";
+import { IoNotificationsOutline, IoSettingsOutline } from "react-icons/io5";
 import { HiOutlinePlus } from "react-icons/hi";
 import SidebarLink from "./SidebarLink";
 import SpaceList from "./SpaceList/SpaceList";
@@ -84,9 +84,9 @@ const Sidebar = () => {
         <nav className="border-b pb-3">
           <SidebarLink to="/" Icon={VscHome} text="Home" />
           <SidebarLink
-            to="/notifications"
-            Icon={IoNotificationsOutline}
-            text="Notifications"
+            to="/profile"
+            Icon={IoSettingsOutline}
+            text="Settings"
           />
         </nav>
 

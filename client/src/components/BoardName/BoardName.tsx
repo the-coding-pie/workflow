@@ -40,6 +40,8 @@ const BoardName = ({ boardId, spaceId, initialValue }: Props) => {
           }
         )
         .then((response) => {
+          queryClient.invalidateQueries(["getRecentBoards"]);
+
           // manually edit name in four parts -> sidebar(2), spaceBoards, getBoard
           // getBoards, boardId
           queryClient.setQueryData(["getBoard", boardId], (oldValue: any) => {

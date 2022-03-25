@@ -53,6 +53,8 @@ const DueDateBtn = ({ dueDate, cardId, listId, boardId, spaceId }: Props) => {
           };
         });
 
+        queryClient.invalidateQueries(["getAllMyCards"]);
+
         // update in getLists query Cache
         queryClient.invalidateQueries(["getLists", boardId]);
       })
@@ -115,6 +117,8 @@ const DueDateBtn = ({ dueDate, cardId, listId, boardId, spaceId }: Props) => {
       .delete(`/cards/${cardId}/dueDate`)
       .then((response) => {
         setDate("");
+
+        queryClient.invalidateQueries(["getAllMyCards"]);
 
         setShow(false);
 

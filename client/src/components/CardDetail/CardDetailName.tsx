@@ -38,20 +38,24 @@ const CardDetailName = ({ cardId, boardId, spaceId, initialValue }: Props) => {
           }
         )
         .then((response) => {
-          queryClient.setQueryData(["getLists", boardId], (oldValue: any) => {
-            return {
-              ...oldValue,
-              cards: oldValue.cards.map((c: any) => {
-                if (c._id === cardId) {
-                  return {
-                    ...c,
-                    name: newName,
-                  };
-                }
-                return c;
-              }),
-            };
-          });
+          queryClient.invalidateQueries(["getAllMyCards"]);
+
+          if (queryClient.getQueryData(["getLists", boardId])) {
+            queryClient.setQueryData(["getLists", boardId], (oldValue: any) => {
+              return {
+                ...oldValue,
+                cards: oldValue.cards.map((c: any) => {
+                  if (c._id === cardId) {
+                    return {
+                      ...c,
+                      name: newName,
+                    };
+                  }
+                  return c;
+                }),
+              };
+            });
+          }
         })
         .catch((error: AxiosError) => {
           if (error.response) {

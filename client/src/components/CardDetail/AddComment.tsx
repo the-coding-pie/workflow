@@ -44,6 +44,8 @@ const AddComment = ({ queryKey, cardId, boardId, spaceId }: Props) => {
 
         const { data } = response.data;
 
+        queryClient.invalidateQueries(["getAllMyCards"]);
+
         queryClient.setQueryData(queryKey, (oldData: any) => {
           return {
             ...oldData,

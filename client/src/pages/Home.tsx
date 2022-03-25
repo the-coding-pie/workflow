@@ -1,4 +1,5 @@
 import React from "react";
+import MyCards from "../components/MyCards/MyCards";
 import RecentBoards from "../components/RecentBoards/RecentBoards";
 
 const Home = () => {
@@ -23,7 +24,7 @@ const Home = () => {
       >
         <h3 className="font-bold text-xl text-slate-700">My Tasks</h3>
 
-        <RecentBoards />
+        <MyCards />
       </section>
     </div>
   );

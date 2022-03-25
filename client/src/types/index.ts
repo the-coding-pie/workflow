@@ -216,6 +216,23 @@ export interface CardObj {
   comments: number | null;
 }
 
+export interface CardObjExt {
+  _id: string;
+  listId: string;
+  pos: string;
+  coverImg: string | null;
+  color: string;
+  name: string;
+  description: string;
+  spaceId: string;
+  boardId: string;
+  isComplete: boolean;
+  dueDate: string | null;
+  members: MemberObjM[] | null;
+  labels: LabelObj[] | null;
+  comments: number | null;
+}
+
 export interface LabelObj {
   _id: string;
   name: string | null;

@@ -57,6 +57,8 @@ const ChangeBgMenu = ({ spaceId, boardId }: Props) => {
 
         setIsSubmitting(false);
 
+        queryClient.invalidateQueries(["getRecentBoards"]);
+
         queryClient.invalidateQueries(["getBoard", boardId]);
         queryClient.invalidateQueries(["getSpaces"]);
         queryClient.invalidateQueries(["getFavorites"]);

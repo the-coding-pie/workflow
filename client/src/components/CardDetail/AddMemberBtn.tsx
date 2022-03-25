@@ -57,6 +57,8 @@ const AddMemberBtn = ({ members, cardId, listId, boardId, spaceId }: Props) => {
 
         setShow(false);
 
+        queryClient.invalidateQueries(["getAllMyCards"]);
+
         queryClient.setQueryData(["getCard", cardId], (oldValue: any) => {
           return {
             ...oldValue,
@@ -133,6 +135,8 @@ const AddMemberBtn = ({ members, cardId, listId, boardId, spaceId }: Props) => {
       })
       .then((response) => {
         setShow(false);
+
+        queryClient.invalidateQueries(["getAllMyCards"]);
 
         queryClient.setQueryData(["getCard", cardId], (oldValue: any) => {
           return {

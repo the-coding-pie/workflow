@@ -71,6 +71,8 @@ const BoardVisibilityDropdown = ({
         .then((response) => {
           setShowDropDown(false);
 
+          queryClient.invalidateQueries(["getRecentBoards"]);
+
           queryClient.invalidateQueries(["getBoard", boardId]);
           queryClient.invalidateQueries(["getSpaces"]);
           queryClient.invalidateQueries(["getFavorites"]);

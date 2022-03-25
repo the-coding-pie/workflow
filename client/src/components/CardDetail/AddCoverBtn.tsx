@@ -102,6 +102,8 @@ const AddCoverBtn = ({
           };
         });
 
+        queryClient.invalidateQueries(["getAllMyCards"]);
+
         // update in getLists query Cache
         queryClient.invalidateQueries(["getLists", boardId]);
       })
@@ -170,6 +172,8 @@ const AddCoverBtn = ({
             ...oldValue,
           };
         });
+
+        queryClient.invalidateQueries(["getAllMyCards"]);
 
         // update in getLists query Cache
         queryClient.invalidateQueries(["getLists", boardId]);

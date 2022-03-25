@@ -58,6 +58,8 @@ const AddLabelBtn = ({ cardId, listId, boardId, spaceId }: Props) => {
           };
         });
 
+        queryClient.invalidateQueries(["getAllMyCards"]);
+        
         queryClient.setQueryData(
           ["getAllCardLabels", cardId],
           (oldData: any) => {
@@ -169,6 +171,8 @@ const AddLabelBtn = ({ cardId, listId, boardId, spaceId }: Props) => {
           };
         });
 
+        queryClient.invalidateQueries(["getAllMyCards"]);
+
         queryClient.setQueryData(
           ["getAllCardLabels", cardId],
           (oldData: any) => {
@@ -278,6 +282,8 @@ const AddLabelBtn = ({ cardId, listId, boardId, spaceId }: Props) => {
         },
       })
       .then((response) => {
+        queryClient.invalidateQueries(["getAllMyCards"]);
+
         queryClient.setQueryData(["getCard", cardId], (oldData: any) => {
           return {
             ...oldData,

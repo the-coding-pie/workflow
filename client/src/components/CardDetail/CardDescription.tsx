@@ -50,6 +50,8 @@ const CardDescription = ({
         .then((response) => {
           setShowDescEdit(false);
 
+          queryClient.invalidateQueries(["getAllMyCards"]);
+
           queryClient.setQueryData(["getCard", cardId], (oldValue: any) => {
             return {
               ...oldValue,

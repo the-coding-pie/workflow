@@ -20,6 +20,7 @@
     "react-google-login": "^5.2.2",
     "react-hot-toast": "^2.2.0",
     "react-loading-skeleton": "^3.0.3",
+    "react-masonry-css": "^1.0.16",
     "react-query": "^3.34.7",
     "react-redux": "^7.2.6",
     "react-router-dom": "^6.2.1",

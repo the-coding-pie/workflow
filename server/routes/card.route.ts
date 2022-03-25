@@ -4,6 +4,8 @@ import { authMiddleware } from "../middlewares/auth";
 
 const cardRouter = express.Router();
 
+// Protected(Auth) GET /cards/all -> get all cards
+cardRouter.get("/all", authMiddleware, cardController.getAllCards);
 // POST /cards -> create a new card
 cardRouter.post("/", authMiddleware, cardController.createCard);
 // Protected(Auth) GET /cards/:id -> get card

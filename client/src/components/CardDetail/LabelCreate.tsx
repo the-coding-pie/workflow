@@ -72,6 +72,8 @@ const LabelCreate = ({
           setIsFirst(true);
           setCurrentLabel(null);
 
+          queryClient.invalidateQueries(["getAllMyCards"]);
+
           const { data } = response.data;
 
           queryClient.setQueryData(["getCard", cardId], (oldData: any) => {
@@ -212,6 +214,8 @@ const LabelCreate = ({
         .then((response) => {
           setIsFirst(true);
           setCurrentLabel(null);
+
+          queryClient.invalidateQueries(["getAllMyCards"]);
 
           const { data } = response.data;
 

@@ -26,6 +26,8 @@ const DeleteBoardConfirmationModal = ({ boardId, spaceId }: Props) => {
       .then((response) => {
         dispatch(hideModal());
 
+        queryClient.invalidateQueries(["getRecentBoards"]);
+
         queryClient.removeQueries(["getBoard", boardId]);
         queryClient.refetchQueries(["getLists", boardId]);
         queryClient.invalidateQueries(["getFavorites"]);

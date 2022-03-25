@@ -54,12 +54,16 @@ const CardDetailModal = ({ _id, boardId, spaceId }: Props) => {
     axiosInstance
       .delete(`/cards/${_id}`)
       .then((response) => {
-        queryClient.setQueryData(["getLists", boardId], (oldData: any) => {
-          return {
-            ...oldData,
-            cards: oldData.cards.filter((c: any) => c._id !== _id),
-          };
-        });
+        if (queryClient.getQueryData(["getLists", boardId])) {
+          queryClient.setQueryData(["getLists", boardId], (oldData: any) => {
+            return {
+              ...oldData,
+              cards: oldData.cards.filter((c: any) => c._id !== _id),
+            };
+          });
+        }
+
+        queryClient.invalidateQueries(["getAllMyCards"]);
 
         dispatch(hideModal());
       })
@@ -132,6 +136,8 @@ const CardDetailModal = ({ _id, boardId, spaceId }: Props) => {
             isComplete: data.isComplete,
           };
         });
+
+        queryClient.invalidateQueries(["getAllMyCards"]);
 
         // update in getLists query Cache
         queryClient.invalidateQueries(["getLists", boardId]);

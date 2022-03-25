@@ -25,7 +25,7 @@ import List from "../models/list.model";
 import Comment from "../models/comment.model";
 import RecentBoard from "../models/recentBoards.model";
 
-// GET /recentBoards -> get recently visited 5 boards
+// GET /boards/recentBoards -> get recently visited 5 boards
 export const getRecentBoards = async (req: any, res: Response) => {
   try {
     const recentBoards = await RecentBoard.find({ userId: req.user._id })

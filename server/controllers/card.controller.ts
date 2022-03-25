@@ -24,6 +24,69 @@ import Label from "../models/label.model";
 import datefns from "date-fns";
 import User from "../models/user.model";
 
+// GET /cards/all -> get all my cards
+export const getAllCards = async (req: any, res: Response) => {
+  try {
+    const allMyCards = await Card.find({ members: { $in: req.user._id } })
+      .select(
+        "_id name listId pos coverImg color dueDate members labels comments description isComplete"
+      )
+      .populate({
+        path: "listId",
+        select: "boardId",
+        populate: {
+          path: "boardId",
+          select: "_id spaceId",
+        },
+      })
+      .populate({
+        path: "members",
+        select: "_id username profile",
+      })
+      .populate({
+        path: "labels",
+        select: "_id name color pos",
+      })
+      .lean();
+
+    res.send({
+      success: true,
+      data: allMyCards.map((card: any) => {
+        return {
+          _id: card._id,
+          listId: card.listId._id,
+          pos: card.pos,
+          coverImg: card.coverImg,
+          color: card.color,
+          name: card.name,
+          labels: card.labels,
+          boardId: card.listId.boardId._id,
+          spaceId: card.listId.boardId.spaceId,
+          description: card.description,
+          isComplete: card.isComplete,
+          dueDate: card.dueDate,
+          members: card.members?.map((m: any) => {
+            return {
+              ...m,
+              profile: getProfile(m.profile),
+            };
+          }),
+          comments: card.comments?.length,
+        };
+      }),
+      message: "",
+      statusCode: 200,
+    });
+  } catch (err) {
+    res.status(500).send({
+      success: false,
+      data: {},
+      message: "Oops, something went wrong!",
+      statusCode: 500,
+    });
+  }
+};
+
 // POST /cards -> create card
 export const createCard = async (req: any, res: Response) => {
   try {

@@ -65,6 +65,8 @@ const Comment = ({ myRole, comment, cardId, spaceId, boardId }: Props) => {
       .then((response) => {
         setIsEdit(false);
 
+        queryClient.invalidateQueries(["getAllMyCards"]);
+
         queryClient.setQueryData(["getCard", cardId], (oldValue: any) => {
           return {
             ...oldValue,
@@ -145,6 +147,8 @@ const Comment = ({ myRole, comment, cardId, spaceId, boardId }: Props) => {
       })
       .then((response) => {
         setShowDelete(false);
+
+        queryClient.invalidateQueries(["getAllMyCards"]);
 
         queryClient.invalidateQueries(["getLists", boardId]);
 
