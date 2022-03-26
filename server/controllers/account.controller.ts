@@ -314,7 +314,7 @@ export const updateAccount = async (req: any, res: Response) => {
     return res.status(200).send({
       success: false,
       data: {},
-      message: "User updated successfully",
+      message: "Information updated successfully",
       statusCode: 200,
     });
   } catch (err) {

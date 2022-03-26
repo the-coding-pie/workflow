@@ -19,7 +19,9 @@ interface UserObj {
 
 const Register = () => {
   const dispatch = useDispatch();
+
   const [isSubmitting, setIsSubmitting] = useState(false);
+  
   const initialValues: UserObj = {
     username: "",
     email: "",

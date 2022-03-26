@@ -73,7 +73,11 @@ const FileInput = ({
           />
 
           {field.value && (
-            <button onClick={() => helpers.setValue("")}>
+            <button
+              onClick={() => {
+                helpers.setValue("");
+              }}
+            >
               <HiOutlineX size={18} />
             </button>
           )}
