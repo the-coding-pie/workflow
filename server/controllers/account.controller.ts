@@ -3,11 +3,19 @@ import validator from "validator";
 import User from "../models/user.model";
 import ForgotPassword from "../models/forgotPassword.model";
 import { createRandomToken } from "../utils/helpers";
-import { CLIENT_URL, FORGOT_PASSWORD_TOKEN_LENGTH } from "../config";
+import {
+  CLIENT_URL,
+  FORGOT_PASSWORD_TOKEN_LENGTH,
+  PROFILE_PICS_DIR_NAME,
+  PROFILE_SIZE,
+} from "../config";
 import nodemailer from "nodemailer";
 import { generateAccessToken, generateRefreshToken } from "../utils/token";
 import EmailVerification from "../models/emailVerification.model.";
 import RefreshToken from "../models/refreshTokens.model";
+import { removeFile, saveFile } from "../utils/file";
+import path from "path";
+import { PUBLIC_DIR_NAME } from "../dist/config";
 
 // POST /accounts/forgot-password
 export const forgotPassword = async (req: Request, res: Response) => {
@@ -196,6 +204,121 @@ export const resetPassword = async (req: Request, res: Response) => {
       statusCode: 200,
     });
   } catch {
+    res.status(500).send({
+      success: false,
+      data: {},
+      message: "Oops, something went wrong!",
+      statusCode: 500,
+    });
+  }
+};
+
+// PUT /accounts
+export const updateAccount = async (req: any, res: Response) => {
+  try {
+    const { username, password } = req.body;
+    const profile = req.file;
+
+    if (
+      Object.keys(req.body).includes("username") &&
+      !username &&
+      !password &&
+      !profile
+    ) {
+      return res.status(400).send({
+        success: false,
+        data: {},
+        message:
+          "Please provide atleast any one the values -> username, password, or a profile pic",
+        statusCode: 400,
+      });
+    }
+
+    // if username key is present, its validation
+    if (Object.keys(req.body).includes("username")) {
+      if (!username) {
+        return res.status(400).send({
+          success: false,
+          data: {},
+          message: "Username cannot be empty",
+          statusCode: 400,
+        });
+      } else if (username.length < 2) {
+        return res.status(400).send({
+          success: false,
+          data: {},
+          message: "Username must be atleast 2 chars long",
+          statusCode: 400,
+        });
+      } else if (!/^[A-Za-z0-9_-]*$/.test(username)) {
+        return res.status(400).send({
+          success: false,
+          data: {},
+          message:
+            "Username must only contain letters, numbers, underscores and dashes",
+          statusCode: 400,
+        });
+      }
+    }
+
+    // if password key is present, and it contains a value, then its validation
+    if (password) {
+      if (password.length < 8) {
+        return res.status(400).send({
+          success: false,
+          data: {},
+          message: "Password must be at least 8 chars long",
+          statusCode: 400,
+        });
+      } else if (!/\d/.test(password) || !/[a-zA-Z]/.test(password)) {
+        // check if password has atleast one digit and one letter
+        return res.status(400).send({
+          success: false,
+          data: {},
+          message: "Password must contain at least one letter and one number",
+          statusCode: 400,
+        });
+      }
+    }
+
+    const user = await User.findOne({ _id: req.user._id });
+
+    if (username) {
+      user.username = username.trim();
+    }
+
+    if (profile) {
+      if (user.profile && !user.isOAuth && user.profile !== "default.jpg") {
+        await removeFile(
+          path.join(PUBLIC_DIR_NAME, PROFILE_PICS_DIR_NAME, user.profile)
+        );
+      }
+
+      const fileName = await saveFile(
+        profile,
+        PROFILE_SIZE.WIDTH,
+        PROFILE_SIZE.HEIGHT,
+        PROFILE_PICS_DIR_NAME
+      );
+
+      user.profile = fileName;
+    }
+
+    if (password) {
+      user.password = password;
+      user.isOAuth = false;
+    }
+
+    await user.save();
+
+    return res.status(200).send({
+      success: false,
+      data: {},
+      message: "User updated successfully",
+      statusCode: 200,
+    });
+  } catch (err) {
+    console.log(err)
     res.status(500).send({
       success: false,
       data: {},

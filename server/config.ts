@@ -22,3 +22,9 @@ export const SPACE_ICON_SIZE = {
   WIDTH: 64,
   HEIGHT: 64,
 };
+
+// profile icon width and height
+export const PROFILE_SIZE = {
+  WIDTH: 250,
+  HEIGHT: 250,
+};
