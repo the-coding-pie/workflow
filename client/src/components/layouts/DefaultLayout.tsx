@@ -1,7 +1,6 @@
 import { lazy, Suspense } from "react";
 import { useSelector } from "react-redux";
 import { Navigate, Route, Routes } from "react-router-dom";
-import Notifications from "../../pages/Notifications";
 import BoardDetail from "../../pages/spaces/boards/BoardDetail";
 import { RootState } from "../../redux/app";
 import Header from "../Header/Header";
@@ -33,7 +32,6 @@ const DefaultLayout = () => {
             <Suspense fallback={<div>Loading...</div>}>
               <Routes>
                 <Route path="/" element={<Home />} />
-                <Route path="/notifications" element={<Notifications />} />
                 <Route path="/profile" element={<Settings />} />
 
                 {/* /s/:id/* */}
