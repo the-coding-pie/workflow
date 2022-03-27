@@ -65,6 +65,8 @@ const CardDetailModal = ({ _id, boardId, spaceId }: Props) => {
 
         queryClient.invalidateQueries(["getAllMyCards"]);
 
+        queryClient.invalidateQueries(["getAllMyCards"]);
+
         dispatch(hideModal());
       })
       .catch((error: AxiosError) => {
@@ -91,6 +93,9 @@ const CardDetailModal = ({ _id, boardId, spaceId }: Props) => {
               queryClient.invalidateQueries(["getLists", boardId]);
               queryClient.invalidateQueries(["getSpaces"]);
               queryClient.invalidateQueries(["getFavorites"]);
+
+              queryClient.invalidateQueries(["getRecentBoards"]);
+              queryClient.invalidateQueries(["getAllMyCards"]);
 
               queryClient.invalidateQueries(["getSpaceBoards", spaceId]);
               queryClient.invalidateQueries(["getSpaceSettings", spaceId]);
@@ -166,6 +171,9 @@ const CardDetailModal = ({ _id, boardId, spaceId }: Props) => {
               queryClient.invalidateQueries(["getLists", boardId]);
               queryClient.invalidateQueries(["getSpaces"]);
               queryClient.invalidateQueries(["getFavorites"]);
+
+              queryClient.invalidateQueries(["getRecentBoards"]);
+              queryClient.invalidateQueries(["getAllMyCards"]);
 
               queryClient.invalidateQueries(["getSpaceBoards", spaceId]);
               queryClient.invalidateQueries(["getSpaceSettings", spaceId]);

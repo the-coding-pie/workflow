@@ -82,6 +82,9 @@ const AddComment = ({ queryKey, cardId, boardId, spaceId }: Props) => {
               queryClient.invalidateQueries(["getSpaces"]);
               queryClient.invalidateQueries(["getFavorites"]);
 
+              queryClient.invalidateQueries(["getRecentBoards"]);
+              queryClient.invalidateQueries(["getAllMyCards"]);
+
               queryClient.invalidateQueries(["getSpaceInfo", spaceId]);
               queryClient.invalidateQueries(["getSpaceBoards", spaceId]);
               queryClient.invalidateQueries(["getSpaceSettings", spaceId]);

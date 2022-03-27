@@ -142,6 +142,10 @@ const BoardDetail = () => {
               queryClient.invalidateQueries(["getSpaces"]);
               queryClient.invalidateQueries(["getFavorites"]);
               queryClient.invalidateQueries(["getSpaceBoards", spaceId]);
+
+              queryClient.invalidateQueries(["getRecentBoards"]);
+              queryClient.invalidateQueries(["getAllMyCards"]);
+
               queryClient.invalidateQueries(["getSpaceSettings", spaceId]);
               queryClient.invalidateQueries(["getSpaceMembers", spaceId]);
               queryClient.invalidateQueries(["getBoard", boardId]);
@@ -239,6 +243,10 @@ const BoardDetail = () => {
                 queryClient.invalidateQueries(["getSpaces"]);
                 queryClient.invalidateQueries(["getFavorites"]);
                 queryClient.invalidateQueries(["getSpaceBoards", boardId]);
+
+                queryClient.invalidateQueries(["getRecentBoards"]);
+                queryClient.invalidateQueries(["getAllMyCards"]);
+
                 queryClient.invalidateQueries(["getBoard", boardId]);
                 queryClient.invalidateQueries(["getLists", boardId]);
                 // redirect them to home page
@@ -307,6 +315,8 @@ const BoardDetail = () => {
           if (board) {
             queryClient.invalidateQueries(["getSpaceBoards", board.space._id]);
           }
+          queryClient.invalidateQueries(["getRecentBoards"]);
+          queryClient.invalidateQueries(["getAllMyCards"]);
 
           dispatch(addToast({ kind: ERROR, msg: message }));
           // redirect them to home page

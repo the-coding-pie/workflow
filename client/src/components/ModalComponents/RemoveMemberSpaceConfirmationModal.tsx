@@ -47,6 +47,8 @@ const RemoveMemberSpaceConfirmationModal = ({ spaceId, memberId }: Props) => {
               dispatch(addToast({ kind: ERROR, msg: message }));
               queryClient.invalidateQueries(["getSpaces"]);
               queryClient.invalidateQueries(["getFavorites"]);
+              queryClient.invalidateQueries(["getRecentBoards"]);
+              queryClient.invalidateQueries(["getAllMyCards"]);
               // redirect them to home page
               navigate("/", { replace: true });
               break;

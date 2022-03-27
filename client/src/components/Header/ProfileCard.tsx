@@ -5,7 +5,6 @@ import { Link } from "react-router-dom";
 import { CgProfile } from "react-icons/cg";
 import useClose from "../../hooks/useClose";
 import { logoutUser } from "../../redux/features/authSlice";
-import { UserObj } from "../../types";
 import { chopChars } from "../../utils/helpers";
 import { RootState } from "../../redux/app";
 import Profile from "../Profile/Profile";

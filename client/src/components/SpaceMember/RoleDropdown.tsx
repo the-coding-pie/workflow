@@ -84,6 +84,8 @@ const RoleDropDown = ({
           queryClient.invalidateQueries(["getSpaceInfo", spaceId]);
           queryClient.invalidateQueries(["getSpaceMembers", spaceId]);
           queryClient.invalidateQueries(["getBoard"]);
+          queryClient.invalidateQueries(["getRecentBoards"]);
+          queryClient.invalidateQueries(["getAllMyCards"]);
         })
         .catch((error: AxiosError) => {
           setShowDropDown(false);
@@ -97,6 +99,8 @@ const RoleDropDown = ({
                 dispatch(addToast({ kind: ERROR, msg: message }));
                 queryClient.invalidateQueries(["getSpaces"]);
                 queryClient.invalidateQueries(["getFavorites"]);
+                queryClient.invalidateQueries(["getRecentBoards"]);
+                queryClient.invalidateQueries(["getAllMyCards"]);
                 // redirect them to home page
                 navigate("/", { replace: true });
                 break;

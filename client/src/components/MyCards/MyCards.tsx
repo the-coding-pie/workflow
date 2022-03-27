@@ -27,7 +27,11 @@ const MyCards = () => {
     error,
   } = useQuery<CardObjExt[] | undefined, any, CardObjExt[], string[]>(
     ["getAllMyCards"],
-    getAllMyCards
+    getAllMyCards,
+    {
+      cacheTime: 5000,
+      staleTime: 5000,
+    }
   );
 
   if (isLoading) {

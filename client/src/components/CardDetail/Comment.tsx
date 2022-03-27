@@ -108,6 +108,9 @@ const Comment = ({ myRole, comment, cardId, spaceId, boardId }: Props) => {
               queryClient.invalidateQueries(["getSpaces"]);
               queryClient.invalidateQueries(["getFavorites"]);
 
+              queryClient.invalidateQueries(["getRecentBoards"]);
+              queryClient.invalidateQueries(["getAllMyCards"]);
+
               queryClient.invalidateQueries(["getSpaceInfo", spaceId]);
               queryClient.invalidateQueries(["getSpaceBoards", spaceId]);
               queryClient.invalidateQueries(["getSpaceSettings", spaceId]);
@@ -186,6 +189,9 @@ const Comment = ({ myRole, comment, cardId, spaceId, boardId }: Props) => {
               queryClient.invalidateQueries(["getLists", boardId]);
               queryClient.invalidateQueries(["getSpaces"]);
               queryClient.invalidateQueries(["getFavorites"]);
+
+              queryClient.invalidateQueries(["getRecentBoards"]);
+              queryClient.invalidateQueries(["getAllMyCards"]);
 
               queryClient.invalidateQueries(["getSpaceInfo", spaceId]);
               queryClient.invalidateQueries(["getSpaceBoards", spaceId]);

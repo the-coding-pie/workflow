@@ -59,7 +59,7 @@ const AddLabelBtn = ({ cardId, listId, boardId, spaceId }: Props) => {
         });
 
         queryClient.invalidateQueries(["getAllMyCards"]);
-        
+
         queryClient.setQueryData(
           ["getAllCardLabels", cardId],
           (oldData: any) => {
@@ -330,6 +330,7 @@ const AddLabelBtn = ({ cardId, listId, boardId, spaceId }: Props) => {
               queryClient.invalidateQueries(["getBoard", boardId]);
               queryClient.invalidateQueries(["getBoardLabels", boardId]);
               queryClient.invalidateQueries(["getAllCardLabels", cardId]);
+
               queryClient.invalidateQueries(["getSpaceInfo", spaceId]);
               queryClient.invalidateQueries(["getSpaceBoards", spaceId]);
               queryClient.invalidateQueries(["getSpaceSettings", spaceId]);
@@ -352,6 +353,9 @@ const AddLabelBtn = ({ cardId, listId, boardId, spaceId }: Props) => {
               queryClient.invalidateQueries(["getLists", boardId]);
               queryClient.invalidateQueries(["getSpaces"]);
               queryClient.invalidateQueries(["getFavorites"]);
+
+              queryClient.invalidateQueries(["getRecentBoards"]);
+              queryClient.invalidateQueries(["getAllMyCards"]);
 
               queryClient.invalidateQueries(["getSpaceInfo", spaceId]);
               queryClient.invalidateQueries(["getSpaceBoards", spaceId]);

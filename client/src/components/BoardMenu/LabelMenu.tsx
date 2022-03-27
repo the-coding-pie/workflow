@@ -43,6 +43,8 @@ const LabelMenu = ({ spaceId, boardId, myRole }: Props) => {
           }
         );
 
+        queryClient.invalidateQueries(["getAllMyCards"]);
+
         // update all card which depends on it
         queryClient.invalidateQueries(["getLists", boardId]);
         queryClient.invalidateQueries(["getAllCardLabels"]);
@@ -151,6 +153,9 @@ const LabelMenu = ({ spaceId, boardId, myRole }: Props) => {
           queryClient.invalidateQueries(["getLists", boardId]);
           queryClient.invalidateQueries(["getSpaces"]);
           queryClient.invalidateQueries(["getFavorites"]);
+
+          queryClient.invalidateQueries(["getRecentBoards"]);
+          queryClient.invalidateQueries(["getAllMyCards"]);
 
           queryClient.invalidateQueries(["getSpaceBoards", spaceId]);
           queryClient.invalidateQueries(["getSpaceSettings", spaceId]);

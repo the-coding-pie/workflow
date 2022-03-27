@@ -80,6 +80,9 @@ const CardDescription = ({
                 dispatch(hideModal());
                 dispatch(addToast({ kind: ERROR, msg: message }));
 
+                queryClient.invalidateQueries(["getRecentBoards"]);
+                queryClient.invalidateQueries(["getAllMyCards"]);
+
                 queryClient.invalidateQueries(["getCard", cardId]);
                 queryClient.invalidateQueries(["getBoard", boardId]);
                 queryClient.invalidateQueries(["getLists", boardId]);

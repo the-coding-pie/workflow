@@ -31,6 +31,8 @@ const DeleteSpaceConfirmationModal = ({ spaceId, memberId }: Props) => {
 
         queryClient.removeQueries(["getSpaceInfo", spaceId]);
         queryClient.removeQueries(["getSpaceBoards", spaceId]);
+        queryClient.invalidateQueries(["getRecentBoards"]);
+        queryClient.invalidateQueries(["getAllMyCards"]);
         queryClient.removeQueries(["getSpaceSettings", spaceId]);
         queryClient.removeQueries(["getSpaceMembers", spaceId]);
 
@@ -61,6 +63,9 @@ const DeleteSpaceConfirmationModal = ({ spaceId, memberId }: Props) => {
               queryClient.invalidateQueries(["getSpaceInfo", spaceId]);
               queryClient.invalidateQueries(["getSpaces"]);
               queryClient.invalidateQueries(["getFavorites"]);
+
+              queryClient.invalidateQueries(["getRecentBoards"]);
+              queryClient.invalidateQueries(["getAllMyCards"]);
 
               queryClient.invalidateQueries(["getSpaceBoards", spaceId]);
               queryClient.invalidateQueries(["getSpaceSettings", spaceId]);

@@ -40,6 +40,13 @@ const CardDetailName = ({ cardId, boardId, spaceId, initialValue }: Props) => {
         .then((response) => {
           queryClient.invalidateQueries(["getAllMyCards"]);
 
+          queryClient.setQueryData(["getCard", cardId], (oldValue: any) => {
+            return {
+              ...oldValue,
+              name: newName,
+            };
+          });
+
           if (queryClient.getQueryData(["getLists", boardId])) {
             queryClient.setQueryData(["getLists", boardId], (oldValue: any) => {
               return {
@@ -81,6 +88,9 @@ const CardDetailName = ({ cardId, boardId, spaceId, initialValue }: Props) => {
                 queryClient.invalidateQueries(["getLists", boardId]);
                 queryClient.invalidateQueries(["getSpaces"]);
                 queryClient.invalidateQueries(["getFavorites"]);
+
+                queryClient.invalidateQueries(["getRecentBoards"]);
+                queryClient.invalidateQueries(["getAllMyCards"]);
 
                 queryClient.invalidateQueries(["getSpaceBoards", spaceId]);
                 queryClient.invalidateQueries(["getSpaceSettings", spaceId]);

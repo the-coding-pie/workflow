@@ -143,6 +143,8 @@ const CreateBoardModal = ({ spaceId }: Props) => {
 
         dispatch(hideModal());
 
+        queryClient.invalidateQueries(["getRecentBoards"]);
+
         // redirect them to the created board
         navigate(`/b/${data._id}`);
       })
@@ -162,6 +164,8 @@ const CreateBoardModal = ({ spaceId }: Props) => {
               if (queryClient.getQueryData(["getSpaceInfo", spaceId])) {
                 queryClient.invalidateQueries(["getSpaceInfo", spaceId]);
               }
+              queryClient.invalidateQueries(["getRecentBoards"]);
+              queryClient.invalidateQueries(["getAllMyCards"]);
               dispatch(hideModal());
               break;
             case 400:

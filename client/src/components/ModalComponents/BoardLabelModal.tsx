@@ -78,6 +78,8 @@ const BoardLabelModal = ({ label, boardId, spaceId }: Props) => {
             }
           );
 
+          queryClient.invalidateQueries(["getAllMyCards"]);
+
           // update all card which depends on it
           queryClient.invalidateQueries(["getLists", boardId]);
         })
@@ -114,6 +116,9 @@ const BoardLabelModal = ({ label, boardId, spaceId }: Props) => {
                 queryClient.invalidateQueries(["getLists", boardId]);
                 queryClient.invalidateQueries(["getSpaces"]);
                 queryClient.invalidateQueries(["getFavorites"]);
+
+                queryClient.invalidateQueries(["getRecentBoards"]);
+                queryClient.invalidateQueries(["getAllMyCards"]);
 
                 queryClient.invalidateQueries(["getSpaceInfo", spaceId]);
                 queryClient.invalidateQueries(["getSpaceBoards", spaceId]);
@@ -209,6 +214,9 @@ const BoardLabelModal = ({ label, boardId, spaceId }: Props) => {
                 queryClient.invalidateQueries(["getLists", boardId]);
                 queryClient.invalidateQueries(["getSpaces"]);
                 queryClient.invalidateQueries(["getFavorites"]);
+
+                queryClient.invalidateQueries(["getRecentBoards"]);
+                queryClient.invalidateQueries(["getAllMyCards"]);
 
                 queryClient.invalidateQueries(["getSpaceInfo", spaceId]);
                 queryClient.invalidateQueries(["getSpaceBoards", spaceId]);

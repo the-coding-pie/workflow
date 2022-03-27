@@ -1,4 +1,3 @@
-import { string } from "yup/lib/locale";
 import {
   BOARD,
   BOARD_LABEL_MODAL,

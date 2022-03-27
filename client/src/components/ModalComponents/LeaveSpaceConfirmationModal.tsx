@@ -39,6 +39,9 @@ const LeaveSpaceConfirmationModal = ({ spaceId }: Props) => {
         queryClient.invalidateQueries(["getSpaceInfo", spaceId]);
         queryClient.invalidateQueries(["getSpaceMembers", spaceId]);
 
+        queryClient.invalidateQueries(["getRecentBoards"]);
+        queryClient.invalidateQueries(["getAllMyCards"]);
+
         navigate("/", { replace: true });
       })
       .catch((error: AxiosError) => {
@@ -51,6 +54,8 @@ const LeaveSpaceConfirmationModal = ({ spaceId }: Props) => {
               dispatch(addToast({ kind: ERROR, msg: message }));
               queryClient.invalidateQueries(["getSpaces"]);
               queryClient.invalidateQueries(["getFavorites"]);
+              queryClient.invalidateQueries(["getRecentBoards"]);
+              queryClient.invalidateQueries(["getAllMyCards"]);
               // redirect them to home page
               navigate("/", { replace: true });
               break;

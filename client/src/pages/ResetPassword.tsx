@@ -79,6 +79,7 @@ const ResetPassword = () => {
       .post(`/accounts/reset-password/${token}`, passwordObj)
       .then((response) => {
         const { data } = response.data;
+        
         setIsSubmitting(false);
 
         dispatch(
