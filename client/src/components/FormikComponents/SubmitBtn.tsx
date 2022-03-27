@@ -21,7 +21,7 @@ const SubmitBtn = ({
 
   return isSubmitting === true ? (
     <button
-      className="btn-primary w-full disabled:opacity-100 cursor-default flex items-center justify-center mb-4"
+      className={`btn-primary w-full disabled:opacity-100 cursor-default flex items-center justify-center ${classes}`}
       disabled
     >
       <Loader size={21} />
