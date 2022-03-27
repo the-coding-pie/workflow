@@ -6,6 +6,7 @@ interface Props {
   type: string;
   id: string;
   name: string;
+  disabled?: boolean;
   autoFocus?: boolean;
   optional?: boolean;
   inline?: boolean;
@@ -18,6 +19,7 @@ const Input = ({
   id,
   name,
   classes,
+  disabled = false,
   autoFocus = false,
   optional = false,
   inline = false,
@@ -45,6 +47,7 @@ const Input = ({
         </label>
 
         <input
+          disabled={disabled}
           autoFocus={autoFocus}
           className={`${
             meta.touched && meta.error

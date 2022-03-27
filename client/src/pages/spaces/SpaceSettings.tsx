@@ -106,6 +106,7 @@ const SpaceSettings = ({ spaceId, myRole }: Props) => {
               break;
             case 403:
               dispatch(addToast({ kind: ERROR, msg: message }));
+              navigate(`/s/${spaceId}/`, { replace: true });
               break;
             case 400:
             case 500:
@@ -234,6 +235,7 @@ const SpaceSettings = ({ spaceId, myRole }: Props) => {
                 id="icon"
                 name="icon"
                 optional={false}
+                disabled={myRole !== SPACE_ROLES.ADMIN}
               />
               <Input
                 label="Space name"
@@ -241,10 +243,12 @@ const SpaceSettings = ({ spaceId, myRole }: Props) => {
                 name="name"
                 type="text"
                 optional={false}
+                disabled={myRole !== SPACE_ROLES.ADMIN}
               />
               <TextArea
                 label="Description"
                 id="description"
+                disabled={myRole !== SPACE_ROLES.ADMIN}
                 name="description"
               />
 
@@ -252,8 +256,9 @@ const SpaceSettings = ({ spaceId, myRole }: Props) => {
                 <div className="w-44">
                   <SubmitBtn
                     text="Save"
+                    disabled={myRole !== SPACE_ROLES.ADMIN}
                     classes="mb-4 w-full mt-4"
-                    noDirtyCheck={true}
+                    noDirtyCheck={myRole !== SPACE_ROLES.ADMIN}
                     isSubmitting={isSubmitting}
                   />
                 </div>

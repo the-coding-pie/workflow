@@ -6,6 +6,7 @@ interface Props {
   text: string;
   isSubmitting: boolean;
   classes?: string;
+  disabled?: boolean;
   noDirtyCheck?: boolean;
 }
 
@@ -13,13 +14,14 @@ const SubmitBtn = ({
   text,
   isSubmitting,
   classes,
+  disabled = false,
   noDirtyCheck = false,
 }: Props) => {
   const { isValid, dirty } = useFormikContext();
 
   return isSubmitting === true ? (
     <button
-      className="btn-primary w-full disabled:opacity-100 cursor-default flex items-center justify-center"
+      className="btn-primary w-full disabled:opacity-100 cursor-default flex items-center justify-center mb-4"
       disabled
     >
       <Loader size={21} />
@@ -28,7 +30,7 @@ const SubmitBtn = ({
     <button
       type="submit"
       className={`btn-primary w-full disabled:opacity-40 disabled:cursor-not-allowed ${classes}`}
-      disabled={!isValid}
+      disabled={!isValid || disabled}
     >
       {text}
     </button>
@@ -36,7 +38,7 @@ const SubmitBtn = ({
     <button
       type="submit"
       className={`btn-primary w-full disabled:opacity-40 disabled:cursor-not-allowed ${classes}`}
-      disabled={!isValid || !dirty}
+      disabled={!isValid || !dirty || disabled}
     >
       {text}
     </button>

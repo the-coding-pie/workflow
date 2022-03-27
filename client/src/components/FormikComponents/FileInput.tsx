@@ -6,6 +6,7 @@ interface Props {
   label: string;
   id: string;
   name: string;
+  disabled?: boolean;
   autoFocus?: boolean;
   optional?: boolean;
   inline?: boolean;
@@ -17,6 +18,7 @@ const FileInput = ({
   id,
   name,
   classes,
+  disabled = false,
   autoFocus = false,
   optional = false,
   inline = false,
@@ -57,6 +59,7 @@ const FileInput = ({
 
         <div className="flex items-center">
           <input
+            disabled={disabled}
             autoFocus={autoFocus}
             className={`${
               meta.touched && meta.error

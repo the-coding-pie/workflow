@@ -6,6 +6,7 @@ interface Props {
   label: string;
   id: string;
   name: string;
+  disabled?: boolean;
   optional?: boolean;
   inline?: boolean;
   classes?: string;
@@ -16,6 +17,7 @@ const TextArea = ({
   id,
   name,
   classes,
+  disabled = false,
   optional = false,
   inline = false,
   ...props
@@ -34,11 +36,15 @@ const TextArea = ({
           className={`font-medium ${inline ? "mr-4" : "mb-2"}`}
           htmlFor={id}
         >
-          {label} {optional && <span className="optional text-slate-400">(Optional)</span>}
+          {label}{" "}
+          {optional && (
+            <span className="optional text-slate-400">(Optional)</span>
+          )}
         </label>
         <textarea
           {...field}
           {...props}
+          disabled={disabled}
           className={`resize-none ${
             meta.touched && meta.error
               ? "border-red-400 "
