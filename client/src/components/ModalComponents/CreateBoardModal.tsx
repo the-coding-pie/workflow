@@ -143,8 +143,6 @@ const CreateBoardModal = ({ spaceId }: Props) => {
 
         dispatch(hideModal());
 
-        queryClient.invalidateQueries(["getRecentBoards"]);
-
         // redirect them to the created board
         navigate(`/b/${data._id}`);
       })

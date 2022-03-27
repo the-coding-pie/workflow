@@ -26,11 +26,7 @@ const RecentBoards = () => {
     error,
   } = useQuery<BoardObj[] | undefined, any, BoardObj[], string[]>(
     ["getRecentBoards"],
-    getRecentBoards,
-    {
-      cacheTime: 5000,
-      staleTime: 5000,
-    }
+    getRecentBoards
   );
 
   if (isLoading) {

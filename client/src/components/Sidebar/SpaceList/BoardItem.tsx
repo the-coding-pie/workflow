@@ -388,7 +388,7 @@ const BoardItem = ({ board, setShowPlusIcon, setShowBoardOptions }: Props) => {
                   textColor="#f87171"
                   onClick={() => {
                     setShowOptions(false);
-                    
+
                     dispatch(
                       showModal({
                         modalType: CONFIRM_DELETE_BOARD_MODAL,

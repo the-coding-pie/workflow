@@ -2,7 +2,7 @@ import { AxiosError } from "axios";
 import React, { useCallback } from "react";
 import { useQueryClient } from "react-query";
 import { useDispatch } from "react-redux";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import axiosInstance from "../../axiosInstance";
 import { hideModal } from "../../redux/features/modalSlice";
 import { addToast } from "../../redux/features/toastSlice";
@@ -20,6 +20,8 @@ const DeleteBoardConfirmationModal = ({ boardId, spaceId }: Props) => {
 
   const navigate = useNavigate();
 
+  const { pathname } = useLocation();
+
   const deleteBoard = useCallback((boardId) => {
     axiosInstance
       .delete(`/boards/${boardId}`)
@@ -36,7 +38,9 @@ const DeleteBoardConfirmationModal = ({ boardId, spaceId }: Props) => {
         queryClient.invalidateQueries(["getSpaceBoards", spaceId]);
 
         // redirect them to space boards page
-        navigate(`/s/${spaceId}/boards`, { replace: true });
+        if (pathname === `/b/${boardId}`) {
+          navigate(`/s/${spaceId}/boards`, { replace: true });
+        }
       })
       .catch((error: AxiosError) => {
         dispatch(hideModal());

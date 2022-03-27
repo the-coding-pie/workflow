@@ -40,6 +40,8 @@ const BoardDetail = () => {
     if (state && state?.showSettings) {
       setShowMenu(true);
     }
+
+    queryClient.invalidateQueries(["getRecentBoards"]);
   }, []);
 
   const dispatch = useDispatch();
