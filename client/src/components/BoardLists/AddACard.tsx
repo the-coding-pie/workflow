@@ -41,7 +41,7 @@ const AddACard = ({
 
   const ref = useClose(() => {
     if (name !== "") {
-      return createCard(name, prevPos);
+      return createCard(name, prevPos, listId);
     } else {
       return handleClose();
     }
@@ -68,7 +68,7 @@ const AddACard = ({
           e.preventDefault();
 
           if (name !== "") {
-            createCard(name, prevPos);
+            createCard(name, prevPos, listId);
           }
         }
       }
@@ -87,105 +87,108 @@ const AddACard = ({
     e.preventDefault();
 
     if (name !== "") {
-      createCard(name, prevPos);
+      createCard(name, prevPos, listId);
     } else {
       inputRef && inputRef.current && inputRef.current.focus();
     }
   };
 
-  const createCard = useCallback((name: string, prevPos: string | null) => {
-    const lexorank = new Lexorank();
+  const createCard = useCallback(
+    (name: string, prevPos: string | null, listId: string) => {
+      const lexorank = new Lexorank();
 
-    const [newPos, ok] = prevPos ? lexorank.insert(prevPos, "") : ["a", true];
+      const [newPos, ok] = prevPos ? lexorank.insert(prevPos, "") : ["a", true];
 
-    // create card
-    axiosInstance
-      .post(
-        `/cards`,
-        {
-          listId,
-          name: name,
-          pos: newPos,
-        },
-        {
-          headers: {
-            ContentType: "application/json",
+      // create card
+      axiosInstance
+        .post(
+          `/cards`,
+          {
+            listId,
+            name: name,
+            pos: newPos,
           },
-        }
-      )
-      .then((response) => {
-        setName("");
-        inputRef && inputRef.current && inputRef.current.focus();
-
-        const { data } = response.data;
-
-        queryClient.setQueryData(queryKey, (oldData: any) => {
-          return {
-            ...oldData,
-            cards: [
-              ...oldData.cards,
-              {
-                _id: data._id,
-                name: data.name,
-                pos: data.pos,
-                listId: data.listId,
-              },
-            ],
-          };
-        });
-
-        if (data.refetch) {
-          queryClient.invalidateQueries(["getLists", boardId]);
-        }
-      })
-      .catch((error: AxiosError) => {
-        setIsOpen(false);
-
-        if (error.response) {
-          const response = error.response;
-          const { message } = response.data;
-
-          switch (response.status) {
-            case 403:
-              dispatch(addToast({ kind: ERROR, msg: message }));
-
-              queryClient.invalidateQueries(["getBoard", boardId]);
-              queryClient.invalidateQueries(["getLists", boardId]);
-              queryClient.invalidateQueries(["getSpaces"]);
-              queryClient.invalidateQueries(["getFavorites"]);
-              break;
-            case 404:
-              dispatch(addToast({ kind: ERROR, msg: message }));
-
-              queryClient.invalidateQueries(["getBoard", boardId]);
-              queryClient.invalidateQueries(["getLists", boardId]);
-              queryClient.invalidateQueries(["getSpaces"]);
-              queryClient.invalidateQueries(["getFavorites"]);
-              queryClient.invalidateQueries(["getRecentBoards"]);
-              queryClient.invalidateQueries(["getAllMyCards"]);
-              queryClient.invalidateQueries(["getSpaceBoards", spaceId]);
-              queryClient.invalidateQueries(["getSpaceSettings", spaceId]);
-              queryClient.invalidateQueries(["getSpaceMembers", spaceId]);
-              break;
-            case 400:
-            case 500:
-              dispatch(addToast({ kind: ERROR, msg: message }));
-              break;
-            default:
-              dispatch(
-                addToast({ kind: ERROR, msg: "Oops, something went wrong" })
-              );
-              break;
+          {
+            headers: {
+              ContentType: "application/json",
+            },
           }
-        } else if (error.request) {
-          dispatch(
-            addToast({ kind: ERROR, msg: "Oops, something went wrong" })
-          );
-        } else {
-          dispatch(addToast({ kind: ERROR, msg: `Error: ${error.message}` }));
-        }
-      });
-  }, []);
+        )
+        .then((response) => {
+          setName("");
+          inputRef && inputRef.current && inputRef.current.focus();
+
+          const { data } = response.data;
+
+          queryClient.setQueryData(queryKey, (oldData: any) => {
+            return {
+              ...oldData,
+              cards: [
+                ...oldData.cards,
+                {
+                  _id: data._id,
+                  name: data.name,
+                  pos: data.pos,
+                  listId: data.listId,
+                },
+              ],
+            };
+          });
+
+          if (data.refetch) {
+            queryClient.invalidateQueries(["getLists", boardId]);
+          }
+        })
+        .catch((error: AxiosError) => {
+          setIsOpen(false);
+
+          if (error.response) {
+            const response = error.response;
+            const { message } = response.data;
+
+            switch (response.status) {
+              case 403:
+                dispatch(addToast({ kind: ERROR, msg: message }));
+
+                queryClient.invalidateQueries(["getBoard", boardId]);
+                queryClient.invalidateQueries(["getLists", boardId]);
+                queryClient.invalidateQueries(["getSpaces"]);
+                queryClient.invalidateQueries(["getFavorites"]);
+                break;
+              case 404:
+                dispatch(addToast({ kind: ERROR, msg: message }));
+
+                queryClient.invalidateQueries(["getBoard", boardId]);
+                queryClient.invalidateQueries(["getLists", boardId]);
+                queryClient.invalidateQueries(["getSpaces"]);
+                queryClient.invalidateQueries(["getFavorites"]);
+                queryClient.invalidateQueries(["getRecentBoards"]);
+                queryClient.invalidateQueries(["getAllMyCards"]);
+                queryClient.invalidateQueries(["getSpaceBoards", spaceId]);
+                queryClient.invalidateQueries(["getSpaceSettings", spaceId]);
+                queryClient.invalidateQueries(["getSpaceMembers", spaceId]);
+                break;
+              case 400:
+              case 500:
+                dispatch(addToast({ kind: ERROR, msg: message }));
+                break;
+              default:
+                dispatch(
+                  addToast({ kind: ERROR, msg: "Oops, something went wrong" })
+                );
+                break;
+            }
+          } else if (error.request) {
+            dispatch(
+              addToast({ kind: ERROR, msg: "Oops, something went wrong" })
+            );
+          } else {
+            dispatch(addToast({ kind: ERROR, msg: `Error: ${error.message}` }));
+          }
+        });
+    },
+    [boardId, spaceId]
+  );
 
   return (
     <form

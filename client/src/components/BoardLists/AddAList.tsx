@@ -51,106 +51,109 @@ const AddAList = ({
     e.preventDefault();
 
     if (name !== "") {
-      createList(name, prevPos);
+      createList(name, prevPos, boardId);
     } else {
       inputRef && inputRef.current && inputRef.current.focus();
     }
   };
 
-  const createList = useCallback((name: string, prevPos: string | null) => {
-    const lexorank = new Lexorank();
+  const createList = useCallback(
+    (name: string, prevPos: string | null, boardId: string) => {
+      const lexorank = new Lexorank();
 
-    const [newPos, ok] = prevPos ? lexorank.insert(prevPos, "") : ["a", true];
+      const [newPos, ok] = prevPos ? lexorank.insert(prevPos, "") : ["a", true];
 
-    // create list
-    axiosInstance
-      .post(
-        `/lists`,
-        {
-          boardId,
-          name: name,
-          pos: newPos,
-        },
-        {
-          headers: {
-            ContentType: "application/json",
+      // create list
+      axiosInstance
+        .post(
+          `/lists`,
+          {
+            boardId,
+            name: name,
+            pos: newPos,
           },
-        }
-      )
-      .then((response) => {
-        setName("");
-        setIsFirst(true);
-
-        const { data } = response.data;
-
-        queryClient.setQueryData(queryKey, (oldData: any) => {
-          return {
-            ...oldData,
-            lists: [
-              ...oldData.lists,
-              {
-                _id: data._id,
-                name: data.name,
-                pos: data.pos,
-              },
-            ],
-          };
-        });
-
-        if (data.refetch) {
-          queryClient.invalidateQueries(["getLists", boardId]);
-        }
-      })
-      .catch((error: AxiosError) => {
-        setIsOpen(false);
-
-        if (error.response) {
-          const response = error.response;
-          const { message } = response.data;
-
-          switch (response.status) {
-            case 403:
-              dispatch(addToast({ kind: ERROR, msg: message }));
-
-              queryClient.invalidateQueries(["getBoard", boardId]);
-              queryClient.invalidateQueries(["getLists", boardId]);
-              queryClient.invalidateQueries(["getSpaces"]);
-              queryClient.invalidateQueries(["getFavorites"]);
-              break;
-            case 404:
-              dispatch(addToast({ kind: ERROR, msg: message }));
-
-              queryClient.invalidateQueries(["getBoard", boardId]);
-              queryClient.invalidateQueries(["getLists", boardId]);
-              queryClient.invalidateQueries(["getSpaces"]);
-              queryClient.invalidateQueries(["getFavorites"]);
-
-              queryClient.invalidateQueries(["getRecentBoards"]);
-              queryClient.invalidateQueries(["getAllMyCards"]);
-
-              queryClient.invalidateQueries(["getSpaceBoards", spaceId]);
-              queryClient.invalidateQueries(["getSpaceSettings", spaceId]);
-              queryClient.invalidateQueries(["getSpaceMembers", spaceId]);
-              break;
-            case 400:
-            case 500:
-              dispatch(addToast({ kind: ERROR, msg: message }));
-              break;
-            default:
-              dispatch(
-                addToast({ kind: ERROR, msg: "Oops, something went wrong" })
-              );
-              break;
+          {
+            headers: {
+              ContentType: "application/json",
+            },
           }
-        } else if (error.request) {
-          dispatch(
-            addToast({ kind: ERROR, msg: "Oops, something went wrong" })
-          );
-        } else {
-          dispatch(addToast({ kind: ERROR, msg: `Error: ${error.message}` }));
-        }
-      });
-  }, []);
+        )
+        .then((response) => {
+          setName("");
+          setIsFirst(true);
+
+          const { data } = response.data;
+
+          queryClient.setQueryData(queryKey, (oldData: any) => {
+            return {
+              ...oldData,
+              lists: [
+                ...oldData.lists,
+                {
+                  _id: data._id,
+                  name: data.name,
+                  pos: data.pos,
+                },
+              ],
+            };
+          });
+
+          if (data.refetch) {
+            queryClient.invalidateQueries(["getLists", boardId]);
+          }
+        })
+        .catch((error: AxiosError) => {
+          setIsOpen(false);
+
+          if (error.response) {
+            const response = error.response;
+            const { message } = response.data;
+
+            switch (response.status) {
+              case 403:
+                dispatch(addToast({ kind: ERROR, msg: message }));
+
+                queryClient.invalidateQueries(["getBoard", boardId]);
+                queryClient.invalidateQueries(["getLists", boardId]);
+                queryClient.invalidateQueries(["getSpaces"]);
+                queryClient.invalidateQueries(["getFavorites"]);
+                break;
+              case 404:
+                dispatch(addToast({ kind: ERROR, msg: message }));
+
+                queryClient.invalidateQueries(["getBoard", boardId]);
+                queryClient.invalidateQueries(["getLists", boardId]);
+                queryClient.invalidateQueries(["getSpaces"]);
+                queryClient.invalidateQueries(["getFavorites"]);
+
+                queryClient.invalidateQueries(["getRecentBoards"]);
+                queryClient.invalidateQueries(["getAllMyCards"]);
+
+                queryClient.invalidateQueries(["getSpaceBoards", spaceId]);
+                queryClient.invalidateQueries(["getSpaceSettings", spaceId]);
+                queryClient.invalidateQueries(["getSpaceMembers", spaceId]);
+                break;
+              case 400:
+              case 500:
+                dispatch(addToast({ kind: ERROR, msg: message }));
+                break;
+              default:
+                dispatch(
+                  addToast({ kind: ERROR, msg: "Oops, something went wrong" })
+                );
+                break;
+            }
+          } else if (error.request) {
+            dispatch(
+              addToast({ kind: ERROR, msg: "Oops, something went wrong" })
+            );
+          } else {
+            dispatch(addToast({ kind: ERROR, msg: `Error: ${error.message}` }));
+          }
+        });
+    },
+    [boardId, spaceId]
+  );
 
   return (
     <div className={`add-a-list ${dataLength === 0 ? "ml-5" : "ml-0"}`}>

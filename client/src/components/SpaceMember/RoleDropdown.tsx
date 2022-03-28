@@ -127,18 +127,21 @@ const RoleDropDown = ({
     []
   );
 
-  const handleChangeRole = useCallback((o: OptionWithSub) => {
-    // downgrading -> ADMIN is trying to change to NORMAL user
-    if (
-      member._id === user!._id &&
-      member.role === SPACE_ROLES.ADMIN &&
-      o.value === SPACE_ROLES.NORMAL
-    ) {
-      setShowConfirmScreen(true);
-    } else {
-      changeRole(o.value, member._id, spaceId);
-    }
-  }, []);
+  const handleChangeRole = useCallback(
+    (o: OptionWithSub) => {
+      // downgrading -> ADMIN is trying to change to NORMAL user
+      if (
+        member._id === user!._id &&
+        member.role === SPACE_ROLES.ADMIN &&
+        o.value === SPACE_ROLES.NORMAL
+      ) {
+        setShowConfirmScreen(true);
+      } else {
+        changeRole(o.value, member._id, spaceId);
+      }
+    },
+    [spaceId, member]
+  );
 
   return (
     <div className={`role-drop-down text-sm text-slate-600 ${classes}`}>

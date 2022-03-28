@@ -47,7 +47,7 @@ const InviteBtn = ({ boardId, spaceId }: Props) => {
 
   const ref = useClose(() => setShowDropdown(false));
 
-  const handleSubmit = useCallback(({ members, role }: MembersObj) => {
+  const handleSubmit = ({ members, role }: MembersObj) => {
     const value = {
       members: members.map((m) => m.value),
       role: role,
@@ -134,7 +134,7 @@ const InviteBtn = ({ boardId, spaceId }: Props) => {
           dispatch(addToast({ kind: ERROR, msg: `Error: ${error.message}` }));
         }
       });
-  }, []);
+  };
 
   const searchUsers = async (query: string) => {
     if (query) {
@@ -157,7 +157,7 @@ const InviteBtn = ({ boardId, spaceId }: Props) => {
     }
   };
 
-  const delayLoadUsers = useCallback(debounce(searchUsers, 300), []);
+  const delayLoadUsers = useCallback(debounce(searchUsers, 300), [boardId]);
 
   // return a promise which is the remote api call
   const loadUsers = (inputValue: string) => {

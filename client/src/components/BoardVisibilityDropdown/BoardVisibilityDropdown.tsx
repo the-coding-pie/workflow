@@ -54,7 +54,8 @@ const BoardVisibilityDropdown = ({
     (
       newVisibility:
         | typeof BOARD_VISIBILITY_TYPES.PRIVATE
-        | typeof BOARD_VISIBILITY_TYPES.PUBLIC
+        | typeof BOARD_VISIBILITY_TYPES.PUBLIC,
+      boardId: string
     ) => {
       axiosInstance
         .put(
@@ -137,7 +138,7 @@ const BoardVisibilityDropdown = ({
           }
         });
     },
-    []
+    [spaceId]
   );
 
   return (
@@ -174,7 +175,7 @@ const BoardVisibilityDropdown = ({
           <div className="options">
             {options.map((o) => (
               <button
-                onClick={() => handleVisibilityChange(o.value)}
+                onClick={() => handleVisibilityChange(o.value, boardId)}
                 disabled={o.value === currentValue}
                 className={`px-4 py-3
                         disabled:bg-slate-100 disabled:opacity-60 disabled:cursor-not-allowed

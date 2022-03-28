@@ -25,91 +25,94 @@ const LabelMenu = ({ spaceId, boardId, myRole }: Props) => {
   const dispatch = useDispatch();
   const queryClient = useQueryClient();
 
-  const deleteLabel = useCallback((boardId: string, labelId: string) => {
-    axiosInstance
-      .delete(`/boards/${boardId}/labels`, {
-        data: {
-          labelId,
-        },
-        headers: {
-          ContentType: "application/json",
-        },
-      })
-      .then((response) => {
-        queryClient.setQueryData(
-          ["getBoardLabels", boardId],
-          (oldData: any) => {
-            return oldData.filter((l: any) => l._id !== labelId);
-          }
-        );
-
-        queryClient.invalidateQueries(["getAllMyCards"]);
-
-        // update all card which depends on it
-        queryClient.invalidateQueries(["getLists", boardId]);
-        queryClient.invalidateQueries(["getAllCardLabels"]);
-      })
-      .catch((error: AxiosError) => {
-        if (error.response) {
-          const response = error.response;
-          const { message } = response.data;
-
-          switch (response.status) {
-            case 403:
-              dispatch(hideModal());
-              dispatch(addToast({ kind: ERROR, msg: message }));
-
-              queryClient.invalidateQueries(["getBoard", boardId]);
-              queryClient.invalidateQueries(["getBoardLabels", boardId]);
-              queryClient.invalidateQueries(["getSpaceInfo", spaceId]);
-              queryClient.invalidateQueries(["getSpaceBoards", spaceId]);
-              queryClient.invalidateQueries(["getSpaceSettings", spaceId]);
-              queryClient.invalidateQueries(["getSpaceMembers", spaceId]);
-
-              queryClient.invalidateQueries(["getSpaces"]);
-              queryClient.invalidateQueries(["getFavorites"]);
-              break;
-            case 404:
-              dispatch(hideModal());
-              dispatch(addToast({ kind: ERROR, msg: message }));
-
-              queryClient.invalidateQueries(["getBoard", boardId]);
-              queryClient.invalidateQueries(["getBoardLabels", boardId]);
-              queryClient.invalidateQueries(["getLists", boardId]);
-              queryClient.invalidateQueries(["getSpaces"]);
-              queryClient.invalidateQueries(["getFavorites"]);
-
-              queryClient.invalidateQueries(["getSpaceInfo", spaceId]);
-              queryClient.invalidateQueries(["getSpaceBoards", spaceId]);
-              queryClient.invalidateQueries(["getSpaceSettings", spaceId]);
-              queryClient.invalidateQueries(["getSpaceMembers", spaceId]);
-              break;
-            case 400:
-              queryClient.invalidateQueries(["getBoard", boardId]);
-              queryClient.invalidateQueries(["getBoardLabels", boardId]);
-
-              dispatch(addToast({ kind: ERROR, msg: message }));
-
-              dispatch(hideModal());
-              break;
-            case 500:
-              dispatch(addToast({ kind: ERROR, msg: message }));
-              break;
-            default:
-              dispatch(
-                addToast({ kind: ERROR, msg: "Oops, something went wrong" })
-              );
-              break;
-          }
-        } else if (error.request) {
-          dispatch(
-            addToast({ kind: ERROR, msg: "Oops, something went wrong" })
+  const deleteLabel = useCallback(
+    (boardId: string, labelId: string) => {
+      axiosInstance
+        .delete(`/boards/${boardId}/labels`, {
+          data: {
+            labelId,
+          },
+          headers: {
+            ContentType: "application/json",
+          },
+        })
+        .then((response) => {
+          queryClient.setQueryData(
+            ["getBoardLabels", boardId],
+            (oldData: any) => {
+              return oldData.filter((l: any) => l._id !== labelId);
+            }
           );
-        } else {
-          dispatch(addToast({ kind: ERROR, msg: `Error: ${error.message}` }));
-        }
-      });
-  }, []);
+
+          queryClient.invalidateQueries(["getAllMyCards"]);
+
+          // update all card which depends on it
+          queryClient.invalidateQueries(["getLists", boardId]);
+          queryClient.invalidateQueries(["getAllCardLabels"]);
+        })
+        .catch((error: AxiosError) => {
+          if (error.response) {
+            const response = error.response;
+            const { message } = response.data;
+
+            switch (response.status) {
+              case 403:
+                dispatch(hideModal());
+                dispatch(addToast({ kind: ERROR, msg: message }));
+
+                queryClient.invalidateQueries(["getBoard", boardId]);
+                queryClient.invalidateQueries(["getBoardLabels", boardId]);
+                queryClient.invalidateQueries(["getSpaceInfo", spaceId]);
+                queryClient.invalidateQueries(["getSpaceBoards", spaceId]);
+                queryClient.invalidateQueries(["getSpaceSettings", spaceId]);
+                queryClient.invalidateQueries(["getSpaceMembers", spaceId]);
+
+                queryClient.invalidateQueries(["getSpaces"]);
+                queryClient.invalidateQueries(["getFavorites"]);
+                break;
+              case 404:
+                dispatch(hideModal());
+                dispatch(addToast({ kind: ERROR, msg: message }));
+
+                queryClient.invalidateQueries(["getBoard", boardId]);
+                queryClient.invalidateQueries(["getBoardLabels", boardId]);
+                queryClient.invalidateQueries(["getLists", boardId]);
+                queryClient.invalidateQueries(["getSpaces"]);
+                queryClient.invalidateQueries(["getFavorites"]);
+
+                queryClient.invalidateQueries(["getSpaceInfo", spaceId]);
+                queryClient.invalidateQueries(["getSpaceBoards", spaceId]);
+                queryClient.invalidateQueries(["getSpaceSettings", spaceId]);
+                queryClient.invalidateQueries(["getSpaceMembers", spaceId]);
+                break;
+              case 400:
+                queryClient.invalidateQueries(["getBoard", boardId]);
+                queryClient.invalidateQueries(["getBoardLabels", boardId]);
+
+                dispatch(addToast({ kind: ERROR, msg: message }));
+
+                dispatch(hideModal());
+                break;
+              case 500:
+                dispatch(addToast({ kind: ERROR, msg: message }));
+                break;
+              default:
+                dispatch(
+                  addToast({ kind: ERROR, msg: "Oops, something went wrong" })
+                );
+                break;
+            }
+          } else if (error.request) {
+            dispatch(
+              addToast({ kind: ERROR, msg: "Oops, something went wrong" })
+            );
+          } else {
+            dispatch(addToast({ kind: ERROR, msg: `Error: ${error.message}` }));
+          }
+        });
+    },
+    [spaceId]
+  );
 
   const getBoardLabels = async ({ queryKey }: any) => {
     const response = await axiosInstance.get(`/boards/${queryKey[1]}/labels`);

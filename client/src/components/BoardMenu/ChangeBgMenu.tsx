@@ -37,81 +37,84 @@ const ChangeBgMenu = ({ spaceId, boardId }: Props) => {
 
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmit = useCallback((boardBg: BoardBGObj) => {
-    setIsSubmitting(true);
+  const handleSubmit = useCallback(
+    (boardBg: BoardBGObj) => {
+      setIsSubmitting(true);
 
-    axiosInstance
-      .put(
-        `/boards/${boardId}/background`,
-        {
-          ...boardBg,
-        },
-        {
-          headers: {
-            ContentType: "application/json",
+      axiosInstance
+        .put(
+          `/boards/${boardId}/background`,
+          {
+            ...boardBg,
           },
-        }
-      )
-      .then((response) => {
-        const { message } = response.data;
-
-        setIsSubmitting(false);
-
-        queryClient.invalidateQueries(["getRecentBoards"]);
-
-        queryClient.invalidateQueries(["getBoard", boardId]);
-        queryClient.invalidateQueries(["getSpaces"]);
-        queryClient.invalidateQueries(["getFavorites"]);
-      })
-      .catch((error: AxiosError) => {
-        setIsSubmitting(false);
-
-        if (error.response) {
-          const response = error.response;
+          {
+            headers: {
+              ContentType: "application/json",
+            },
+          }
+        )
+        .then((response) => {
           const { message } = response.data;
 
-          switch (response.status) {
-            case 403:
-              dispatch(addToast({ kind: ERROR, msg: message }));
+          setIsSubmitting(false);
 
-              queryClient.invalidateQueries(["getBoard", boardId]);
-              queryClient.invalidateQueries(["getSpaces"]);
-              queryClient.invalidateQueries(["getFavorites"]);
-              break;
-            case 404:
-              dispatch(addToast({ kind: ERROR, msg: message }));
+          queryClient.invalidateQueries(["getRecentBoards"]);
 
-              queryClient.invalidateQueries(["getBoard", boardId]);
-              queryClient.invalidateQueries(["getSpaces"]);
-              queryClient.invalidateQueries(["getFavorites"]);
+          queryClient.invalidateQueries(["getBoard", boardId]);
+          queryClient.invalidateQueries(["getSpaces"]);
+          queryClient.invalidateQueries(["getFavorites"]);
+        })
+        .catch((error: AxiosError) => {
+          setIsSubmitting(false);
 
-              queryClient.invalidateQueries(["getRecentBoards"]);
-              queryClient.invalidateQueries(["getAllMyCards"]);
+          if (error.response) {
+            const response = error.response;
+            const { message } = response.data;
 
-              queryClient.invalidateQueries(["getSpaceInfo", spaceId]);
-              queryClient.invalidateQueries(["getSpaceBoards", spaceId]);
-              queryClient.invalidateQueries(["getSpaceMembers", spaceId]);
-              queryClient.invalidateQueries(["getSpaceSettings", spaceId]);
-              break;
-            case 400:
-            case 500:
-              dispatch(addToast({ kind: ERROR, msg: message }));
-              break;
-            default:
-              dispatch(
-                addToast({ kind: ERROR, msg: "Oops, something went wrong" })
-              );
-              break;
+            switch (response.status) {
+              case 403:
+                dispatch(addToast({ kind: ERROR, msg: message }));
+
+                queryClient.invalidateQueries(["getBoard", boardId]);
+                queryClient.invalidateQueries(["getSpaces"]);
+                queryClient.invalidateQueries(["getFavorites"]);
+                break;
+              case 404:
+                dispatch(addToast({ kind: ERROR, msg: message }));
+
+                queryClient.invalidateQueries(["getBoard", boardId]);
+                queryClient.invalidateQueries(["getSpaces"]);
+                queryClient.invalidateQueries(["getFavorites"]);
+
+                queryClient.invalidateQueries(["getRecentBoards"]);
+                queryClient.invalidateQueries(["getAllMyCards"]);
+
+                queryClient.invalidateQueries(["getSpaceInfo", spaceId]);
+                queryClient.invalidateQueries(["getSpaceBoards", spaceId]);
+                queryClient.invalidateQueries(["getSpaceMembers", spaceId]);
+                queryClient.invalidateQueries(["getSpaceSettings", spaceId]);
+                break;
+              case 400:
+              case 500:
+                dispatch(addToast({ kind: ERROR, msg: message }));
+                break;
+              default:
+                dispatch(
+                  addToast({ kind: ERROR, msg: "Oops, something went wrong" })
+                );
+                break;
+            }
+          } else if (error.request) {
+            dispatch(
+              addToast({ kind: ERROR, msg: "Oops, something went wrong" })
+            );
+          } else {
+            dispatch(addToast({ kind: ERROR, msg: `Error: ${error.message}` }));
           }
-        } else if (error.request) {
-          dispatch(
-            addToast({ kind: ERROR, msg: "Oops, something went wrong" })
-          );
-        } else {
-          dispatch(addToast({ kind: ERROR, msg: `Error: ${error.message}` }));
-        }
-      });
-  }, []);
+        });
+    },
+    [boardId, spaceId]
+  );
 
   return (
     <Formik

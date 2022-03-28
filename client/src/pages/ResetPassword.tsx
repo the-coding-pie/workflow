@@ -126,7 +126,7 @@ const ResetPassword = () => {
           dispatch(addToast({ kind: ERROR, msg: `Error: ${error.message}` }));
         }
       });
-  }, []);
+  }, [token]);
 
   return (
     <div className="auth-second w-screen h-screen overflow-y-auto flex items-center justify-center bg-blue-50">

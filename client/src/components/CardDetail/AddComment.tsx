@@ -109,7 +109,7 @@ const AddComment = ({ queryKey, cardId, boardId, spaceId }: Props) => {
           dispatch(addToast({ kind: ERROR, msg: `Error: ${error.message}` }));
         }
       });
-  }, []);
+  }, [boardId, spaceId]);
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();

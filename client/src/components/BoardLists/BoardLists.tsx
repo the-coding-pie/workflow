@@ -111,7 +111,7 @@ const BoardLists = ({ myRole, boardId, spaceId }: Props) => {
           }
         });
     },
-    []
+    [boardId, spaceId]
   );
 
   const dndCard = useCallback(
@@ -188,7 +188,7 @@ const BoardLists = ({ myRole, boardId, spaceId }: Props) => {
           }
         });
     },
-    []
+    [boardId, spaceId]
   );
 
   const getLists = async ({ queryKey }: any) => {

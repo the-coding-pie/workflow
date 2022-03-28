@@ -1,6 +1,6 @@
 import { AxiosError } from "axios";
 import debounce from "debounce-promise";
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useQueryClient } from "react-query";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
@@ -22,11 +22,16 @@ const BoardName = ({ boardId, spaceId, initialValue }: Props) => {
 
   const navigate = useNavigate();
 
-  const [name, setName] = useState(initialValue);
-  const [lastVal, setLastVal] = useState(initialValue);
+  const [name, setName] = useState("");
+  const [lastVal, setLastVal] = useState("");
 
-  const updateName = debounce(
-    (newName, boardId) =>
+  useEffect(() => {
+    setName(initialValue);
+    setLastVal(initialValue);
+  }, [boardId]);
+
+  const updateName = debounce((newName, boardId) => {
+    if (newName !== "") {
       axiosInstance
         .put(
           `/boards/${boardId}/name`,
@@ -156,9 +161,9 @@ const BoardName = ({ boardId, spaceId, initialValue }: Props) => {
           } else {
             dispatch(addToast({ kind: ERROR, msg: `Error: ${error.message}` }));
           }
-        }),
-    500
-  );
+        });
+    }
+  }, 500);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;

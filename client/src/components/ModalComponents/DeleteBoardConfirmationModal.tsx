@@ -94,7 +94,7 @@ const DeleteBoardConfirmationModal = ({ boardId, spaceId }: Props) => {
           dispatch(addToast({ kind: ERROR, msg: `Error: ${error.message}` }));
         }
       });
-  }, []);
+  }, [spaceId]);
 
   return (
     <div

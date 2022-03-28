@@ -42,91 +42,97 @@ const BoardRoleDropdown = ({
     setIsFirstScreen(true);
   }, []);
 
-  const changeRole = useCallback((newRole, boardId, memberId) => {
-    axiosInstance
-      .put(`boards/${boardId}/members/${memberId}`, {
-        newRole: newRole,
-      })
-      .then((response) => {
-        const { message } = response.data;
-
-        dispatch(
-          addToast({
-            kind: SUCCESS,
-            msg: message,
-          })
-        );
-
-        queryClient.invalidateQueries(["getBoard", boardId]);
-        queryClient.invalidateQueries(["getSpaces"]);
-        queryClient.invalidateQueries(["getFavorites"]);
-
-        resetOptions();
-      })
-      .catch((error: AxiosError) => {
-        if (error.response) {
-          const response = error.response;
+  const changeRole = useCallback(
+    (newRole, boardId, memberId) => {
+      axiosInstance
+        .put(`boards/${boardId}/members/${memberId}`, {
+          newRole: newRole,
+        })
+        .then((response) => {
           const { message } = response.data;
 
-          switch (response.status) {
-            case 403:
-              resetOptions();
-
-              dispatch(addToast({ kind: ERROR, msg: message }));
-
-              queryClient.invalidateQueries(["getBoard", boardId]);
-              queryClient.invalidateQueries(["getSpaces"]);
-              queryClient.invalidateQueries(["getFavorites"]);
-              break;
-            case 404:
-              resetOptions();
-
-              dispatch(addToast({ kind: ERROR, msg: message }));
-
-              queryClient.invalidateQueries(["getBoard", boardId]);
-              queryClient.invalidateQueries(["getSpaces"]);
-              queryClient.invalidateQueries(["getFavorites"]);
-
-              queryClient.invalidateQueries(["getRecentBoards"]);
-              queryClient.invalidateQueries(["getAllMyCards"]);
-
-              queryClient.invalidateQueries(["getSpaceInfo", spaceId]);
-              queryClient.invalidateQueries(["getSpaceBoards", spaceId]);
-              queryClient.invalidateQueries(["getSpaceMembers", spaceId]);
-              queryClient.invalidateQueries(["getSpaceSettings", spaceId]);
-              break;
-            case 400:
-            case 500:
-              dispatch(addToast({ kind: ERROR, msg: message }));
-              break;
-            default:
-              dispatch(
-                addToast({ kind: ERROR, msg: "Oops, something went wrong" })
-              );
-              break;
-          }
-        } else if (error.request) {
           dispatch(
-            addToast({ kind: ERROR, msg: "Oops, something went wrong" })
+            addToast({
+              kind: SUCCESS,
+              msg: message,
+            })
           );
-        } else {
-          dispatch(addToast({ kind: ERROR, msg: `Error: ${error.message}` }));
-        }
-      });
-  }, []);
 
-  const handleChangeRole = useCallback((o: OptionWithSub) => {
-    // downgrading -> you ADMIN is trying to change to NORMAL/OBSERVER user
-    if (
-      member._id === user!._id &&
-      member.role === BOARD_ROLES.ADMIN &&
-      (o.value === BOARD_ROLES.NORMAL || o.value === BOARD_ROLES.OBSERVER)
-    ) {
-      setShowConfirmScreen(true);
-    } else {
-      changeRole(o.value, boardId, member._id);
-    }
-  }, []);
+          queryClient.invalidateQueries(["getBoard", boardId]);
+          queryClient.invalidateQueries(["getSpaces"]);
+          queryClient.invalidateQueries(["getFavorites"]);
+
+          resetOptions();
+        })
+        .catch((error: AxiosError) => {
+          if (error.response) {
+            const response = error.response;
+            const { message } = response.data;
+
+            switch (response.status) {
+              case 403:
+                resetOptions();
+
+                dispatch(addToast({ kind: ERROR, msg: message }));
+
+                queryClient.invalidateQueries(["getBoard", boardId]);
+                queryClient.invalidateQueries(["getSpaces"]);
+                queryClient.invalidateQueries(["getFavorites"]);
+                break;
+              case 404:
+                resetOptions();
+
+                dispatch(addToast({ kind: ERROR, msg: message }));
+
+                queryClient.invalidateQueries(["getBoard", boardId]);
+                queryClient.invalidateQueries(["getSpaces"]);
+                queryClient.invalidateQueries(["getFavorites"]);
+
+                queryClient.invalidateQueries(["getRecentBoards"]);
+                queryClient.invalidateQueries(["getAllMyCards"]);
+
+                queryClient.invalidateQueries(["getSpaceInfo", spaceId]);
+                queryClient.invalidateQueries(["getSpaceBoards", spaceId]);
+                queryClient.invalidateQueries(["getSpaceMembers", spaceId]);
+                queryClient.invalidateQueries(["getSpaceSettings", spaceId]);
+                break;
+              case 400:
+              case 500:
+                dispatch(addToast({ kind: ERROR, msg: message }));
+                break;
+              default:
+                dispatch(
+                  addToast({ kind: ERROR, msg: "Oops, something went wrong" })
+                );
+                break;
+            }
+          } else if (error.request) {
+            dispatch(
+              addToast({ kind: ERROR, msg: "Oops, something went wrong" })
+            );
+          } else {
+            dispatch(addToast({ kind: ERROR, msg: `Error: ${error.message}` }));
+          }
+        });
+    },
+    [boardId, spaceId]
+  );
+
+  const handleChangeRole = useCallback(
+    (o: OptionWithSub) => {
+      // downgrading -> you ADMIN is trying to change to NORMAL/OBSERVER user
+      if (
+        member._id === user!._id &&
+        member.role === BOARD_ROLES.ADMIN &&
+        (o.value === BOARD_ROLES.NORMAL || o.value === BOARD_ROLES.OBSERVER)
+      ) {
+        setShowConfirmScreen(true);
+      } else {
+        changeRole(o.value, boardId, member._id);
+      }
+    },
+    [boardId, member, user]
+  );
 
   return (
     <div className="board-member-role-dropdown z-50">

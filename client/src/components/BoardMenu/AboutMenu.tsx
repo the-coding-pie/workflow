@@ -37,84 +37,87 @@ const AboutMenu = ({ description, spaceId, boardId, myRole }: Props) => {
     description: Yup.string(),
   });
 
-  const handleSubmit = useCallback(({ description }: DescriptionObj) => {
-    setIsSubmitting(true);
+  const handleSubmit = useCallback(
+    ({ description }: DescriptionObj) => {
+      setIsSubmitting(true);
 
-    axiosInstance
-      .put(
-        `/boards/${boardId}/description`,
-        {
-          description,
-        },
-        {
-          headers: {
-            ContentType: "application/json",
+      axiosInstance
+        .put(
+          `/boards/${boardId}/description`,
+          {
+            description,
           },
-        }
-      )
-      .then((response) => {
-        const { message } = response.data;
-
-        dispatch(
-          addToast({
-            kind: SUCCESS,
-            msg: message,
-          })
-        );
-
-        setIsSubmitting(false);
-
-        queryClient.invalidateQueries(["getBoard", boardId]);
-      })
-      .catch((error: AxiosError) => {
-        setIsSubmitting(false);
-
-        if (error.response) {
-          const response = error.response;
+          {
+            headers: {
+              ContentType: "application/json",
+            },
+          }
+        )
+        .then((response) => {
           const { message } = response.data;
 
-          switch (response.status) {
-            case 403:
-              dispatch(addToast({ kind: ERROR, msg: message }));
-
-              queryClient.invalidateQueries(["getBoard", boardId]);
-              queryClient.invalidateQueries(["getSpaces"]);
-              queryClient.invalidateQueries(["getFavorites"]);
-              break;
-            case 404:
-              dispatch(addToast({ kind: ERROR, msg: message }));
-
-              queryClient.invalidateQueries(["getBoard", boardId]);
-              queryClient.invalidateQueries(["getSpaces"]);
-              queryClient.invalidateQueries(["getFavorites"]);
-
-              queryClient.invalidateQueries(["getRecentBoards"]);
-              queryClient.invalidateQueries(["getAllMyCards"]);
-
-              queryClient.invalidateQueries(["getSpaceInfo", spaceId]);
-              queryClient.invalidateQueries(["getSpaceBoards", spaceId]);
-              queryClient.invalidateQueries(["getSpaceMembers", spaceId]);
-              queryClient.invalidateQueries(["getSpaceSettings", spaceId]);
-              break;
-            case 400:
-            case 500:
-              dispatch(addToast({ kind: ERROR, msg: message }));
-              break;
-            default:
-              dispatch(
-                addToast({ kind: ERROR, msg: "Oops, something went wrong" })
-              );
-              break;
-          }
-        } else if (error.request) {
           dispatch(
-            addToast({ kind: ERROR, msg: "Oops, something went wrong" })
+            addToast({
+              kind: SUCCESS,
+              msg: message,
+            })
           );
-        } else {
-          dispatch(addToast({ kind: ERROR, msg: `Error: ${error.message}` }));
-        }
-      });
-  }, []);
+
+          setIsSubmitting(false);
+
+          queryClient.invalidateQueries(["getBoard", boardId]);
+        })
+        .catch((error: AxiosError) => {
+          setIsSubmitting(false);
+
+          if (error.response) {
+            const response = error.response;
+            const { message } = response.data;
+
+            switch (response.status) {
+              case 403:
+                dispatch(addToast({ kind: ERROR, msg: message }));
+
+                queryClient.invalidateQueries(["getBoard", boardId]);
+                queryClient.invalidateQueries(["getSpaces"]);
+                queryClient.invalidateQueries(["getFavorites"]);
+                break;
+              case 404:
+                dispatch(addToast({ kind: ERROR, msg: message }));
+
+                queryClient.invalidateQueries(["getBoard", boardId]);
+                queryClient.invalidateQueries(["getSpaces"]);
+                queryClient.invalidateQueries(["getFavorites"]);
+
+                queryClient.invalidateQueries(["getRecentBoards"]);
+                queryClient.invalidateQueries(["getAllMyCards"]);
+
+                queryClient.invalidateQueries(["getSpaceInfo", spaceId]);
+                queryClient.invalidateQueries(["getSpaceBoards", spaceId]);
+                queryClient.invalidateQueries(["getSpaceMembers", spaceId]);
+                queryClient.invalidateQueries(["getSpaceSettings", spaceId]);
+                break;
+              case 400:
+              case 500:
+                dispatch(addToast({ kind: ERROR, msg: message }));
+                break;
+              default:
+                dispatch(
+                  addToast({ kind: ERROR, msg: "Oops, something went wrong" })
+                );
+                break;
+            }
+          } else if (error.request) {
+            dispatch(
+              addToast({ kind: ERROR, msg: "Oops, something went wrong" })
+            );
+          } else {
+            dispatch(addToast({ kind: ERROR, msg: `Error: ${error.message}` }));
+          }
+        });
+    },
+    [boardId, spaceId]
+  );
 
   const [isSubmitting, setIsSubmitting] = useState(false);
 

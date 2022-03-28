@@ -97,94 +97,97 @@ const CreateBoardModal = ({ spaceId }: Props) => {
     ),
   });
 
-  const handleSubmit = useCallback((board: BoardObj) => {
-    setIsSubmitting(true);
+  const handleSubmit = useCallback(
+    (board: BoardObj) => {
+      setIsSubmitting(true);
 
-    axiosInstance
-      .post(`/boards`, board, {
-        headers: {
-          ContentType: "application/json",
-        },
-      })
-      .then((response) => {
-        const { data } = response.data;
+      axiosInstance
+        .post(`/boards`, board, {
+          headers: {
+            ContentType: "application/json",
+          },
+        })
+        .then((response) => {
+          const { data } = response.data;
 
-        queryClient.invalidateQueries(["getSpaceBoards", data.spaceId]);
+          queryClient.invalidateQueries(["getSpaceBoards", data.spaceId]);
 
-        // update existing spaces list
-        queryClient.setQueryData([`getSpaces`], (oldData: any) => {
-          if (data.spaceId) {
-            return oldData.map((space: any) => {
-              if (space._id === data.spaceId) {
-                return {
-                  ...space,
-                  boards: [
-                    ...space.boards,
-                    {
-                      _id: data._id,
-                      isMember: data.isMember,
-                      name: data.name,
-                      visibility: data.visibility,
-                      isFavorite: data.isFavorite,
-                      color: data.color,
-                      role: data.role,
-                    },
-                  ],
-                };
-              }
-              return space;
-            });
+          // update existing spaces list
+          queryClient.setQueryData([`getSpaces`], (oldData: any) => {
+            if (data.spaceId) {
+              return oldData.map((space: any) => {
+                if (space._id === data.spaceId) {
+                  return {
+                    ...space,
+                    boards: [
+                      ...space.boards,
+                      {
+                        _id: data._id,
+                        isMember: data.isMember,
+                        name: data.name,
+                        visibility: data.visibility,
+                        isFavorite: data.isFavorite,
+                        color: data.color,
+                        role: data.role,
+                      },
+                    ],
+                  };
+                }
+                return space;
+              });
+            } else {
+              return oldData;
+            }
+          });
+
+          setIsSubmitting(false);
+
+          dispatch(hideModal());
+
+          // redirect them to the created board
+          navigate(`/b/${data._id}`);
+        })
+        .catch((error: AxiosError) => {
+          setIsSubmitting(false);
+
+          if (error.response) {
+            const response = error.response;
+            const { message } = response.data;
+
+            switch (response.status) {
+              case 404:
+              case 403:
+                dispatch(addToast({ kind: ERROR, msg: message }));
+                queryClient.invalidateQueries(["getSpaces"]);
+                queryClient.invalidateQueries(["getFavorites"]);
+                if (queryClient.getQueryData(["getSpaceInfo", spaceId])) {
+                  queryClient.invalidateQueries(["getSpaceInfo", spaceId]);
+                }
+                queryClient.invalidateQueries(["getRecentBoards"]);
+                queryClient.invalidateQueries(["getAllMyCards"]);
+                dispatch(hideModal());
+                break;
+              case 400:
+              case 500:
+                dispatch(addToast({ kind: ERROR, msg: message }));
+                break;
+              default:
+                dispatch(
+                  addToast({ kind: ERROR, msg: "Oops, something went wrong" })
+                );
+                break;
+            }
+          } else if (error.request) {
+            dispatch(
+              addToast({ kind: ERROR, msg: "Oops, something went wrong" })
+            );
           } else {
-            return oldData;
+            dispatch(addToast({ kind: ERROR, msg: `Error: ${error.message}` }));
           }
         });
-
-        setIsSubmitting(false);
-
-        dispatch(hideModal());
-
-        // redirect them to the created board
-        navigate(`/b/${data._id}`);
-      })
-      .catch((error: AxiosError) => {
-        setIsSubmitting(false);
-
-        if (error.response) {
-          const response = error.response;
-          const { message } = response.data;
-
-          switch (response.status) {
-            case 404:
-            case 403:
-              dispatch(addToast({ kind: ERROR, msg: message }));
-              queryClient.invalidateQueries(["getSpaces"]);
-              queryClient.invalidateQueries(["getFavorites"]);
-              if (queryClient.getQueryData(["getSpaceInfo", spaceId])) {
-                queryClient.invalidateQueries(["getSpaceInfo", spaceId]);
-              }
-              queryClient.invalidateQueries(["getRecentBoards"]);
-              queryClient.invalidateQueries(["getAllMyCards"]);
-              dispatch(hideModal());
-              break;
-            case 400:
-            case 500:
-              dispatch(addToast({ kind: ERROR, msg: message }));
-              break;
-            default:
-              dispatch(
-                addToast({ kind: ERROR, msg: "Oops, something went wrong" })
-              );
-              break;
-          }
-        } else if (error.request) {
-          dispatch(
-            addToast({ kind: ERROR, msg: "Oops, something went wrong" })
-          );
-        } else {
-          dispatch(addToast({ kind: ERROR, msg: `Error: ${error.message}` }));
-        }
-      });
-  }, []);
+    },
+    [spaceId]
+  );
 
   return (
     <Formik

@@ -49,93 +49,96 @@ const SpaceSettings = ({ spaceId, myRole }: Props) => {
 
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmit = useCallback((settings: SettingsObj) => {
-    const formData = new FormData();
+  const handleSubmit = useCallback(
+    (settings: SettingsObj) => {
+      const formData = new FormData();
 
-    if (Object.keys(settings).includes("name")) {
-      formData.append("name", settings.name);
-    }
+      if (Object.keys(settings).includes("name")) {
+        formData.append("name", settings.name);
+      }
 
-    if (Object.keys(settings).includes("description")) {
-      formData.append("description", settings.description);
-    }
+      if (Object.keys(settings).includes("description")) {
+        formData.append("description", settings.description);
+      }
 
-    if (Object.keys(settings).includes("icon")) {
-      formData.append("icon", settings.icon);
-    }
+      if (Object.keys(settings).includes("icon")) {
+        formData.append("icon", settings.icon);
+      }
 
-    setIsSubmitting(true);
+      setIsSubmitting(true);
 
-    axiosInstance
-      .put(`/spaces/${spaceId}/settings`, formData, {
-        headers: {
-          ContentType: "multipart/form-data",
-        },
-      })
-      .then((response) => {
-        const { message } = response.data;
-
-        dispatch(
-          addToast({
-            kind: SUCCESS,
-            msg: message,
-          })
-        );
-
-        queryClient.invalidateQueries(["getSpaceInfo", spaceId]);
-        queryClient.invalidateQueries(["getSpaces"]);
-        queryClient.invalidateQueries(["getFavorites"]);
-
-        setIsSubmitting(false);
-      })
-      .catch((error) => {
-        setIsSubmitting(false);
-
-        // req was made and server responded with error
-        if (error.response) {
-          const response = error.response;
+      axiosInstance
+        .put(`/spaces/${spaceId}/settings`, formData, {
+          headers: {
+            ContentType: "multipart/form-data",
+          },
+        })
+        .then((response) => {
           const { message } = response.data;
 
-          switch (response.status) {
-            case 404:
-              dispatch(addToast({ kind: ERROR, msg: message }));
-              queryClient.invalidateQueries(["getSpaces"]);
-              queryClient.invalidateQueries(["getFavorites"]);
-              // redirect them to home page
-              navigate("/", { replace: true });
-              break;
-            case 403:
-              dispatch(addToast({ kind: ERROR, msg: message }));
-              navigate(`/s/${spaceId}/`, { replace: true });
-              break;
-            case 400:
-            case 500:
-              dispatch(
-                addToast({
-                  kind: ERROR,
-                  msg: message,
-                })
-              );
-              break;
-            default:
-              // server error
-              dispatch(
-                addToast({
-                  kind: ERROR,
-                  msg: "Oops, something went wrong",
-                })
-              );
-              break;
-          }
-        } else if (error.request) {
           dispatch(
-            addToast({ kind: ERROR, msg: "Oops, something went wrong" })
+            addToast({
+              kind: SUCCESS,
+              msg: message,
+            })
           );
-        } else {
-          dispatch(addToast({ kind: ERROR, msg: `Error: ${error.message}` }));
-        }
-      });
-  }, []);
+
+          queryClient.invalidateQueries(["getSpaceInfo", spaceId]);
+          queryClient.invalidateQueries(["getSpaces"]);
+          queryClient.invalidateQueries(["getFavorites"]);
+
+          setIsSubmitting(false);
+        })
+        .catch((error) => {
+          setIsSubmitting(false);
+
+          // req was made and server responded with error
+          if (error.response) {
+            const response = error.response;
+            const { message } = response.data;
+
+            switch (response.status) {
+              case 404:
+                dispatch(addToast({ kind: ERROR, msg: message }));
+                queryClient.invalidateQueries(["getSpaces"]);
+                queryClient.invalidateQueries(["getFavorites"]);
+                // redirect them to home page
+                navigate("/", { replace: true });
+                break;
+              case 403:
+                dispatch(addToast({ kind: ERROR, msg: message }));
+                navigate(`/s/${spaceId}/`, { replace: true });
+                break;
+              case 400:
+              case 500:
+                dispatch(
+                  addToast({
+                    kind: ERROR,
+                    msg: message,
+                  })
+                );
+                break;
+              default:
+                // server error
+                dispatch(
+                  addToast({
+                    kind: ERROR,
+                    msg: "Oops, something went wrong",
+                  })
+                );
+                break;
+            }
+          } else if (error.request) {
+            dispatch(
+              addToast({ kind: ERROR, msg: "Oops, something went wrong" })
+            );
+          } else {
+            dispatch(addToast({ kind: ERROR, msg: `Error: ${error.message}` }));
+          }
+        });
+    },
+    [spaceId]
+  );
 
   // if you reached here, then you must be an ADMIN or a NORMAL
   const getSpaceSettings = async ({ queryKey }: any) => {

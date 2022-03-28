@@ -52,74 +52,77 @@ const InviteSpaceMemberModal = ({ spaceId }: Props) => {
     ),
   });
 
-  const handleSubmit = useCallback(({ members }: MembersObj) => {
-    const value = {
-      members: members.map((m) => m.value),
-    };
+  const handleSubmit = useCallback(
+    ({ members }: MembersObj) => {
+      const value = {
+        members: members.map((m) => m.value),
+      };
 
-    setIsSubmitting(true);
+      setIsSubmitting(true);
 
-    axiosInstance
-      .put(`/spaces/${spaceId}/members/bulk`, value, {
-        headers: {
-          ContentType: "application/json",
-        },
-      })
-      .then((response) => {
-        const { message } = response.data;
-
-        dispatch(
-          addToast({
-            kind: SUCCESS,
-            msg: message,
-          })
-        );
-
-        queryClient.invalidateQueries(["getSpaceMembers", spaceId]);
-
-        setIsSubmitting(false);
-
-        dispatch(hideModal());
-      })
-      .catch((error: AxiosError) => {
-        setIsSubmitting(false);
-
-        if (error.response) {
-          const response = error.response;
+      axiosInstance
+        .put(`/spaces/${spaceId}/members/bulk`, value, {
+          headers: {
+            ContentType: "application/json",
+          },
+        })
+        .then((response) => {
           const { message } = response.data;
 
-          switch (response.status) {
-            case 404:
-              dispatch(hideModal());
-              dispatch(addToast({ kind: ERROR, msg: message }));
-              queryClient.invalidateQueries(["getSpaces"]);
-              queryClient.invalidateQueries(["getFavorites"]);
-              // redirect them to home page
-              navigate("/", { replace: true });
-              break;
-            case 400:
-            case 403:
-              dispatch(hideModal());
-              dispatch(addToast({ kind: ERROR, msg: message }));
-              break;
-            case 500:
-              dispatch(addToast({ kind: ERROR, msg: message }));
-              break;
-            default:
-              dispatch(
-                addToast({ kind: ERROR, msg: "Oops, something went wrong" })
-              );
-              break;
-          }
-        } else if (error.request) {
           dispatch(
-            addToast({ kind: ERROR, msg: "Oops, something went wrong" })
+            addToast({
+              kind: SUCCESS,
+              msg: message,
+            })
           );
-        } else {
-          dispatch(addToast({ kind: ERROR, msg: `Error: ${error.message}` }));
-        }
-      });
-  }, []);
+
+          queryClient.invalidateQueries(["getSpaceMembers", spaceId]);
+
+          setIsSubmitting(false);
+
+          dispatch(hideModal());
+        })
+        .catch((error: AxiosError) => {
+          setIsSubmitting(false);
+
+          if (error.response) {
+            const response = error.response;
+            const { message } = response.data;
+
+            switch (response.status) {
+              case 404:
+                dispatch(hideModal());
+                dispatch(addToast({ kind: ERROR, msg: message }));
+                queryClient.invalidateQueries(["getSpaces"]);
+                queryClient.invalidateQueries(["getFavorites"]);
+                // redirect them to home page
+                navigate("/", { replace: true });
+                break;
+              case 400:
+              case 403:
+                dispatch(hideModal());
+                dispatch(addToast({ kind: ERROR, msg: message }));
+                break;
+              case 500:
+                dispatch(addToast({ kind: ERROR, msg: message }));
+                break;
+              default:
+                dispatch(
+                  addToast({ kind: ERROR, msg: "Oops, something went wrong" })
+                );
+                break;
+            }
+          } else if (error.request) {
+            dispatch(
+              addToast({ kind: ERROR, msg: "Oops, something went wrong" })
+            );
+          } else {
+            dispatch(addToast({ kind: ERROR, msg: `Error: ${error.message}` }));
+          }
+        });
+    },
+    [spaceId]
+  );
 
   const searchUsers = async (query: string) => {
     if (query) {
@@ -142,7 +145,7 @@ const InviteSpaceMemberModal = ({ spaceId }: Props) => {
     }
   };
 
-  const delayLoadUsers = useCallback(debounce(searchUsers, 300), []);
+  const delayLoadUsers = useCallback(debounce(searchUsers, 300), [spaceId]);
 
   // return a promise which is the remote api call
   const loadUsers = (inputValue: string) => {
