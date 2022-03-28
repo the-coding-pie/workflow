@@ -298,7 +298,7 @@ const BoardDetail = () => {
     {
       staleTime: 0,
       cacheTime: 0,
-      keepPreviousData: true
+      keepPreviousData: true,
     }
   );
 
