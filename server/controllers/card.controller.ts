@@ -29,7 +29,7 @@ export const getAllCards = async (req: any, res: Response) => {
   try {
     const allMyCards = await Card.find({ members: { $in: req.user._id } })
       .select(
-        "_id name listId pos coverImg color dueDate members labels comments description isComplete"
+        "_id name listId pos coverImg color dueDate members labels comments description isComplete updatedAt"
       )
       .populate({
         path: "listId",
@@ -47,6 +47,7 @@ export const getAllCards = async (req: any, res: Response) => {
         path: "labels",
         select: "_id name color pos",
       })
+      .sort({ updatedAt: -1 })
       .lean();
 
     res.send({

@@ -412,7 +412,9 @@ const BoardItem = ({ board, setShowPlusIcon, setShowBoardOptions }: Props) => {
               onClick={() => {
                 setShowOptions(false);
 
-                navigate(`/b/${board._id}`, { state: { showSettings: true } });
+                navigate(`/b/${board._id}`, {
+                  state: { showSettings: true },
+                });
               }}
             />
           </>

@@ -39,8 +39,12 @@ const BoardDetail = () => {
   useEffect(() => {
     if (state && state?.showSettings) {
       setShowMenu(true);
+    } else {
+      setShowMenu(false);
     }
+  }, [state, id]);
 
+  useEffect(() => {
     queryClient.invalidateQueries(["getRecentBoards"]);
   }, []);
 
@@ -290,7 +294,12 @@ const BoardDetail = () => {
     error,
   } = useQuery<Board | undefined, any, Board, string[]>(
     ["getBoard", id!],
-    getBoard
+    getBoard,
+    {
+      staleTime: 0,
+      cacheTime: 0,
+      keepPreviousData: true
+    }
   );
 
   if (isLoading) {

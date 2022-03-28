@@ -6,7 +6,7 @@ const Home = () => {
   return (
     <div className="home">
       <section
-        className="recent-board space-container px-8 pt-6 pb-4 flex flex-col"
+        className="recent-board space-container px-8 pt-6 pb-4 mb-12 flex flex-col"
         style={{
           minHeight: "250px",
         }}

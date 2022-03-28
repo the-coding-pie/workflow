@@ -265,7 +265,13 @@ const BoardLabelModal = ({ label, boardId, spaceId }: Props) => {
           width: "650px",
         }}
       >
-        <Input id="name" label="Name" name="name" type="text" />
+        <Input
+          id="name"
+          label="Name"
+          name="name"
+          type="text"
+          autoFocus={true}
+        />
 
         <ColorLabel
           label="Select a color"
