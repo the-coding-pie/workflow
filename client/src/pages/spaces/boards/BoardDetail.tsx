@@ -297,7 +297,6 @@ const BoardDetail = () => {
     getBoard,
     {
       staleTime: 0,
-      cacheTime: 0,
       keepPreviousData: true,
     }
   );
