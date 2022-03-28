@@ -2693,7 +2693,7 @@ export const deleteBoard = async (req: any, res: Response) => {
     await Favorite.deleteOne({ resourceId: board._id, type: BOARD });
 
     // remove from recentBoard
-    await RecentBoard.deleteMany({ boardId: board._id });
+    await RecentBoard.deleteMany({ boardId: board._id, userId: req.user._id, });
 
     // remove board from space
     const space = await Space.findOne({ _id: board.spaceId._id }).select(

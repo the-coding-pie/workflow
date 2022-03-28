@@ -139,7 +139,7 @@ const CardDummy = ({ card, provided, snapshot }: Props) => {
       </div>
     </li>
   ) : (
-    <li className="bg-white mb-2 rounded p-2 shadow hover:bg-slate-100 cursor-pointer font-normal text-gray-900 text-sm list-none">
+    <li className="bg-white rounded mb-2 shadow hover:bg-slate-100 cursor-pointer font-normal text-gray-900 text-sm list-none">
       {/* card cover */}
       {(card.coverImg || card.color) && (
         <div className="cover mb-2 w-full rounded-t">

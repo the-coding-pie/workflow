@@ -28,6 +28,7 @@ import Card from "../models/card.model";
 import List from "../models/list.model";
 import Comment from "../models/comment.model";
 import Label from "../models/label.model";
+import RecentBoard from "../models/recentBoards.model";
 
 // GET /spaces -> get space and its corresponding boards (for sidebar)
 export const getSpaces = async (req: any, res: Response) => {
@@ -2065,6 +2066,11 @@ export const deleteSpace = async (req: any, res: Response) => {
     await Favorite.deleteMany({
       resourceId: { $in: space.boards },
       type: BOARD,
+    });
+
+    await RecentBoard.deleteMany({
+      boardId: { $in: space.boards },
+      userId: req.user._id,
     });
 
     // delete icon image
