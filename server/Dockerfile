@@ -6,10 +6,10 @@ COPY package.json .
 
 RUN npm install -g typescript
 
-RUN npm install
+RUN yarn install
 
 COPY . .
 
 EXPOSE 8000
 
-CMD ["npm", "run", "dev"]
+CMD ["yarn", "dev"]
