@@ -13,7 +13,7 @@ import Space from "../models/space.model";
 import mongoose from "mongoose";
 import { BOARD_MEMBER_ROLES, SPACE_MEMBER_ROLES } from "../types/constants";
 import Board from "../models/board.model";
-import { BOARD_VISIBILITY } from "../dist/types/constants";
+import { BOARD_VISIBILITY } from "../types/constants";
 import { getProfile } from "../utils/helpers";
 
 // DELETE /users

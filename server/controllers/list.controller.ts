@@ -1,7 +1,7 @@
 import { Response } from "express";
 import mongoose from "mongoose";
 import validator from "validator";
-import { BOARD_VISIBILITY } from "../dist/types/constants";
+import { BOARD_VISIBILITY } from "../types/constants";
 import Board from "../models/board.model";
 import Card from "../models/card.model";
 import Comment from "../models/comment.model";

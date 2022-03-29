@@ -15,7 +15,7 @@ import EmailVerification from "../models/emailVerification.model.";
 import RefreshToken from "../models/refreshTokens.model";
 import { removeFile, saveFile } from "../utils/file";
 import path from "path";
-import { PUBLIC_DIR_NAME } from "../dist/config";
+import { PUBLIC_DIR_NAME } from "../config";
 
 // POST /accounts/forgot-password
 export const forgotPassword = async (req: Request, res: Response) => {

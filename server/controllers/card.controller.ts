@@ -6,7 +6,7 @@ import {
   PROFILE_PICS_DIR_NAME,
   STATIC_PATH,
 } from "../config";
-import { BOARD_VISIBILITY } from "../dist/types/constants";
+import { BOARD_VISIBILITY } from "../types/constants";
 import Board from "../models/board.model";
 import Card from "../models/card.model";
 import Comment from "../models/comment.model";
