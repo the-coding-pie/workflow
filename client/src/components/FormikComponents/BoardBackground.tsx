@@ -39,7 +39,10 @@ const BoardBackground = ({ label, fieldNames, classes }: Props) => {
 
   const { data, isLoading, isFetching, error } = useQuery(
     ["getBgImages"],
-    getBgImages
+    getBgImages,
+    {
+      staleTime: Infinity,
+    }
   );
 
   useEffect(() => {

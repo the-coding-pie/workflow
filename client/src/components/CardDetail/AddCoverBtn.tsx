@@ -56,7 +56,10 @@ const AddCoverBtn = ({
 
   const { data, isLoading, isFetching, error } = useQuery(
     ["getCardImages"],
-    getCardImages
+    getCardImages,
+    {
+      staleTime: Infinity,
+    }
   );
 
   useEffect(() => {
