@@ -4,6 +4,11 @@ A fullstack Project Management Software made using React JS (Typescript), Node J
 
 <img src="https://user-images.githubusercontent.com/63698375/161479812-a9f32870-66f1-484d-9ea7-20f6f66fe95e.png" alt="boardDetailPage" style="width:100%;"/>
 
+![card](https://user-images.githubusercontent.com/63698375/161484824-fbf0bb11-c603-4502-8494-cfe903883d9f.png)
+![homepage](https://user-images.githubusercontent.com/63698375/161484841-d32db796-bb20-465a-8a0a-4016e2e83abc.png)
+![inviteboard](https://user-images.githubusercontent.com/63698375/161484857-67920c56-d88a-4679-afa0-7ae23b64570d.png)
+
+
 ## Technologies Used:
 
  ### Frontend
