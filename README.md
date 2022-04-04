@@ -99,8 +99,8 @@ A technique called "Lexorank" is used for giving weights to cards as well as lis
 ``` bash
 cd workflow
 ```
-3. Now create two `.env` files, one in `/server` folder and another in `/client` folder.
-4. Now copy paste the content for `.env` in `/server` folder. Please **replace** the proper values by yours:
+3. Now create two `.env` files, one in `server/` folder and another in `client/` folder.
+4. Now copy paste the content for `.env` in `server/` folder. Please **replace** the proper values by yours:
 
 ```
 PORT=8000
@@ -118,7 +118,7 @@ GMAIL_PASSWORD=that_emails_password
 
 You can obtain google client id for google oauth by simply searching google and following the steps recommended. And for gmail(last two options), please use app specific passwords.
 
-5. Now copy paste the content for `.env` in `/client` folder. Please **replace** the proper values by yours:
+5. Now copy paste the content for `.env` in `client/` folder. Please **replace** the proper values by yours:
 
 ```
 VITE_UNSPLASH_CLIENT_ID=your_unsplash_client_id
