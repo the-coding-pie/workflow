@@ -116,7 +116,7 @@ GMAIL=any_email_address_for_sending_email_from
 GMAIL_PASSWORD=that_emails_password
 ```
 
-You can obtain google client id for google oauth by simply searching google and following the steps recommended. And for gmail(last two options), please use app specific passwords.
+You can obtain `GOOGLE_CLIENT_ID` for enabling google oauth by simply searching google and following the steps recommended. And for gmail(last option), please use app specific password.
 
 5. Now copy paste the content for `.env` in `client/` folder. Please **replace** the proper values by yours:
 
@@ -124,7 +124,7 @@ You can obtain google client id for google oauth by simply searching google and 
 VITE_UNSPLASH_CLIENT_ID=your_unsplash_client_id
 ```
 
-Please obtain a client id for using Unsplash API.
+Please obtain a `CLIENT_ID` for using Unsplash API from Unsplash.
 
 6. Make sure you have Docker properly setup. Now fire this command:
 
