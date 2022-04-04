@@ -21,7 +21,7 @@ A fullstack Project Management Software made using React JS (Typescript), Node J
 
  - Node JS + Express + Typescript
  - Mongo DB (with Mongoose)
- - JWT & Google Auth tokens for authentication
+ - JWT tokens & Google Auth for authentication
  - Node Mailer
  
  ## Features
