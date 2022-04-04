@@ -2,7 +2,7 @@
 
 A fullstack Project Management Software made using React JS (Typescript), Node JS + Express (Typescript), and Mongo DB.
 
-<img src="https://user-images.githubusercontent.com/63698375/161473461-14582240-ad87-4c2d-8395-3d44c3879739.png" alt="boardDetailPage" style="width:100%;"/>
+<img src="https://user-images.githubusercontent.com/63698375/161479812-a9f32870-66f1-484d-9ea7-20f6f66fe95e.png" alt="boardDetailPage" style="width:100%;"/>
 
 ## Technologies Used:
 
