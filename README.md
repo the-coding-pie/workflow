@@ -77,13 +77,19 @@ A technique called "Lexorank" is used for giving weights to cards as well as lis
 ![authflow_final](https://user-images.githubusercontent.com/63698375/161480269-13bbf11b-5379-477d-92ff-8854b16c5631.png)
 
 
- 
+ <br />
+ <br />
  
  ## How to setup locally on your computer
  
-  In order to run this project on your computer, you must have the following technologies installed on your computer:
+ ### Pre-requirements
+  In order to run this project on your computer, you must have the following things setup:
  
-  - Docker
+  - Docker (please install Docker and setup properly on the computer in which you are going to run this project on).
+  - Setup a database in <a href="https://www.mongodb.com/cloud/atlas/lp/try2?utm_source=google&utm_campaign=gs_apac_india_search_core_brand_atlas_desktop&utm_term=mongo%20db%20atlas&utm_medium=cpc_paid_search&utm_ad=e&utm_ad_campaign_id=12212624347&adgroup=115749713263" target="_blank">MongoDB Atlas</a> and obtain the `URI`.
+  - Obtain `GOOGLE_CLIENT_ID` for using Google OAuth. <a href="https://developers.google.com/identity/protocols/oauth2" target="_blank">(link)</a>.
+  - You need an Gmail account for sending verifying email while a user signs up. You need to enable and obtain `APP_SPECIFIC_PASSWORD` of that Gmail.
+  - Signup for Unsplash API and obtain the `CLIENT_ID`. <a href="https://unsplash.com/documentation#creating-a-developer-account" target="_blank">(link)</a>
   
  ### Steps
 
@@ -101,8 +107,8 @@ PORT=8000
 
 MONGO_URI=your_mongodb_atlas_uri
 
-REFRESH_TOKEN_SECRET=strong_random_characters
-ACCESS_TOKEN_SECRET=strong_random_characters
+REFRESH_TOKEN_SECRET=generate_strong_random_characters_and_put_it_here
+ACCESS_TOKEN_SECRET=generate_strong_random_characters_and_put_it_here
 
 GOOGLE_CLIENT_ID=your_google_client-id_for_google_oauth
 
