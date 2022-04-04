@@ -88,7 +88,7 @@ A technique called "Lexorank" is used for giving weights to cards as well as lis
   - Docker (please install Docker and setup properly on the computer in which you are going to run this project on).
   - Setup a database in <a href="https://www.mongodb.com/cloud/atlas/lp/try2?utm_source=google&utm_campaign=gs_apac_india_search_core_brand_atlas_desktop&utm_term=mongo%20db%20atlas&utm_medium=cpc_paid_search&utm_ad=e&utm_ad_campaign_id=12212624347&adgroup=115749713263" target="_blank">MongoDB Atlas</a> and obtain the `URI`.
   - Obtain `GOOGLE_CLIENT_ID` for using Google OAuth. <a href="https://developers.google.com/identity/protocols/oauth2" target="_blank">(link)</a>.
-  - You need an Gmail account for sending verifying email while a user signs up. You need to enable and obtain `APP_SPECIFIC_PASSWORD` of that Gmail.
+  - You need an Gmail account for sending verifying email while a user signs up. You need to enable and obtain `APP_SPECIFIC_PASSWORD` of that Gmail. <a href="https://support.google.com/accounts/answer/185833?hl=en" target="_blank">(link)</a>
   - Signup for Unsplash API and obtain the `CLIENT_ID`. <a href="https://unsplash.com/documentation#creating-a-developer-account" target="_blank">(link)</a>
   
  ### Steps
