@@ -77,6 +77,8 @@ A technique called "Lexorank" is used for giving weights to cards as well as lis
 ![authflow_final](https://user-images.githubusercontent.com/63698375/161480269-13bbf11b-5379-477d-92ff-8854b16c5631.png)
 
 
+ 
+ 
  ## How to setup locally on your computer
  
   In order to run this project on your computer, you must have the following technologies installed on your computer:
