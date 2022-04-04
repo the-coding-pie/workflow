@@ -1,4 +1,4 @@
-# workflow
+# Workflow
 
 A fullstack Project Management Software made using React JS (Typescript), Node JS + Express (Typescript), and Mongo DB.
 
@@ -72,6 +72,9 @@ Labels are used in board level. Each label of the board will be available to ass
 
 ### Ranking Lists & Cards
 A technique called "Lexorank" is used for giving weights to cards as well as lists, so that they will keep the order. Lexorank is ranking system that Jira Software uses which provides the ability to rank issues in Jira Software instances. But in this project, I used Lexorank without the bucket feature.
+
+### Auth Flow
+![authflow_final](https://user-images.githubusercontent.com/63698375/161480269-13bbf11b-5379-477d-92ff-8854b16c5631.png)
 
 
  ## How to setup locally on your computer
