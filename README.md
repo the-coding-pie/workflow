@@ -127,7 +127,7 @@ You can obtain `GOOGLE_CLIENT_ID` for enabling google oauth by simply searching 
 
 ```
 VITE_UNSPLASH_CLIENT_ID=your_unsplash_client_id
-VITE_GOOGLE_CLIENT_ID=your_google_oauth_client_id
+VITE_GOOGLE_CLIENT_ID=your_google_client-id_for_google_oauth(same_which_you_put_in_server_env_file)
 ```
 
 Please obtain a `CLIENT_ID` for using Unsplash API from Unsplash.
