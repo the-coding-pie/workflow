@@ -49,6 +49,7 @@ const Input = ({
         <input
           disabled={disabled}
           autoFocus={autoFocus}
+          autoComplete="false"
           className={`${
             meta.touched && meta.error
               ? "border-red-400 "

@@ -32,15 +32,48 @@ export const getRecentBoards = async (req: any, res: Response) => {
       .select("boardId lastVisited")
       .populate({
         path: "boardId",
-        select: "_id name spaceId color bgImg visibility createdAt",
+        select: "_id name spaceId color bgImg visibility createdAt members",
+        populate: {
+          path: "spaceId",
+          select: "_id name members",
+        },
       })
       .sort({ lastVisited: -1 })
-      .limit(5)
       .lean();
+
+    let boards = recentBoards.filter((b) => {
+      if (
+        b.boardId.members
+          .map((m: any) => m.memberId._id.toString())
+          .includes(req.user._id.toString())
+      ) {
+        return b;
+      } else {
+        // not a board member
+        // check with space role
+        const role = b.boardId.spaceId.members.find(
+          (m: any) => m.memberId.toString() === req.user._id.toString()
+        ).role;
+
+        // if NORMAL user in space, and board is private -> no access
+        // if NORMAL user in space, and board is public -> access
+        // if ADMIN, access
+        // if GUEST, no access
+        if (
+          role === SPACE_MEMBER_ROLES.ADMIN ||
+          (role === SPACE_MEMBER_ROLES.NORMAL &&
+            b.boardId.visibility === BOARD_VISIBILITY.PUBLIC)
+        ) {
+          return b;
+        }
+      }
+    });
+
+    boards = boards.slice(0, 5);
 
     const finalBoards = [
       ...(await Promise.all(
-        recentBoards.map(async (b: any) => {
+        boards.map(async (b: any) => {
           const favorite = await Favorite.findOne({
             resourceId: b.boardId._id,
             userId: req.user._id,
@@ -2693,7 +2726,7 @@ export const deleteBoard = async (req: any, res: Response) => {
     await Favorite.deleteOne({ resourceId: board._id, type: BOARD });
 
     // remove from recentBoard
-    await RecentBoard.deleteMany({ boardId: board._id, userId: req.user._id, });
+    await RecentBoard.deleteMany({ boardId: board._id, userId: req.user._id });
 
     // remove board from space
     const space = await Space.findOne({ _id: board.spaceId._id }).select(
